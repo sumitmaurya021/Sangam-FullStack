@@ -147,7 +147,7 @@ body{
   background:var(--white);
 
   display:flex;
-  align-items:center;
+  align-items:top;
   justify-content:center;
 
   position:relative;
@@ -474,7 +474,6 @@ body{
     width:100%;
     flex:1;
 
-    min-height:100vh;
     height:auto;
 
     padding:42px 22px;
@@ -519,7 +518,7 @@ body{
   .auth-panel-foot{
     position:static;
 
-    margin-top:32px;
+    margin-bottom:32px;
 
     text-align:center;
   }
