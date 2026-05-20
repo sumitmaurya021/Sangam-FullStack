@@ -1,25 +1,35 @@
-<h2>Change your password</h2>
+<%= stylesheet_link_tag 'users/passwords', media: 'all' %>
 
-<%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
-  <%= render "users/shared/error_messages", resource: resource %>
-  <%= f.hidden_field :reset_password_token %>
+<div class="auth-container">
+  <div class="auth-card password-card">
+    <div class="auth-header">
+      <h1 class="auth-logo">Sangam</h1>
+      <h2 class="auth-title">Change Your Password</h2>
+      <p class="auth-subtitle">Enter a new password for your account.</p>
+    </div>
 
-  <div class="field">
-    <p><%= f.label :password, "New password" %></p>
-    <% if @minimum_password_length %>
-      <p><em>(<%= @minimum_password_length %> characters minimum)</em></p>
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: 'auth-form' }) do |f| %>
+      <%= render "users/shared/error_messages", resource: resource %>
+      <%= f.hidden_field :reset_password_token %>
+
+      <div class="form-group">
+        <%= f.password_field :password, autofocus: true, autocomplete: "new-password", placeholder: "New password", class: 'form-input' %>
+        <% if @minimum_password_length %>
+          <small class="form-hint">(<%= @minimum_password_length %> characters minimum)</small>
+        <% end %>
+      </div>
+
+      <div class="form-group">
+        <%= f.password_field :password_confirmation, autocomplete: "new-password", placeholder: "Confirm new password", class: 'form-input' %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Change Password", class: 'btn btn-primary' %>
+      </div>
     <% end %>
-    <p><%= f.password_field :password, autofocus: true, autocomplete: "new-password" %></p>
-  </div>
 
-  <div class="field">
-    <p><%= f.label :password_confirmation, "Confirm new password" %></p>
-    <p><%= f.password_field :password_confirmation, autocomplete: "new-password" %></p>
+    <div class="auth-footer">
+      <%= link_to "Back to Login", new_session_path(resource_name), class: 'link-secondary' %>
+    </div>
   </div>
-
-  <div class="actions">
-    <%= f.submit "Change my password" %>
-  </div>
-<% end %>
-
-<%= render "users/shared/links" %>
+</div>

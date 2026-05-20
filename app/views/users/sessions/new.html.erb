@@ -1,26 +1,46 @@
-<h2>Log in</h2>
+<%= stylesheet_link_tag 'users/sessions', media: 'all' %>
 
-<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-  <div class="field">
-    <p><%= f.label :email %></p>
-    <p><%= f.email_field :email, autofocus: true, autocomplete: "email" %></p>
-  </div>
-
-  <div class="field">
-    <p><%= f.label :password %></p>
-    <p><%= f.password_field :password, autocomplete: "current-password" %></p>
-  </div>
-
-  <% if devise_mapping.rememberable? %>
-    <div class="field">
-      <p><%= f.check_box :remember_me %></p>
-      <p><%= f.label :remember_me %></p>
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1 class="auth-logo">Sangam</h1>
+      <p class="auth-subtitle">Connect with friends and the world around you</p>
     </div>
-  <% end %>
 
-  <div class="actions">
-    <%= f.submit "Log in" %>
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: 'auth-form' }) do |f| %>
+      <div class="form-group">
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "Email address", class: 'form-input' %>
+      </div>
+
+      <div class="form-group">
+        <%= f.password_field :password, autocomplete: "current-password", placeholder: "Password", class: 'form-input' %>
+      </div>
+
+      <% if devise_mapping.rememberable? %>
+        <div class="form-checkbox">
+          <%= f.check_box :remember_me, class: 'checkbox-input' %>
+          <%= f.label :remember_me, "Keep me logged in", class: 'checkbox-label' %>
+        </div>
+      <% end %>
+
+      <div class="form-actions">
+        <%= f.submit "Log In", class: 'btn btn-primary' %>
+      </div>
+    <% end %>
+
+    <div class="auth-divider">
+      <span>or</span>
+    </div>
+
+    <div class="auth-links">
+      <%= link_to "Forgot Password?", new_password_path(resource_name), class: 'link-secondary' %>
+    </div>
+
+    <div class="auth-footer">
+      <div class="signup-prompt">
+        <span>Don't have an account?</span>
+        <%= link_to "Sign Up", new_registration_path(resource_name), class: 'btn btn-success' %>
+      </div>
+    </div>
   </div>
-<% end %>
-
-<%= render "users/shared/links" %>
+</div>
