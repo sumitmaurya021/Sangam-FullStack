@@ -202,7 +202,7 @@
 .feed-layout {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 10px;
   display: grid;
   grid-template-columns: 280px 1fr 280px;
   gap: 2rem;
