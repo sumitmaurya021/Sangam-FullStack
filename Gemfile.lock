@@ -184,6 +184,8 @@ GEM
       addressable (~> 2.8)
       childprocess (~> 5.0)
       logger (~> 1.6)
+    letter_opener (1.10.0)
+      launchy (>= 2.2, < 4)
     lint_roller (1.1.0)
     logger (1.7.0)
     loofah (2.25.1)
@@ -441,6 +443,7 @@ DEPENDENCIES
   importmap-rails
   jbuilder
   kamal
+  letter_opener
   pg (~> 1.1)
   propshaft
   puma (>= 5.0)
