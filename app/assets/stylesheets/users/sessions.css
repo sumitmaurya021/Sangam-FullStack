@@ -518,7 +518,7 @@ body{
   .auth-panel-foot{
     position:static;
 
-    margin-bottom:32px;
+    margin-top:32px;
 
     text-align:center;
   }
