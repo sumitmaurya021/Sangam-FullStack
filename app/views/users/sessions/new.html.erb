@@ -1,46 +1,184 @@
+<!-- new.html.erb -->
+
 <%= stylesheet_link_tag 'users/sessions', media: 'all' %>
 
 <div class="auth-container">
-  <div class="auth-card">
-    <div class="auth-header">
-      <h1 class="auth-logo">Sangam</h1>
-      <p class="auth-subtitle">Connect with friends and the world around you</p>
+
+  <!-- LEFT IMAGE PANEL -->
+  <div class="auth-image-panel">
+
+    <div
+      class="auth-image-bg"
+      id="randomBg">
     </div>
 
-    <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: 'auth-form' }) do |f| %>
-      <div class="form-group">
-        <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "Email address", class: 'form-input' %>
+    <div class="auth-image-overlay"></div>
+
+    <div class="auth-image-content">
+      <p class="auth-image-quote" id="randomQuote"></p>
+      <p class="auth-image-attr" id="randomAttr"></p>
+    </div>
+
+  </div>
+
+  <!-- RIGHT FORM PANEL -->
+  <div class="auth-form-panel">
+
+    <div class="auth-form-inner">
+
+      <div class="auth-brand">
+        <span class="auth-brand-logo">Sangam</span>
+        <span class="auth-brand-tagline">
+          Connect with friends and the world
+        </span>
       </div>
 
-      <div class="form-group">
-        <%= f.password_field :password, autocomplete: "current-password", placeholder: "Password", class: 'form-input' %>
-      </div>
+      <h1 class="auth-heading">Welcome back</h1>
 
-      <% if devise_mapping.rememberable? %>
-        <div class="form-checkbox">
-          <%= f.check_box :remember_me, class: 'checkbox-input' %>
-          <%= f.label :remember_me, "Keep me logged in", class: 'checkbox-label' %>
+      <p class="auth-subheading">
+        Sign in to continue to your account
+      </p>
+
+      <%= form_for(resource,
+          as: resource_name,
+          url: session_path(resource_name),
+          html: { class: 'auth-form' }) do |f| %>
+
+        <div class="form-group">
+          <label class="form-label">Email address</label>
+
+          <%= f.email_field :email,
+              autofocus: true,
+              autocomplete: "email",
+              placeholder: "you@example.com",
+              class: 'form-input' %>
         </div>
+
+        <div class="form-group">
+          <label class="form-label">Password</label>
+
+          <%= f.password_field :password,
+              autocomplete: "current-password",
+              placeholder: "••••••••",
+              class: 'form-input' %>
+        </div>
+
+        <div class="auth-meta">
+
+          <% if devise_mapping.rememberable? %>
+            <div class="form-checkbox">
+
+              <%= f.check_box :remember_me,
+                  class: 'checkbox-input',
+                  id: 'remember_me' %>
+
+              <%= f.label :remember_me,
+                  "Keep me signed in",
+                  class: 'checkbox-label' %>
+
+            </div>
+          <% end %>
+
+          <%= link_to "Forgot password?",
+              new_password_path(resource_name),
+              class: 'link-muted' %>
+
+        </div>
+
+        <div class="form-actions">
+          <%= f.submit "Sign in",
+              class: 'btn btn-primary' %>
+        </div>
+
       <% end %>
 
-      <div class="form-actions">
-        <%= f.submit "Log In", class: 'btn btn-primary' %>
+      <div class="auth-signup">
+        <span class="auth-signup-text">
+          Don't have an account?
+        </span>
+
+        <%= link_to "Create account",
+            new_registration_path(resource_name),
+            class: 'btn btn-outline' %>
       </div>
-    <% end %>
 
-    <div class="auth-divider">
-      <span>or</span>
     </div>
 
-    <div class="auth-links">
-      <%= link_to "Forgot Password?", new_password_path(resource_name), class: 'link-secondary' %>
-    </div>
+    <p class="auth-panel-foot">
+      © <%= Time.current.year %> Sangam
+    </p>
 
-    <div class="auth-footer">
-      <div class="signup-prompt">
-        <span>Don't have an account?</span>
-        <%= link_to "Sign Up", new_registration_path(resource_name), class: 'btn btn-success' %>
-      </div>
-    </div>
   </div>
+
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+
+    const quotes = [
+      {
+        text: "The best time to connect with someone is now.",
+        attr: "— Unknown"
+      },
+      {
+        text: "Friendship is the only cement that will ever hold the world together.",
+        attr: "— Woodrow Wilson"
+      },
+      {
+        text: "In the middle of every difficulty lies opportunity.",
+        attr: "— Albert Einstein"
+      },
+      {
+        text: "A real friend is one who walks in when the rest of the world walks out.",
+        attr: "— Walter Winchell"
+      },
+      {
+        text: "Connection is why we're here. It gives purpose and meaning to our lives.",
+        attr: "— Brené Brown"
+      },
+      {
+        text: "The quality of your life is the quality of your relationships.",
+        attr: "— Tony Robbins"
+      },
+      {
+        text: "Alone we can do so little; together we can do so much.",
+        attr: "— Helen Keller"
+      },
+      {
+        text: "We are all different, which is great because we are all unique.",
+        attr: "— Catherine Pulsifer"
+      }
+    ];
+
+    const images = [
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1400&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=1400&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1511884642898-4c92249e20b6?q=80&w=1400&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?q=80&w=1400&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1521295121783-8a321d551ad2?q=80&w=1400&auto=format&fit=crop"
+    ];
+
+    const randomImage =
+      images[Math.floor(Math.random() * images.length)];
+
+    const randomQuote =
+      quotes[Math.floor(Math.random() * quotes.length)];
+
+    const bg = document.getElementById("randomBg");
+    const qEl = document.getElementById("randomQuote");
+    const aEl = document.getElementById("randomAttr");
+
+    if (bg) {
+      bg.style.backgroundImage = `url('${randomImage}')`;
+    }
+
+    if (qEl) {
+      qEl.textContent = `"${randomQuote.text}"`;
+    }
+
+    if (aEl) {
+      aEl.textContent = randomQuote.attr;
+    }
+
+  });
+</script>
