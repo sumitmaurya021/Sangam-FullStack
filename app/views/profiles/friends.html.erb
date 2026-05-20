@@ -1,0 +1,69 @@
+<div class="friends-container">
+  <!-- Header -->
+  <header class="friends-header">
+    <div class="header-content">
+      <%= link_to profile_path(@user), class: 'back-btn' do %>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back to Profile
+      <% end %>
+      <h1 class="page-title">Friends</h1>
+    </div>
+  </header>
+
+  <div class="friends-content">
+    <div class="friends-header-info">
+      <h2><%= @user.name || @user.email %>'s Friends</h2>
+      <p class="friends-count"><%= pluralize(@friends.count, 'friend') %></p>
+    </div>
+
+    <% if @friends.any? %>
+      <div class="friends-grid">
+        <% @friends.each do |friend| %>
+          <div class="friend-card">
+            <%= link_to profile_path(friend), class: 'friend-card-link' do %>
+              <div class="friend-card-avatar">
+                <%= friend.name&.first&.upcase || 'U' %>
+              </div>
+              <div class="friend-card-info">
+                <h3 class="friend-card-name"><%= friend.name || friend.email %></h3>
+                <p class="friend-card-meta"><%= pluralize(friend.all_friends.count, 'friend') %></p>
+                <% if friend.bio.present? %>
+                  <p class="friend-card-bio"><%= truncate(friend.bio, length: 60) %></p>
+                <% end %>
+              </div>
+            <% end %>
+            
+            <div class="friend-card-actions">
+              <% if friend == current_user %>
+                <span class="badge-you">You</span>
+              <% elsif current_user.friends_with?(friend) %>
+                <% friendship = current_user.friendships.find_by(friend: friend) || friend.friendships.find_by(friend: current_user) %>
+                <%= button_to friendship_path(friendship), method: :delete, class: 'btn-unfriend-small', data: { confirm: 'Remove friend?' } do %>
+                  Unfriend
+                <% end %>
+              <% elsif current_user.friend_request_pending?(friend) %>
+                <button class="btn-pending-small" disabled>Pending</button>
+              <% else %>
+                <%= button_to friendships_path(friend_id: friend.id), class: 'btn-add-friend-small' do %>
+                  Add Friend
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state-friends">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="#ccc">
+          <path d="M26 20a6 6 0 100 12 6 6 0 000-12zm28 0a6 6 0 100 12 6 6 0 000-12zM26 36a10 10 0 00-10 10v4h20v-4a10 10 0 00-10-10zm28 0a10 10 0 00-10 10v4h20v-4a10 10 0 00-10-10z"/>
+        </svg>
+        <h3>No friends yet</h3>
+        <p>Start connecting with people!</p>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'profiles/friends', 'data-turbo-track': 'reload' %>

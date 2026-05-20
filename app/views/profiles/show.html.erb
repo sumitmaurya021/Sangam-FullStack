@@ -1,0 +1,149 @@
+<div class="profile-container">
+  <!-- Header -->
+  <header class="profile-header-nav">
+    <div class="header-content">
+      <%= link_to posts_path, class: 'back-btn' do %>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15 19l-7-7 7-7"/>
+        </svg>
+        Back to Feed
+      <% end %>
+      <h1 class="logo">Sangam</h1>
+    </div>
+  </header>
+
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="cover-photo">
+      <% if @user.cover_photo.present? %>
+        <%= image_tag @user.cover_photo, alt: 'Cover photo' %>
+      <% else %>
+        <div class="cover-placeholder"></div>
+      <% end %>
+    </div>
+    
+    <div class="profile-info-section">
+      <div class="profile-avatar-large">
+        <%= @user.name&.first&.upcase || 'U' %>
+      </div>
+      
+      <div class="profile-details">
+        <h1 class="profile-name"><%= @user.name || @user.email %></h1>
+        <% if @user.bio.present? %>
+          <p class="profile-bio"><%= @user.bio %></p>
+        <% end %>
+        
+        <div class="profile-stats">
+          <div class="stat">
+            <span class="stat-value"><%= @posts_count %></span>
+            <span class="stat-label">Posts</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value"><%= @friends_count %></span>
+            <span class="stat-label">Friends</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="profile-actions">
+        <% if @user == current_user %>
+          <%= link_to edit_user_registration_path, class: 'btn-profile-action' do %>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+            </svg>
+            Edit Profile
+          <% end %>
+        <% elsif current_user.friends_with?(@user) %>
+          <% friendship = current_user.friendships.find_by(friend: @user) || @user.friendships.find_by(friend: current_user) %>
+          <%= button_to friendship_path(friendship), method: :delete, class: 'btn-profile-action btn-unfriend', data: { confirm: 'Remove friend?' } do %>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M11 6a3 3 0 11-6 0 3 3 0 016 0zM14 17a6 6 0 00-12 0h12zM13 8a1 1 0 100 2h4a1 1 0 100-2h-4z"/>
+            </svg>
+            Unfriend
+          <% end %>
+        <% elsif current_user.friend_request_pending?(@user) %>
+          <button class="btn-profile-action btn-pending" disabled>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"/>
+            </svg>
+            Request Pending
+          </button>
+        <% else %>
+          <%= button_to friendships_path(friend_id: @user.id), class: 'btn-profile-action btn-add-friend' do %>
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/>
+            </svg>
+            Add Friend
+          <% end %>
+        <% end %>
+        
+        <%= link_to profile_friends_path(@user), class: 'btn-profile-action btn-secondary' do %>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+          </svg>
+          View Friends
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Content -->
+  <div class="profile-content">
+    <div class="profile-posts">
+      <h2 class="section-title">Posts</h2>
+      
+      <% if @posts.any? %>
+        <div class="posts-grid">
+          <% @posts.each do |post| %>
+            <article class="profile-post-card">
+              <div class="post-header-mini">
+                <div class="post-author-mini">
+                  <div class="author-avatar-mini">
+                    <%= post.user.name&.first&.upcase || 'U' %>
+                  </div>
+                  <div class="author-info-mini">
+                    <div class="author-name-mini"><%= post.user.name || post.user.email %></div>
+                    <div class="post-time-mini"><%= time_ago_in_words(post.created_at) %> ago</div>
+                  </div>
+                </div>
+                <% if post.user == current_user %>
+                  <%= button_to post_path(post), method: :delete, class: 'btn-delete-mini', data: { confirm: 'Delete this post?' } do %>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                      <path d="M5.5 5.5A.5.5 0 016 6v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm2.5 0a.5.5 0 01.5.5v6a.5.5 0 01-1 0V6a.5.5 0 01.5-.5zm3 .5a.5.5 0 00-1 0v6a.5.5 0 001 0V6z"/>
+                      <path fill-rule="evenodd" d="M14.5 3a1 1 0 01-1 1H13v9a2 2 0 01-2 2H5a2 2 0 01-2-2V4h-.5a1 1 0 01-1-1V2a1 1 0 011-1H6a1 1 0 011-1h2a1 1 0 011 1h3.5a1 1 0 011 1v1zM4.118 4L4 4.059V13a1 1 0 001 1h6a1 1 0 001-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                    </svg>
+                  <% end %>
+                <% end %>
+              </div>
+              
+              <div class="post-content-mini">
+                <p><%= truncate(post.content, length: 150) %></p>
+                <% if post.image.present? %>
+                  <div class="post-image-mini">
+                    <%= image_tag post.image, alt: 'Post image' %>
+                  </div>
+                <% end %>
+              </div>
+              
+              <div class="post-stats-mini">
+                <span>👍 <%= post.likes_count %></span>
+                <span>💬 <%= post.comments_count %></span>
+                <span>🔗 <%= post.shares_count %></span>
+              </div>
+            </article>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state-profile">
+          <svg width="64" height="64" viewBox="0 0 64 64" fill="#ccc">
+            <path d="M32 4C16.536 4 4 16.536 4 32s12.536 28 28 28 28-12.536 28-28S47.464 4 32 4zm0 52c-13.234 0-24-10.766-24-24S18.766 8 32 8s24 10.766 24 24-10.766 24-24 24z"/>
+            <path d="M32 16a4 4 0 100 8 4 4 0 000-8zm-2 14h4v16h-4V30z"/>
+          </svg>
+          <p>No posts yet</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'profiles/show', 'data-turbo-track': 'reload' %>

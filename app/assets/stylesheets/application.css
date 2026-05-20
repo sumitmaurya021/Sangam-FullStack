@@ -8,3 +8,34 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Flash Messages */
+.notice, .alert {
+  padding: 1rem 2rem;
+  margin: 0;
+  text-align: center;
+  font-weight: 500;
+}
+
+.notice {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.alert {
+  background: #fee2e2;
+  color: #991b1b;
+}

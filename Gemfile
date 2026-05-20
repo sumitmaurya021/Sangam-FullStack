@@ -63,6 +63,9 @@ group :development, :test do
   gem "faker", "~> 3.5"
 end
 
+# Pagination
+gem "kaminari", "~> 1.2"
+
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
