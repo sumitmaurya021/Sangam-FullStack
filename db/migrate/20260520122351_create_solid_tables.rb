@@ -1,4 +1,6 @@
 class CreateSolidTables < ActiveRecord::Migration[8.1]
+  def change
+    # Solid Cache
     create_table :solid_cache_entries, force: :cascade do |t|
       t.binary  :key,        null: false, limit: 1024
       t.binary  :value,      null: false, limit: 536870912
