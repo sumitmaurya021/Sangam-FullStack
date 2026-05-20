@@ -15,4 +15,17 @@ class Users::RegistrationsController < Devise::RegistrationsController
   def configure_account_update_params
     devise_parameter_sanitizer.permit(:account_update, keys: [:name, :bio, :avatar, :cover_photo])
   end
+
+  # Allow profile fields and images to update without requiring the current
+  # password. Password changes still go through Devise's default flow.
+  def update_resource(resource, params)
+    if params[:password].blank? && params[:password_confirmation].blank?
+      params.delete(:password)
+      params.delete(:password_confirmation)
+      params.delete(:current_password)
+      resource.update_without_password(params)
+    else
+      super
+    end
+  end
 end

@@ -4,7 +4,11 @@
     <div class="post-author">
       <%= link_to profile_path(post.user), class: 'author-link' do %>
         <div class="author-avatar">
-          <%= post.user.name&.first&.upcase || 'U' %>
+          <% if post.user.avatar.attached? %>
+            <%= image_tag post.user.avatar %>
+          <% else %>
+            <%= post.user.name&.first&.upcase || 'U' %>
+          <% end %>
         </div>
         <div class="author-info">
           <div class="author-name"><%= post.user.name || post.user.email %></div>
@@ -31,9 +35,9 @@
   <!-- Post Content -->
   <div class="post-content">
     <p><%= simple_format(post.content) %></p>
-    <% if post.image.present? %>
+    <% if post.image.attached? %>
       <div class="post-image">
-        <%= image_tag post.image, alt: 'Post image' %>
+        <%= image_tag post.image, alt: 'Post image', loading: 'lazy' %>
       </div>
     <% end %>
   </div>
@@ -41,11 +45,12 @@
   <!-- Post Stats -->
   <div class="post-stats">
     <div class="stat-item">
-      <div class="reaction-icons">
-        <span class="reaction-icon like">👍</span>
-        <span class="reaction-icon love">❤️</span>
+      <div class="reactions-display" id="reactions-<%= post.id %>">
+        <% if post.likes_count > 0 %>
+          <span class="reaction-icon like">👍</span>
+        <% end %>
       </div>
-      <span><%= post.likes_count %></span>
+      <span id="likes-count-<%= post.id %>"><%= post.likes_count %></span>
     </div>
     <div class="stat-links">
       <span><%= pluralize(post.comments_count, 'comment') %></span>
@@ -53,14 +58,40 @@
     </div>
   </div>
 
-  <!-- Post Actions -->
+  <!-- Post Actions with Reaction Picker -->
   <div class="post-actions-bar">
-    <%= button_to like_post_path(post), method: :post, class: "action-btn #{current_user.liked?(post) ? 'active' : ''}", id: "like-btn-#{post.id}", data: { turbo: false } do %>
-      <svg class="action-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
-      </svg>
-      <span>Like</span>
-    <% end %>
+    <!-- Reaction Picker Container -->
+    <div class="reaction-picker-wrapper" data-post-id="<%= post.id %>">
+      <!-- Reaction Bar (Hidden by default, shown on hover) -->
+      <div class="reaction-bar" id="reaction-bar-<%= post.id %>">
+        <button type="button" class="reaction-btn" data-reaction="like" data-post-id="<%= post.id %>" title="Like">
+          👍
+        </button>
+        <button type="button" class="reaction-btn" data-reaction="love" data-post-id="<%= post.id %>" title="Love">
+          ❤️
+        </button>
+        <button type="button" class="reaction-btn" data-reaction="haha" data-post-id="<%= post.id %>" title="Haha">
+          😂
+        </button>
+        <button type="button" class="reaction-btn" data-reaction="wow" data-post-id="<%= post.id %>" title="Wow">
+          😮
+        </button>
+        <button type="button" class="reaction-btn" data-reaction="sad" data-post-id="<%= post.id %>" title="Sad">
+          😢
+        </button>
+        <button type="button" class="reaction-btn" data-reaction="angry" data-post-id="<%= post.id %>" title="Angry">
+          😠
+        </button>
+      </div>
+      
+      <!-- Main Like Button -->
+      <button type="button" class="action-btn reaction-trigger <%= 'active' if current_user.liked?(post) %>" id="like-trigger-<%= post.id %>" data-post-id="<%= post.id %>">
+        <svg class="action-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
+        </svg>
+        <span class="action-text">Like</span>
+      </button>
+    </div>
     
     <button class="action-btn" onclick="toggleComments(<%= post.id %>)">
       <svg class="action-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -83,7 +114,11 @@
       <% post.comments.recent.limit(5).each do |comment| %>
         <div class="comment-item">
           <div class="comment-avatar">
-            <%= comment.user.name&.first&.upcase || 'U' %>
+            <% if comment.user.avatar.attached? %>
+              <%= image_tag comment.user.avatar %>
+            <% else %>
+              <%= comment.user.name&.first&.upcase || 'U' %>
+            <% end %>
           </div>
           <div class="comment-content">
             <div class="comment-bubble">
@@ -104,7 +139,11 @@
     <%= form_with model: [post, Comment.new], class: 'comment-form' do |f| %>
       <div class="comment-input-wrapper">
         <div class="comment-avatar-small">
-          <%= current_user.name&.first&.upcase || 'U' %>
+          <% if current_user.avatar.attached? %>
+            <%= image_tag current_user.avatar %>
+          <% else %>
+            <%= current_user.name&.first&.upcase || 'U' %>
+          <% end %>
         </div>
         <%= f.text_field :content, placeholder: 'Write a comment...', class: 'comment-input', autocomplete: 'off' %>
         <%= f.submit 'Post', class: 'btn-comment' %>
