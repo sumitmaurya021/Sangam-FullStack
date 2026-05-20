@@ -485,6 +485,7 @@ body{
 
   .auth-brand{
     margin-bottom:42px;
+    margin-top: 0px;
   }
 
   .auth-brand-logo{
