@@ -1,37 +1,5 @@
 <div class="feed-container">
-  <!-- Header -->
-  <header class="feed-header">
-    <div class="header-content">
-      <h1 class="logo">Sangam</h1>
-      <div class="header-actions">
-        <div class="user-menu">
-          <button class="user-menu-btn" onclick="toggleUserMenu()">
-            <div class="user-avatar">
-              <%= current_user.name&.first&.upcase || 'U' %>
-            </div>
-            <span><%= current_user.name || current_user.email %></span>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-              <path d="M4 6l4 4 4-4"/>
-            </svg>
-          </button>
-          <div class="user-dropdown" id="userDropdown">
-            <%= link_to profile_path(current_user), class: 'dropdown-item' do %>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10 2a4 4 0 100 8 4 4 0 000-8zM4 14a6 6 0 0112 0v2H4v-2z"/>
-              </svg>
-              View Profile
-            <% end %>
-            <%= button_to destroy_user_session_path, method: :delete, class: 'dropdown-item' do %>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M3 3a1 1 0 011-1h8a1 1 0 011 1v2H3V3zm10 0v2h4a1 1 0 110 2h-1v9a2 2 0 01-2 2H6a2 2 0 01-2-2V7H3a1 1 0 110-2h4V3z"/>
-              </svg>
-              Sign Out
-            <% end %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
+  <%= render 'shared/header' %>
 
   <div class="feed-layout">
     <!-- Sidebar -->
@@ -233,7 +201,7 @@
     <aside class="feed-right-sidebar">
       <div class="sidebar-section">
         <h3>Your Friends</h3>
-        <% current_user.all_friends.each do |friend| %>
+        <% current_user.all_friends.first(8).each do |friend| %>
           <%= link_to profile_path(friend), class: 'friend-item' do %>
             <div class="friend-avatar-small"><%= friend.name&.first&.upcase || 'U' %></div>
             <span><%= friend.name || friend.email %></span>
