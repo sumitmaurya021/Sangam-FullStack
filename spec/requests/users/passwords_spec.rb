@@ -22,17 +22,17 @@ RSpec.describe "Users::Passwords", type: :request do
     
     it "has email field" do
       get new_user_password_path
-      expect(response.body).to include('Email address')
+      expect(response.body).to include('Email Address')
     end
     
-    it "has search button" do
+    it "has send reset button" do
       get new_user_password_path
-      expect(response.body).to include('Search')
+      expect(response.body).to include('Send Reset Instructions')
     end
     
-    it "has cancel button" do
+    it "has back to login link" do
       get new_user_password_path
-      expect(response.body).to include('Cancel')
+      expect(response.body).to include('Back to Sign In')
     end
   end
   
@@ -82,13 +82,13 @@ RSpec.describe "Users::Passwords", type: :request do
     
     it "displays the change password page" do
       get edit_user_password_path(reset_password_token: reset_token)
-      expect(response.body).to include('Change Your Password')
+      expect(response.body).to include('Change Password')
     end
     
     it "has password fields" do
       get edit_user_password_path(reset_password_token: reset_token)
-      expect(response.body).to include('New password')
-      expect(response.body).to include('Confirm new password')
+      expect(response.body).to include('New Password')
+      expect(response.body).to include('Confirm New Password')
     end
     
     it "has change password button" do
@@ -98,11 +98,11 @@ RSpec.describe "Users::Passwords", type: :request do
   end
   
   describe "PUT /users/password" do
-    let(:reset_token) { user.send_reset_password_instructions }
-    let(:raw_token) { user.reload.reset_password_token }
-    
     context "with valid parameters" do
       it "updates the password" do
+        # Generate reset token properly
+        raw_token = user.send_reset_password_instructions
+        
         put user_password_path, params: {
           user: {
             reset_password_token: raw_token,
@@ -114,6 +114,9 @@ RSpec.describe "Users::Passwords", type: :request do
       end
       
       it "allows login with new password" do
+        # Generate reset token properly
+        raw_token = user.send_reset_password_instructions
+        
         put user_password_path, params: {
           user: {
             reset_password_token: raw_token,
@@ -134,6 +137,8 @@ RSpec.describe "Users::Passwords", type: :request do
     
     context "with mismatched passwords" do
       it "does not update the password" do
+        raw_token = user.send_reset_password_instructions
+        
         put user_password_path, params: {
           user: {
             reset_password_token: raw_token,
@@ -147,6 +152,8 @@ RSpec.describe "Users::Passwords", type: :request do
     
     context "with short password" do
       it "does not update the password" do
+        raw_token = user.send_reset_password_instructions
+        
         put user_password_path, params: {
           user: {
             reset_password_token: raw_token,

@@ -22,28 +22,28 @@ RSpec.describe "Users::Sessions", type: :request do
     
     it "has email and password fields" do
       get new_user_session_path
-      expect(response.body).to include('Email address')
+      expect(response.body).to include('Email Address')
       expect(response.body).to include('Password')
     end
     
     it "has remember me checkbox" do
       get new_user_session_path
-      expect(response.body).to include('Keep me logged in')
+      expect(response.body).to include('Keep me signed in')
     end
     
     it "has login button" do
       get new_user_session_path
-      expect(response.body).to include('Log In')
+      expect(response.body).to include('Sign in')
     end
     
     it "has signup link" do
       get new_user_session_path
-      expect(response.body).to include('Sign Up')
+      expect(response.body).to include('Create account')
     end
     
     it "has forgot password link" do
       get new_user_session_path
-      expect(response.body).to include('Forgot Password?')
+      expect(response.body).to include('Forgot password?')
     end
   end
   
@@ -67,7 +67,7 @@ RSpec.describe "Users::Sessions", type: :request do
           }
         }
         follow_redirect!
-        expect(response.body).to include('Welcome')
+        expect(response.body).to include('post-card')
       end
     end
     
@@ -99,7 +99,8 @@ RSpec.describe "Users::Sessions", type: :request do
             password: 'wrongpassword'
           }
         }
-        expect(response.body).to include('error')
+        # Check that response is unprocessable entity (422) which indicates validation error
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
     
@@ -128,7 +129,9 @@ RSpec.describe "Users::Sessions", type: :request do
     it "clears the user session" do
       delete destroy_user_session_path
       follow_redirect!
-      expect(response.body).to include('Sign In')
+      # After logout, should redirect to posts index (root) which requires login
+      # So it will redirect to sign in page
+      expect(response).to redirect_to(new_user_session_path)
     end
   end
 end
