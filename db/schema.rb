@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_20_122351) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_21_094953) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -45,9 +45,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_122351) do
   create_table "comments", force: :cascade do |t|
     t.text "content"
     t.datetime "created_at", null: false
+    t.bigint "parent_id"
     t.bigint "post_id", null: false
+    t.integer "replies_count", default: 0, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["parent_id"], name: "index_comments_on_parent_id"
     t.index ["post_id"], name: "index_comments_on_post_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
@@ -67,9 +70,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_122351) do
   create_table "likes", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "post_id", null: false
+    t.string "reaction_type", default: "like", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["post_id"], name: "index_likes_on_post_id"
+    t.index ["reaction_type"], name: "index_likes_on_reaction_type"
     t.index ["user_id"], name: "index_likes_on_user_id"
   end
 
@@ -253,6 +258,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_122351) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "comments", "comments", column: "parent_id"
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"
   add_foreign_key "friendships", "users"
