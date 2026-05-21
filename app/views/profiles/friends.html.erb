@@ -1,16 +1,5 @@
 <div class="friends-container">
-  <!-- Header -->
-  <header class="friends-header">
-    <div class="header-content">
-      <%= link_to profile_path(@user), class: 'back-btn' do %>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M15 19l-7-7 7-7"/>
-        </svg>
-        Back to Profile
-      <% end %>
-      <h1 class="page-title">Friends</h1>
-    </div>
-  </header>
+  <%= render 'shared/header' %>
 
   <div class="friends-content">
     <div class="friends-header-info">

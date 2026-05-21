@@ -1,35 +1,103 @@
-<%= stylesheet_link_tag 'users/passwords', media: 'all' %>
+<%= stylesheet_link_tag 'users/sessions', media: 'all' %>
 
 <div class="auth-container">
-  <div class="auth-card password-card">
-    <div class="auth-header">
-      <h1 class="auth-logo">Sangam</h1>
-      <h2 class="auth-title">Change Your Password</h2>
-      <p class="auth-subtitle">Enter a new password for your account.</p>
+
+  <!-- LEFT IMAGE PANEL -->
+  <div class="auth-image-panel">
+    <div class="auth-image-bg" id="randomBg"></div>
+    <div class="auth-image-overlay"></div>
+    <div class="auth-image-content">
+      <p class="auth-image-quote" id="randomQuote"></p>
+      <p class="auth-image-attr" id="randomAttr"></p>
     </div>
+  </div>
 
-    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: 'auth-form' }) do |f| %>
-      <%= render "users/shared/error_messages", resource: resource %>
-      <%= f.hidden_field :reset_password_token %>
-
-      <div class="form-group">
-        <%= f.password_field :password, autofocus: true, autocomplete: "new-password", placeholder: "New password", class: 'form-input' %>
-        <% if @minimum_password_length %>
-          <small class="form-hint">(<%= @minimum_password_length %> characters minimum)</small>
-        <% end %>
+  <!-- RIGHT FORM PANEL -->
+  <div class="auth-form-panel">
+    <div class="auth-form-inner">
+      <div class="auth-brand">
+        <span class="auth-brand-logo">Sangam</span>
+        <span class="auth-brand-tagline">Connect with friends and the world</span>
       </div>
 
-      <div class="form-group">
-        <%= f.password_field :password_confirmation, autocomplete: "new-password", placeholder: "Confirm new password", class: 'form-input' %>
-      </div>
+      <h1 class="auth-heading">Change Password</h1>
+      <p class="auth-subheading">Enter a new password for your account.</p>
 
-      <div class="form-actions">
+      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: 'auth-form' }) do |f| %>
+        <%= render "users/shared/error_messages", resource: resource %>
+        <%= f.hidden_field :reset_password_token %>
+
+        <div class="form-group">
+          <label class="form-label">New Password</label>
+          <%= f.password_field :password, autofocus: true, autocomplete: "new-password", placeholder: "••••••••", class: 'form-input' %>
+          <% if @minimum_password_length %>
+            <small class="form-hint">(<%= @minimum_password_length %> characters minimum)</small>
+          <% end %>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Confirm New Password</label>
+          <%= f.password_field :password_confirmation, autocomplete: "new-password", placeholder: "••••••••", class: 'form-input' %>
+        </div>
+
         <%= f.submit "Change Password", class: 'btn btn-primary' %>
-      </div>
-    <% end %>
+      <% end %>
 
-    <div class="auth-footer">
-      <%= link_to "Back to Login", new_session_path(resource_name), class: 'link-secondary' %>
+      <div class="auth-footer">
+        <div class="signin-prompt">
+          <%= link_to "Back to Sign In", new_session_path(resource_name), class: 'link-primary' %>
+        </div>
+      </div>
+
+      <p class="auth-panel-foot">© <%= Time.current.year %> Sangam</p>
     </div>
   </div>
 </div>
+
+<script>
+  // Use turbo:load instead of DOMContentLoaded for Turbo compatibility
+  document.addEventListener("turbo:load", function () {
+    const quotes = [
+      {
+        text: "The best time to connect with someone is now.",
+        attr: "— Unknown"
+      },
+      {
+        text: "Friendship is the only cement that will ever hold the world together.",
+        attr: "— Woodrow Wilson"
+      },
+      {
+        text: "Connection is why we're here. It gives purpose and meaning to our lives.",
+        attr: "— Brené Brown"
+      },
+      {
+        text: "Alone we can do so little; together we can do so much.",
+        attr: "— Helen Keller"
+      },
+      {
+        text: "The quality of your life is the quality of your relationships.",
+        attr: "— Tony Robbins"
+      }
+    ];
+
+    const randomSeed = Math.floor(Math.random() * 999999999);
+    const imageUrl = `https://picsum.photos/seed/${randomSeed}/2000/2500`;
+    const quote = quotes[Math.floor(Math.random() * quotes.length)];
+
+    const bg = document.getElementById("randomBg");
+    const quoteEl = document.getElementById("randomQuote");
+    const attrEl = document.getElementById("randomAttr");
+
+    if (bg) {
+      bg.style.backgroundImage = `url('${imageUrl}')`;
+    }
+
+    if (quoteEl) {
+      quoteEl.textContent = `"${quote.text}"`;
+    }
+
+    if (attrEl) {
+      attrEl.textContent = quote.attr;
+    }
+  });
+</script>
