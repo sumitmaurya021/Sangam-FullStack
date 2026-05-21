@@ -421,6 +421,144 @@
 }
 
 /* =========================
+   COMMENTS SECTION
+========================= */
+.comments-section-timeline {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.comments-list {
+  margin-bottom: 1rem;
+}
+
+.comment-item-timeline {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.comment-avatar-timeline {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.comment-content-timeline {
+  flex: 1;
+}
+
+.comment-bubble-timeline {
+  background: #f0f2f5;
+  border-radius: 18px;
+  padding: 0.5rem 0.75rem;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.comment-author-timeline {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: #050505;
+  margin-bottom: 0.125rem;
+}
+
+.comment-bubble-timeline p {
+  margin: 0;
+  color: #050505;
+  font-size: 0.9375rem;
+  line-height: 1.3333;
+}
+
+.comment-meta-timeline {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.25rem;
+  padding-left: 0.75rem;
+  font-size: 0.75rem;
+  color: #65676b;
+}
+
+.comment-delete-timeline {
+  background: none;
+  border: none;
+  color: #65676b;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.comment-delete-timeline:hover {
+  text-decoration: underline;
+}
+
+/* Comment Form */
+.comment-form-timeline {
+  margin-top: 1rem;
+}
+
+.comment-input-wrapper-timeline {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.comment-avatar-small-timeline {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.comment-input-timeline {
+  flex: 1;
+  border: none;
+  background: #f0f2f5;
+  border-radius: 18px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+}
+
+.comment-input-timeline:focus {
+  outline: none;
+  background: #e4e6eb;
+}
+
+.btn-comment-timeline {
+  padding: 0.5rem 1rem;
+  background: #1877f2;
+  color: white;
+  border: none;
+  border-radius: 18px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-comment-timeline:hover {
+  background: #166fe5;
+}
+
+/* =========================
    EMPTY STATE
 ========================= */
 .empty-state-timeline {
