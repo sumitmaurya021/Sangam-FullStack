@@ -20,9 +20,9 @@ bundle exec rake assets:clean
 echo "🔄 Running migrations..."
 bundle exec rails db:migrate
 
-# Reset database (delete all data)
-echo "🗑️  Resetting database (deleting all data)..."
-bundle exec rails db:reset DISABLE_DATABASE_ENVIRONMENT_CHECK=1
+# Truncate all tables and reseed (without dropping database)
+echo "🗑️  Clearing all data and reseeding..."
+bundle exec rails db:seed:replant DISABLE_DATABASE_ENVIRONMENT_CHECK=1
 
-echo "✅ Build complete! Database reset and seeded with test data."
+echo "✅ Build complete! Database cleared and seeded with test data."
 echo "🔑 Login: test@example.com / password123"
