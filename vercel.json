@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "config.ru",
+      "use": "@vercel/ruby"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "config.ru"
+    }
+  ],
+  "env": {
+    "RAILS_ENV": "production",
+    "RACK_ENV": "production",
+    "RAILS_SERVE_STATIC_FILES": "true",
+    "RAILS_LOG_TO_STDOUT": "true"
+  }
+}

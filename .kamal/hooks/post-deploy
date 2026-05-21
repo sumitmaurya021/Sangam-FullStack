@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# Post-deploy hook: Reset database and seed with test data
+# This runs after successful deployment
+
+echo "🔄 Starting post-deployment tasks..."
+
+# Reset database (drop, create, migrate)
+echo "🗑️  Resetting database..."
+kamal app exec "bin/rails db:reset DISABLE_DATABASE_ENVIRONMENT_CHECK=1"
+
+# Run seeds to create test data
+echo "🌱 Seeding database with test data..."
+kamal app exec "bin/rails db:seed"
+
+echo "✅ Post-deployment tasks completed!"
+echo "🔑 Test user: test@example.com / password123"

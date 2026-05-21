@@ -1,0 +1,14 @@
+# Vercel ignore file
+.git
+.github
+.kamal
+node_modules
+tmp
+log
+storage/*.sqlite3
+.env.local
+.env.development
+.env.test
+spec
+test
+coverage

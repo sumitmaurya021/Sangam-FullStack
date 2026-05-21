@@ -1,0 +1,15 @@
+{
+  "name": "sangam-fullstack",
+  "version": "1.0.0",
+  "description": "Sangam Social Network - Rails Full Stack",
+  "scripts": {
+    "vercel-build": "bundle install && bundle exec rails assets:precompile && bundle exec rails db:migrate && bundle exec rails db:seed",
+    "db:reset": "bundle exec rails db:reset DISABLE_DATABASE_ENVIRONMENT_CHECK=1",
+    "db:seed": "bundle exec rails db:seed",
+    "db:reset-and-seed": "bundle exec rails db:reset DISABLE_DATABASE_ENVIRONMENT_CHECK=1 && bundle exec rails db:seed"
+  },
+  "engines": {
+    "node": ">=18.x",
+    "ruby": ">=3.3.0"
+  }
+}
