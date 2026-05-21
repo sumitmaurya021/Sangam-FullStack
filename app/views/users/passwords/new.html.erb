@@ -1,24 +1,93 @@
-<%= stylesheet_link_tag 'users/passwords', media: 'all' %>
+<%= stylesheet_link_tag 'users/sessions', media: 'all' %>
 
 <div class="auth-container">
-  <div class="auth-card password-card">
-    <div class="auth-header">
-      <h1 class="auth-logo">Sangam</h1>
-      <h2 class="auth-title">Find Your Account</h2>
-      <p class="auth-subtitle">Please enter your email address to search for your account.</p>
+
+  <!-- LEFT IMAGE PANEL -->
+  <div class="auth-image-panel">
+    <div class="auth-image-bg" id="randomBg"></div>
+    <div class="auth-image-overlay"></div>
+    <div class="auth-image-content">
+      <p class="auth-image-quote" id="randomQuote"></p>
+      <p class="auth-image-attr" id="randomAttr"></p>
     </div>
+  </div>
 
-    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: 'auth-form' }) do |f| %>
-      <%= render "users/shared/error_messages", resource: resource %>
-
-      <div class="form-group">
-        <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "Email address", class: 'form-input' %>
+  <!-- RIGHT FORM PANEL -->
+  <div class="auth-form-panel">
+    <div class="auth-form-inner">
+      <div class="auth-brand">
+        <span class="auth-brand-logo">Sangam</span>
+        <span class="auth-brand-tagline">Connect with friends and the world</span>
       </div>
 
-      <div class="form-actions">
-        <%= f.submit "Search", class: 'btn btn-primary' %>
-        <%= link_to "Cancel", new_session_path(resource_name), class: 'btn btn-secondary' %>
+      <h1 class="auth-heading">Find Your Account</h1>
+      <p class="auth-subheading">Please enter your email address to search for your account.</p>
+
+      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: 'auth-form' }) do |f| %>
+        <%= render "users/shared/error_messages", resource: resource %>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "you@example.com", class: 'form-input' %>
+        </div>
+
+        <%= f.submit "Send Reset Instructions", class: 'btn btn-primary' %>
+      <% end %>
+
+      <div class="auth-footer">
+        <div class="signin-prompt">
+          <%= link_to "Back to Sign In", new_session_path(resource_name), class: 'link-primary' %>
+        </div>
       </div>
-    <% end %>
+
+      <p class="auth-panel-foot">© <%= Time.current.year %> Sangam</p>
+    </div>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const quotes = [
+      {
+        text: "The best time to connect with someone is now.",
+        attr: "— Unknown"
+      },
+      {
+        text: "Friendship is the only cement that will ever hold the world together.",
+        attr: "— Woodrow Wilson"
+      },
+      {
+        text: "Connection is why we're here. It gives purpose and meaning to our lives.",
+        attr: "— Brené Brown"
+      },
+      {
+        text: "Alone we can do so little; together we can do so much.",
+        attr: "— Helen Keller"
+      },
+      {
+        text: "The quality of your life is the quality of your relationships.",
+        attr: "— Tony Robbins"
+      }
+    ];
+
+    const randomSeed = Math.floor(Math.random() * 999999999);
+    const imageUrl = `https://picsum.photos/seed/${randomSeed}/2000/2500`;
+    const quote = quotes[Math.floor(Math.random() * quotes.length)];
+
+    const bg = document.getElementById("randomBg");
+    const quoteEl = document.getElementById("randomQuote");
+    const attrEl = document.getElementById("randomAttr");
+
+    if (bg) {
+      bg.style.backgroundImage = `url('${imageUrl}')`;
+    }
+
+    if (quoteEl) {
+      quoteEl.textContent = `"${quote.text}"`;
+    }
+
+    if (attrEl) {
+      attrEl.textContent = quote.attr;
+    }
+  });
+</script>
