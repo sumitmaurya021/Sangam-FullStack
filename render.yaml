@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: sangam-fullstack
+    runtime: ruby
+    plan: free
+    buildCommand: bundle install; bundle exec rake assets:precompile; bundle exec rake assets:clean; bundle exec rails db:migrate; bundle exec rails db:seed
+    startCommand: bundle exec rails server -p $PORT -b 0.0.0.0
+    envVars:
+      - key: RAILS_MASTER_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: sangam-db
+          property: connectionString
+      - key: RAILS_ENV
+        value: production
+      - key: RACK_ENV
+        value: production
+      - key: RAILS_LOG_TO_STDOUT
+        value: enabled
+      - key: RAILS_SERVE_STATIC_FILES
+        value: true
+
+databases:
+  - name: sangam-db
+    plan: free
+    databaseName: sangam_production
+    user: sangam_user
