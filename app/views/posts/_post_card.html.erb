@@ -4,7 +4,11 @@
     <div class="post-author">
       <%= link_to profile_path(post.user), class: 'author-link' do %>
         <div class="author-avatar">
-          <%= post.user.name&.first&.upcase || 'U' %>
+          <% if post.user.avatar.attached? %>
+            <%= image_tag post.user.avatar, alt: "#{post.user.name} avatar" %>
+          <% else %>
+            <%= post.user.name&.first&.upcase || 'U' %>
+          <% end %>
         </div>
         <div class="author-info">
           <div class="author-name"><%= post.user.name || post.user.email %></div>
@@ -31,9 +35,26 @@
   <!-- Post Content -->
   <div class="post-content">
     <p><%= simple_format(post.content) %></p>
-    <% if post.image.present? %>
-      <div class="post-image">
-        <%= image_tag post.image, alt: 'Post image' %>
+    
+    <!-- Multiple Images Grid -->
+    <% if post.images.attached? && post.images.any? %>
+      <% total = post.total_images_count %>
+      <div class="post-images-grid grid-<%= [total, 5].min %>">
+        <% post.display_images(5).each_with_index do |image, index| %>
+          <% is_last = (index == 4) && (total > 5) %>
+          <div class="post-image-item <%= 'image-overlay' if is_last %>" onclick="openImageGallery(<%= post.id %>, <%= index %>)">
+            <%= image_tag image, alt: "Post image #{index + 1}", loading: "lazy" %>
+            <% if is_last %>
+              <div class="image-overlay-text">
+                <span class="overlay-plus">+<%= total - 5 %></span>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% elsif post.image.attached? %>
+      <div class="post-single-image">
+        <%= image_tag post.image, alt: 'Post image', loading: "lazy" %>
       </div>
     <% end %>
   </div>
@@ -41,11 +62,17 @@
   <!-- Post Stats -->
   <div class="post-stats">
     <div class="stat-item">
-      <div class="reaction-icons">
-        <span class="reaction-icon like">👍</span>
-        <span class="reaction-icon love">❤️</span>
+      <div class="reaction-icons" id="reaction-summary-<%= post.id %>">
+        <% reaction_counts = post.reaction_counts %>
+        <% if reaction_counts.any? %>
+          <% reaction_counts.first(3).each do |reaction_type, count| %>
+            <span class="reaction-icon <%= reaction_type %>"><%= Like::REACTIONS[reaction_type] %></span>
+          <% end %>
+        <% else %>
+          <span class="reaction-icon like">👍</span>
+        <% end %>
       </div>
-      <span><%= post.likes_count %></span>
+      <span id="likes-count-<%= post.id %>"><%= post.likes_count %></span>
     </div>
     <div class="stat-links">
       <span><%= pluralize(post.comments_count, 'comment') %></span>
@@ -55,12 +82,33 @@
 
   <!-- Post Actions -->
   <div class="post-actions-bar">
-    <%= button_to like_post_path(post), method: :post, class: "action-btn #{current_user.liked?(post) ? 'active' : ''}", id: "like-btn-#{post.id}", data: { turbo: false } do %>
-      <svg class="action-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
-      </svg>
-      <span>Like</span>
-    <% end %>
+    <div class="action-btn-wrapper">
+      <button class="action-btn <%= current_user.liked?(post) ? 'active' : '' %>" 
+              id="like-btn-<%= post.id %>"
+              onclick="toggleReactionPicker(<%= post.id %>)">
+        <svg class="action-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
+        </svg>
+        <span id="like-text-<%= post.id %>">
+          <% if current_user.liked?(post) %>
+            <%= post.user_reaction(current_user).reaction_emoji %> <%= post.user_reaction(current_user).reaction_type.capitalize %>
+          <% else %>
+            Like
+          <% end %>
+        </span>
+      </button>
+      
+      <!-- Reaction Picker -->
+      <div class="reaction-picker" id="reaction-picker-<%= post.id %>" style="display: none;">
+        <% Like::REACTIONS.each do |reaction_type, emoji| %>
+          <button class="reaction-btn" 
+                  data-reaction="<%= reaction_type %>"
+                  onclick="reactToPost(<%= post.id %>, '<%= reaction_type %>')">
+            <span class="reaction-emoji"><%= emoji %></span>
+          </button>
+        <% end %>
+      </div>
+    </div>
     
     <button class="action-btn" onclick="toggleComments(<%= post.id %>)">
       <svg class="action-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -79,35 +127,28 @@
 
   <!-- Comments Section -->
   <div class="comments-section" id="comments-<%= post.id %>" style="display: none;">
-    <div class="comments-list">
-      <% post.comments.recent.limit(5).each do |comment| %>
-        <div class="comment-item">
-          <div class="comment-avatar">
-            <%= comment.user.name&.first&.upcase || 'U' %>
-          </div>
-          <div class="comment-content">
-            <div class="comment-bubble">
-              <div class="comment-author"><%= comment.user.name || comment.user.email %></div>
-              <p><%= comment.content %></p>
-            </div>
-            <div class="comment-meta">
-              <span><%= time_ago_in_words(comment.created_at) %> ago</span>
-              <% if comment.user == current_user %>
-                <%= button_to 'Delete', post_comment_path(post, comment), method: :delete, class: 'comment-delete', data: { confirm: 'Delete this comment?' } %>
-              <% end %>
-            </div>
-          </div>
-        </div>
+    <div class="comments-list" id="comments-list-<%= post.id %>">
+      <% post.comments.top_level.recent.each do |comment| %>
+        <%= render 'comments/comment', comment: comment, post: post %>
       <% end %>
     </div>
     
-    <%= form_with model: [post, Comment.new], class: 'comment-form' do |f| %>
+    <%= form_with model: [post, Comment.new], class: 'comment-form', id: "comment-form-#{post.id}" do |f| %>
       <div class="comment-input-wrapper">
         <div class="comment-avatar-small">
-          <%= current_user.name&.first&.upcase || 'U' %>
+          <% if current_user.avatar.attached? %>
+            <%= image_tag current_user.avatar, alt: "Your avatar" %>
+          <% else %>
+            <%= current_user.name&.first&.upcase || 'U' %>
+          <% end %>
         </div>
         <%= f.text_field :content, placeholder: 'Write a comment...', class: 'comment-input', autocomplete: 'off' %>
+        <%= f.hidden_field :parent_id, value: nil, id: "parent-id-#{post.id}" %>
         <%= f.submit 'Post', class: 'btn-comment' %>
+      </div>
+      <div class="reply-indicator" id="reply-indicator-<%= post.id %>" style="display: none;">
+        Replying to <span id="reply-to-name-<%= post.id %>"></span>
+        <button type="button" onclick="cancelReply(<%= post.id %>)" class="cancel-reply">✕</button>
       </div>
     <% end %>
   </div>

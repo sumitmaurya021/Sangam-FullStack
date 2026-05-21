@@ -56,7 +56,11 @@
         <%= form_with model: @post, url: posts_path, class: 'create-post-form' do |f| %>
           <div class="post-input-wrapper">
             <div class="user-avatar-small">
-              <%= current_user.name&.first&.upcase || 'U' %>
+              <% if current_user.avatar.attached? %>
+                <%= image_tag current_user.avatar, alt: "Your avatar" %>
+              <% else %>
+                <%= current_user.name&.first&.upcase || 'U' %>
+              <% end %>
             </div>
             <%= f.text_area :content, placeholder: "What's on your mind, #{current_user.name || 'there'}?", class: 'post-input', rows: 3 %>
           </div>
@@ -67,8 +71,8 @@
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="#45bd62">
                   <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/>
                 </svg>
-                <span>Photo</span>
-                <%= f.file_field :image, class: 'file-input', accept: 'image/*' %>
+                <span>Photos</span>
+                <%= f.file_field :images, class: 'file-input', accept: 'image/*', multiple: true %>
               </label>
             </div>
             <%= f.submit 'Post', class: 'btn-post' %>
@@ -102,5 +106,6 @@
   </div>
 </div>
 
+<%= stylesheet_link_tag 'posts/post_card', 'data-turbo-track': 'reload' %>
 <%= stylesheet_link_tag 'posts/feed', 'data-turbo-track': 'reload' %>
 <%= javascript_include_tag 'posts/feed', 'data-turbo-track': 'reload' %>

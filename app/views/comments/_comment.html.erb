@@ -1,0 +1,40 @@
+<div class="comment-item <%= 'nested-comment' if comment.reply? %>" id="comment-<%= comment.id %>">
+  <div class="comment-avatar">
+    <% if comment.user.avatar.attached? %>
+      <%= image_tag comment.user.avatar, alt: "#{comment.user.name} avatar" %>
+    <% else %>
+      <%= comment.user.name&.first&.upcase || 'U' %>
+    <% end %>
+  </div>
+  <div class="comment-content">
+    <div class="comment-bubble">
+      <div class="comment-author"><%= comment.user.name || comment.user.email %></div>
+      <p><%= comment.content %></p>
+    </div>
+    <div class="comment-meta">
+      <span class="comment-time"><%= time_ago_in_words(comment.created_at) %> ago</span>
+      <button class="comment-action-btn" onclick="replyToComment(<%= post.id %>, <%= comment.id %>, '<%= comment.user.name %>')">
+        Reply
+      </button>
+      <% if comment.user == current_user %>
+        <%= button_to 'Delete', post_comment_path(post, comment), method: :delete, class: 'comment-delete', data: { confirm: 'Delete this comment?' } %>
+      <% end %>
+      <% if comment.replies_count > 0 %>
+        <button class="comment-action-btn" onclick="toggleReplies(<%= comment.id %>)">
+          <span id="replies-text-<%= comment.id %>">
+            <%= pluralize(comment.replies_count, 'reply') %>
+          </span>
+        </button>
+      <% end %>
+    </div>
+    
+    <!-- Nested Replies -->
+    <% if comment.replies.any? %>
+      <div class="replies-container" id="replies-<%= comment.id %>" style="display: none;">
+        <% comment.replies.recent.each do |reply| %>
+          <%= render 'comments/comment', comment: reply, post: post %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
