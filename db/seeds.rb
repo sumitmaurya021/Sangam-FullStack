@@ -86,22 +86,47 @@ end
 # Indian Data
 # -------------------------------------------------------
 INDIAN_NAMES = [
-  ["Aarav",    "Sharma"],
-  ["Priya",    "Patel"],
-  ["Rohan",    "Verma"],
-  ["Anjali",   "Singh"],
-  ["Karan",    "Gupta"],
-  ["Sneha",    "Reddy"],
-  ["Vivaan",   "Kumar"],
-  ["Divya",    "Mehta"],
-  ["Arjun",    "Joshi"],
-  ["Neha",     "Kapoor"]
+  ["Aarav", "Sharma"], ["Priya", "Patel"], ["Rohan", "Verma"], ["Anjali", "Singh"],
+  ["Karan", "Gupta"], ["Sneha", "Reddy"], ["Vivaan", "Kumar"], ["Divya", "Mehta"],
+  ["Arjun", "Joshi"], ["Neha", "Kapoor"], ["Aditya", "Rao"], ["Pooja", "Nair"],
+  ["Rahul", "Desai"], ["Kavya", "Iyer"], ["Siddharth", "Malhotra"], ["Riya", "Chopra"],
+  ["Varun", "Agarwal"], ["Ishita", "Bansal"], ["Ayush", "Saxena"], ["Tanvi", "Kulkarni"],
+  ["Harsh", "Pandey"], ["Shreya", "Mishra"], ["Yash", "Tiwari"], ["Ananya", "Sinha"],
+  ["Kunal", "Bhatt"], ["Sakshi", "Jain"], ["Nikhil", "Shah"], ["Aditi", "Pillai"],
+  ["Akash", "Menon"], ["Ritika", "Bose"], ["Manish", "Ghosh"], ["Simran", "Dutta"],
+  ["Gaurav", "Chatterjee"], ["Nidhi", "Mukherjee"], ["Abhishek", "Das"], ["Megha", "Sen"],
+  ["Vishal", "Roy"], ["Pallavi", "Banerjee"], ["Rajat", "Saha"], ["Swati", "Ganguly"],
+  ["Deepak", "Thakur"], ["Preeti", "Yadav"], ["Sandeep", "Chauhan"], ["Komal", "Rawat"],
+  ["Mohit", "Bisht"], ["Shweta", "Negi"], ["Ankit", "Garg"], ["Ritu", "Arora"],
+  ["Sumit", "Bhatia"], ["Nikita", "Khanna"], ["Pankaj", "Sethi"], ["Anjali", "Kohli"],
+  ["Vikas", "Dhawan"], ["Sonal", "Bajaj"], ["Ashish", "Mittal"], ["Priyanka", "Singhal"],
+  ["Naveen", "Goyal"], ["Shivani", "Aggarwal"], ["Manoj", "Jindal"], ["Ruchi", "Tandon"],
+  ["Sanjay", "Vohra"], ["Geeta", "Bhatia"], ["Ramesh", "Sood"], ["Sunita", "Khurana"],
+  ["Suresh", "Malhotra"], ["Rekha", "Kapoor"], ["Dinesh", "Sharma"], ["Meena", "Verma"],
+  ["Rajesh", "Gupta"], ["Seema", "Singh"], ["Anil", "Kumar"], ["Kavita", "Reddy"],
+  ["Vinod", "Mehta"], ["Usha", "Joshi"], ["Prakash", "Rao"], ["Lata", "Nair"],
+  ["Sunil", "Desai"], ["Asha", "Iyer"], ["Mukesh", "Agarwal"], ["Nisha", "Bansal"],
+  ["Ajay", "Saxena"], ["Vandana", "Kulkarni"], ["Ravi", "Pandey"], ["Madhuri", "Mishra"],
+  ["Saurabh", "Tiwari"], ["Aarti", "Sinha"], ["Tarun", "Bhatt"], ["Jyoti", "Jain"],
+  ["Rohit", "Shah"], ["Manisha", "Pillai"], ["Amit", "Menon"], ["Shalini", "Bose"],
+  ["Kiran", "Ghosh"], ["Deepika", "Dutta"], ["Sachin", "Chatterjee"], ["Anita", "Mukherjee"],
+  ["Vikram", "Das"], ["Sunita", "Sen"], ["Arun", "Roy"], ["Poonam", "Banerjee"]
 ]
 
-INDIAN_CITIES      = %w[Mumbai Delhi Bangalore Hyderabad Chennai Kolkata Pune Jaipur]
-INDIAN_PROFESSIONS = ["Software Engineer", "Doctor", "Teacher", "Business Owner",
-                      "Data Analyst", "Graphic Designer", "Photographer", "Chef"]
-INDIAN_HOBBIES     = %w[cricket cooking traveling photography reading music dancing yoga]
+INDIAN_CITIES      = %w[Mumbai Delhi Bangalore Hyderabad Chennai Kolkata Pune Jaipur Ahmedabad Surat Lucknow Kanpur Nagpur Indore Thane Bhopal Visakhapatnam Pimpri-Chinchwad Patna Vadodara Ghaziabad Ludhiana Agra Nashik Faridabad Meerut Rajkot Kalyan-Dombivli Vasai-Virar Varanasi Srinagar Aurangabad Dhanbad Amritsar Navi-Mumbai Allahabad Ranchi Howrah Coimbatore Jabalpur Gwalior Vijayawada Jodhpur Madurai Raipur Kota Chandigarh Guwahati]
+
+INDIAN_PROFESSIONS = ["Software Engineer", "Doctor", "Teacher", "Business Owner", "Data Analyst", 
+                      "Graphic Designer", "Photographer", "Chef", "Lawyer", "Architect", 
+                      "Marketing Manager", "HR Manager", "Sales Executive", "Content Writer", 
+                      "Digital Marketer", "CA", "Engineer", "Consultant", "Entrepreneur", 
+                      "Fashion Designer", "Interior Designer", "Fitness Trainer", "Pharmacist",
+                      "Bank Manager", "Civil Engineer", "Mechanical Engineer", "Professor",
+                      "Journalist", "Video Editor", "Web Developer", "Mobile App Developer"]
+
+INDIAN_HOBBIES     = %w[cricket cooking traveling photography reading music dancing yoga painting 
+                        singing blogging gaming cycling swimming badminton football chess 
+                        gardening meditation sketching writing poetry movies shopping hiking 
+                        volunteering coding fitness fashion foodie]
 
 POST_CONTENTS = [
   "आज का दिन बहुत अच्छा रहा! 🌟 #GoodVibes #IndianLife",
@@ -119,29 +144,75 @@ POST_CONTENTS = [
   "Amazing Bollywood movie! 🎬 #BollywoodFan",
   "Startup life is rewarding! 💪 #Entrepreneur",
   "Team India victory! 🏆 #CricketFever",
-  "Coffee and code! ☕💻 #DeveloperLife"
+  "Coffee and code! ☕💻 #DeveloperLife",
+  "Goa trip was amazing! 🏖️ #BeachVibes #GoaDiaries",
+  "Homemade dal makhani! 😋 #IndianFood #Foodie",
+  "Morning walk at India Gate! 🚶‍♂️ #DelhiDiaries",
+  "IPL match tonight! 🏏 #IPL2024 #Cricket",
+  "Trying street food at Chandni Chowk! 🍲 #StreetFood",
+  "Holi celebrations! 🎨 #FestivalOfColors #Holi",
+  "New job, new beginnings! 🎉 #CareerGrowth",
+  "Ganesh Chaturthi vibes! 🙏 #GanpatiBappaMorya",
+  "Trekking in Himalayas! ⛰️ #Adventure #Trekking",
+  "Navratri dandiya night! 💃 #Navratri #Garba",
+  "Masala dosa for breakfast! 🥞 #SouthIndian",
+  "Gateway of India visit! 🏛️ #MumbaiDiaries",
+  "Eid Mubarak to all! 🌙 #EidCelebration",
+  "Taj Mahal darshan! 🕌 #WonderOfTheWorld #Agra",
+  "Pongal celebrations! 🍚 #TamilFestival #Pongal",
+  "Durga Puja pandal hopping! 🎭 #DurgaPuja #Kolkata",
+  "Onam Sadhya feast! 🍛 #Onam #Kerala",
+  "Lohri bonfire night! 🔥 #Lohri #Punjab",
+  "Baisakhi harvest festival! 🌾 #Baisakhi #Celebration",
+  "Janmashtami dahi handi! 🏺 #Janmashtami #Krishna",
+  "Raksha Bandhan memories! 🎀 #RakshaBandhan #Siblings",
+  "Karva Chauth fasting! 🌙 #KarvaChauth #Tradition",
+  "Makar Sankranti kite flying! 🪁 #MakarSankranti",
+  "Ugadi new year celebration! 🎊 #Ugadi #NewYear",
+  "Bihu dance performance! 💃 #Bihu #Assam",
+  "Thrissur Pooram festival! 🐘 #ThrissurPooram",
+  "Pushkar Camel Fair! 🐪 #Pushkar #Rajasthan",
+  "Hornbill Festival experience! 🎭 #Nagaland #Festival",
+  "Hemis Festival in Ladakh! 🏔️ #Ladakh #HemisFestival",
+  "Konark Sun Temple visit! ☀️ #Odisha #Heritage",
+  "Hampi ruins exploration! 🏛️ #Karnataka #History",
+  "Backwaters of Kerala! 🚣 #Kerala #Backwaters",
+  "Rishikesh river rafting! 🌊 #Adventure #Rishikesh",
+  "Varanasi Ganga Aarti! 🪔 #Varanasi #Spiritual"
 ]
 
 COMMENTS_LIST = [
-  "Bahut badhiya! 👏",   "Amazing post! ❤️",    "Love this! 🔥",
-  "Bilkul sahi! 💯",     "Kya baat hai! 🙌",    "So relatable!",
-  "Zabardast! 💪",       "Sahi hai bhai! 🤘",   "Bohot accha! 😊",
-  "Mast hai! 🔥",        "Keep it up! ✨",       "Awesome! �"
+  "Bahut badhiya! 👏", "Amazing post! ❤️", "Love this! 🔥",
+  "Bilkul sahi! 💯", "Kya baat hai! 🙌", "So relatable!",
+  "Zabardast! 💪", "Sahi hai bhai! 🤘", "Bohot accha! 😊",
+  "Mast hai! 🔥", "Keep it up! ✨", "Awesome! 👍",
+  "Ekdum mast! 🎉", "Superb! 🌟", "Waah! 😍",
+  "Kamaal ka! 🔥", "Dil jeet liya! ❤️", "Too good! 👌",
+  "Shandar! ✨", "Lajawab! 💯", "Gazab! 🙌",
+  "Dhaasu! 💪", "Ekdum perfect! 👏", "Mindblowing! 🤯",
+  "Khatarnak! 🔥", "Jhakaas! 🎊", "Bindaas! 😎",
+  "Maza aa gaya! 😋", "Shandaar! 🌟", "Kamaal! 👍",
+  "Ekdum solid! 💪", "Bahut hard! 🔥", "Lit hai! 🔥",
+  "Dope! 🎯", "Fire! 🔥", "Sick! 😍",
+  "Killing it! 💯", "On point! 🎯", "Nailed it! 👏",
+  "Slaying! 💅", "Goals! 🎯", "Vibes! ✨",
+  "Mood! 😊", "Same! 🙌", "Felt! ❤️",
+  "Real! 💯", "Facts! 📢", "Truth! ✅"
 ]
 
 # -------------------------------------------------------
-# 3 Users only
+# 100 Users (Indian names)
 # -------------------------------------------------------
-puts "\n👥 Creating 3 users..."
+puts "\n👥 Creating 100 users..."
 users        = []
-human_photos = fetch_user_photos(4) # 3 + 1 test user
+human_photos = fetch_user_photos(100)
 
-4.times do |i|
-  if i < 3
-    fname, lname = INDIAN_NAMES[i]
+100.times do |i|
+  if i < 99
+    fname, lname = INDIAN_NAMES[i % INDIAN_NAMES.length]
     email_addr   = "#{fname.downcase}.#{lname.downcase}#{i}@example.com"
   else
-    fname, lname = "Rahul", "Sharma"
+    fname, lname = "Test", "User"
     email_addr   = "test@example.com"
   end
 
@@ -211,88 +282,84 @@ end
 puts "✅ Total users: #{users.count}"
 
 # -------------------------------------------------------
-# Friendships — max 3
+# Friendships — 300 random friendships
 # -------------------------------------------------------
-puts "\n🤝 Creating friendships (max 3)..."
+puts "\n🤝 Creating friendships (300 random)..."
 friendship_count = 0
 
-[
-  [users[0], users[1]],
-  [users[1], users[2]],
-  [users[0], users[2]]
-].each do |u, f|
-  next if u.friends_with?(f) || u.friend_request_pending?(f)
+300.times do
+  u = users.sample
+  f = users.sample
+  next if u == f || u.friends_with?(f) || u.friend_request_pending?(f)
+  
   fr = u.friendships.create(friend: f, status: 'accepted')
   friendship_count += 1 if fr.persisted?
 end
 
-# 1 pending request
-u = users[3]; f = users[0]
-u.friendships.create(friend: f, status: 'pending') unless u.friend_request_pending?(f)
+# 20 pending requests
+puts "📬 Creating 20 pending friend requests..."
+20.times do
+  u = users.sample
+  f = users.sample
+  next if u == f || u.friends_with?(f) || u.friend_request_pending?(f)
+  
+  u.friendships.create(friend: f, status: 'pending')
+end
 
-puts "✅ #{friendship_count} friendships, 1 pending request"
+puts "✅ #{friendship_count} friendships, 20 pending requests"
 
 # -------------------------------------------------------
-# Posts — 3 per user, each with 7-9 images
+# Posts — 500 posts, each with 3-5 images
 # -------------------------------------------------------
-puts "\n📝 Creating posts (3 per user, 7-9 images each)..."
+puts "\n📝 Creating posts (500 posts, 3-5 images each)..."
 post_count = 0
 
-users.each do |user|
-  3.times do |pi|
-    post = user.posts.create!(content: POST_CONTENTS.sample)
-    image_count = rand(7..9)
-    attached_count = 0
+500.times do |pi|
+  user = users.sample
+  post = user.posts.create!(content: POST_CONTENTS.sample)
+  image_count = rand(3..5)
+  attached_count = 0
 
-    image_count.times do |ii|
-      seed_num = (post_count * 1000) + (ii * 100) + rand(1..99)
-      
-      # Try Picsum with unique seed
-      img = fetch_picsum_photo(800, 600, seed_num)
-      
-      # Retry with different seed if failed
-      if img.nil?
-        puts "    🔄 Retrying image #{ii + 1}..."
-        img = fetch_picsum_photo(800, 600, seed_num + 5000)
-      end
-      
-      # One more retry with completely different seed
-      if img.nil?
-        puts "    🔄 Final retry for image #{ii + 1}..."
-        img = fetch_picsum_photo(800, 600, Time.now.to_i + ii)
-      end
-      
-      if img && img.size > 0
-        begin
-          post.images.attach(io: img, filename: "p#{post_count}_i#{ii}.jpg", content_type: 'image/jpeg')
-          attached_count += 1
-          puts "    ✅ Image #{ii + 1} attached: #{img.size} bytes"
-        rescue => e
-          puts "    ❌ Attach failed: #{e.message}"
-        end
-      else
-        puts "    ❌ Image #{ii + 1} failed - skipping"
-      end
-      
-      # Close file after attachment
-      img.close if img
-      img.unlink if img rescue nil
+  image_count.times do |ii|
+    seed_num = (post_count * 1000) + (ii * 100) + rand(1..99)
+    
+    # Try Picsum with unique seed
+    img = fetch_picsum_photo(800, 600, seed_num)
+    
+    # Retry with different seed if failed
+    if img.nil?
+      img = fetch_picsum_photo(800, 600, seed_num + 5000)
     end
-
-    post_count += 1
-    puts "  📸 Post #{post_count}: #{user.name} — #{attached_count}/#{image_count} images attached"
+    
+    if img && img.size > 0
+      begin
+        post.images.attach(io: img, filename: "p#{post_count}_i#{ii}.jpg", content_type: 'image/jpeg')
+        attached_count += 1
+      rescue => e
+        puts "    ❌ Attach failed: #{e.message}"
+      end
+    end
+    
+    # Close file after attachment
+    img.close if img
+    img.unlink if img rescue nil
   end
+
+  post_count += 1
+  puts "  📸 Post #{post_count}: #{user.name} — #{attached_count}/#{image_count} images attached" if post_count % 50 == 0
 end
 puts "✅ #{post_count} posts created"
 
 # -------------------------------------------------------
-# Likes — max 3 per post
+# Likes — 5-15 per post (random)
 # -------------------------------------------------------
-puts "\n❤️  Creating likes (max 3 per post)..."
+puts "\n❤️  Creating likes (5-15 per post)..."
 like_count = 0
 
 Post.find_each do |post|
-  users.sample(3).each do |liker|
+  num_likes = rand(5..15)
+  users.sample(num_likes).each do |liker|
+    next if liker.id == post.user_id
     reaction = %w[like love haha wow sad angry].sample
     like     = post.likes.create(user: liker, reaction_type: reaction)
     like_count += 1 if like.persisted?
@@ -301,14 +368,15 @@ end
 puts "✅ #{like_count} likes"
 
 # -------------------------------------------------------
-# Comments — max 3 per post, max 2 replies per comment
+# Comments — 3-8 per post, 1-3 replies per comment
 # -------------------------------------------------------
-puts "\n💬 Creating comments (max 3 per post)..."
+puts "\n💬 Creating comments (3-8 per post)..."
 comment_count = 0
 reply_count   = 0
 
 Post.find_each do |post|
-  users.sample(3).each do |commenter|
+  num_comments = rand(3..8)
+  users.sample(num_comments).each do |commenter|
     comment = post.comments.create(
       user:      commenter,
       content:   COMMENTS_LIST.sample,
@@ -317,8 +385,9 @@ Post.find_each do |post|
     next unless comment.persisted?
     comment_count += 1
 
-    # max 2 replies
-    users.sample(2).each do |replier|
+    # 1-3 replies per comment
+    num_replies = rand(1..3)
+    users.sample(num_replies).each do |replier|
       reply = post.comments.create(
         user:      replier,
         content:   COMMENTS_LIST.sample,
@@ -331,13 +400,14 @@ end
 puts "✅ #{comment_count} comments, #{reply_count} replies"
 
 # -------------------------------------------------------
-# Shares — max 3 per post
+# Shares — 2-10 per post (random)
 # -------------------------------------------------------
-puts "\n🔄 Creating shares (max 3 per post)..."
+puts "\n🔄 Creating shares (2-10 per post)..."
 share_count = 0
 
 Post.find_each do |post|
-  users.sample(3).each do |sharer|
+  num_shares = rand(2..10)
+  users.sample(num_shares).each do |sharer|
     next if sharer.id == post.user_id
     share = post.shares.create(user: sharer)
     share_count += 1 if share.persisted?
