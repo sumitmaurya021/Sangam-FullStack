@@ -92,117 +92,7 @@
     
     <% if @posts.any? %>
       <div class="timeline-posts">
-        <% @posts.each do |post| %>
-          <article class="timeline-post-card" id="post-<%= post.id %>">
-            <!-- Post Header -->
-            <div class="post-header-timeline">
-              <div class="post-avatar-timeline">
-                <% if post.user.avatar.attached? %>
-                  <%= image_tag post.user.avatar, alt: "#{post.user.name || post.user.email} avatar" %>
-                <% else %>
-                  <%= post.user.name&.first&.upcase || 'U' %>
-                <% end %>
-              </div>
-              <div class="post-meta-timeline">
-                <h3 class="post-author-name"><%= post.user.name || post.user.email %></h3>
-                <span class="post-time-timeline">
-                  <%= time_ago_in_words(post.created_at) %> ago
-                </span>
-              </div>
-              <% if post.user == current_user %>
-                <%= button_to post_path(post), method: :delete, class: 'btn-delete-post', data: { confirm: 'Delete this post?' } do %>
-                  <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                  </svg>
-                <% end %>
-              <% end %>
-            </div>
-            
-            <!-- Post Content -->
-            <div class="post-content-timeline">
-              <p><%= post.content %></p>
-              <% if post.image.present? %>
-                <div class="post-image-timeline">
-                  <%= image_tag post.image, alt: 'Post image' %>
-                </div>
-              <% end %>
-            </div>
-            
-            <!-- Post Stats -->
-            <div class="post-stats-timeline">
-              <div class="stats-left">
-                <div class="reaction-icons">
-                  <span class="reaction-icon">👍</span>
-                  <span class="reaction-icon love">❤️</span>
-                </div>
-                <span class="likes-count"><%= post.likes_count %> likes</span>
-              </div>
-              <div class="stats-right">
-                <span class="stat-link"><%= post.comments_count %> comments</span>
-                <span class="stat-link"><%= post.shares_count %> shares</span>
-              </div>
-            </div>
-            
-            <!-- Post Actions -->
-            <div class="post-actions-timeline">
-              <%= button_to like_post_path(post), method: :post, class: "action-btn-timeline #{current_user.liked?(post) ? 'active' : ''}" do %>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
-                </svg>
-                <span>Like</span>
-              <% end %>
-              
-              <button class="action-btn-timeline" onclick="toggleComments(<%= post.id %>)">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/>
-                </svg>
-                <span>Comment</span>
-              </button>
-              
-              <%= button_to share_post_path(post), method: :post, class: 'action-btn-timeline' do %>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
-                </svg>
-                <span>Share</span>
-              <% end %>
-            </div>
-
-            <!-- Comments Section -->
-            <div class="comments-section-timeline" id="comments-<%= post.id %>" style="display: none;">
-              <div class="comments-list">
-                <% post.comments.recent.limit(5).each do |comment| %>
-                  <div class="comment-item-timeline">
-                    <div class="comment-avatar-timeline">
-                      <%= comment.user.name&.first&.upcase || 'U' %>
-                    </div>
-                    <div class="comment-content-timeline">
-                      <div class="comment-bubble-timeline">
-                        <div class="comment-author-timeline"><%= comment.user.name || comment.user.email %></div>
-                        <p><%= comment.content %></p>
-                      </div>
-                      <div class="comment-meta-timeline">
-                        <span><%= time_ago_in_words(comment.created_at) %> ago</span>
-                        <% if comment.user == current_user %>
-                          <%= button_to 'Delete', post_comment_path(post, comment), method: :delete, class: 'comment-delete-timeline', data: { confirm: 'Delete this comment?' } %>
-                        <% end %>
-                      </div>
-                    </div>
-                  </div>
-                <% end %>
-              </div>
-              
-              <%= form_with model: [post, Comment.new], class: 'comment-form-timeline' do |f| %>
-                <div class="comment-input-wrapper-timeline">
-                  <div class="comment-avatar-small-timeline">
-                    <%= current_user.name&.first&.upcase || 'U' %>
-                  </div>
-                  <%= f.text_field :content, placeholder: 'Write a comment...', class: 'comment-input-timeline', autocomplete: 'off' %>
-                  <%= f.submit 'Post', class: 'btn-comment-timeline' %>
-                </div>
-              <% end %>
-            </div>
-          </article>
-        <% end %>
+        <%= render partial: 'posts/post_card', collection: @posts, as: :post %>
       </div>
     <% else %>
       <div class="empty-state-timeline">
@@ -217,5 +107,6 @@
   </div>
 </div>
 
+<%= stylesheet_link_tag 'posts/feed', 'data-turbo-track': 'reload' %>
 <%= stylesheet_link_tag 'profiles/show', 'data-turbo-track': 'reload' %>
 <%= javascript_include_tag 'profiles/show', 'data-turbo-track': 'reload' %>

@@ -46,7 +46,8 @@
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
+  // Use turbo:load instead of DOMContentLoaded for Turbo compatibility
+  document.addEventListener("turbo:load", function () {
     const quotes = [
       {
         text: "The best time to connect with someone is now.",
