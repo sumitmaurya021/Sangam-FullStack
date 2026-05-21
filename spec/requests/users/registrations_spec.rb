@@ -10,7 +10,7 @@ RSpec.describe "Users::Registrations", type: :request do
     it "displays the signup page" do
       get new_user_registration_path
       expect(response.body).to include('Sangam')
-      expect(response.body).to include('Create a new account')
+      expect(response.body).to include('Create account')
     end
     
     it "includes CSS stylesheet link" do
@@ -20,13 +20,13 @@ RSpec.describe "Users::Registrations", type: :request do
     
     it "has email field" do
       get new_user_registration_path
-      expect(response.body).to include('Email address')
+      expect(response.body).to include('Email Address')
     end
     
     it "has password fields" do
       get new_user_registration_path
-      expect(response.body).to include('New password')
-      expect(response.body).to include('Confirm password')
+      expect(response.body).to include('Password')
+      expect(response.body).to include('Confirm Password')
     end
     
     it "has signup button" do
@@ -49,6 +49,7 @@ RSpec.describe "Users::Registrations", type: :request do
   describe "POST /users" do
     let(:valid_attributes) do
       {
+        name: Faker::Name.name,
         email: Faker::Internet.email,
         password: 'password123',
         password_confirmation: 'password123'
@@ -70,7 +71,8 @@ RSpec.describe "Users::Registrations", type: :request do
       it "logs in the new user" do
         post user_registration_path, params: { user: valid_attributes }
         follow_redirect!
-        expect(response.body).to include('Welcome')
+        # User should be logged in and redirected to feed
+        expect(response.body).to include('feed-container')
       end
     end
     
@@ -125,12 +127,13 @@ RSpec.describe "Users::Registrations", type: :request do
     end
     
     context "with duplicate email" do
-      let(:existing_user) { create(:user) }
+      let!(:existing_user) { create(:user) }
       
       it "does not create a user" do
         expect {
           post user_registration_path, params: {
             user: {
+              name: 'Test User',
               email: existing_user.email,
               password: 'password123',
               password_confirmation: 'password123'
