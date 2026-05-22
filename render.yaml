@@ -3,7 +3,7 @@ services:
     name: sangam-fullstack
     runtime: ruby
     plan: free
-    buildCommand: bundle install; bundle exec rake assets:precompile; bundle exec rails db:migrate; bundle exec rails db:reset DISABLE_DATABASE_ENVIRONMENT_CHECK=1
+    buildCommand: bundle install; bundle exec rake assets:precompile; bundle exec rails db:migrate
     startCommand: bundle exec rails server -p $PORT -b 0.0.0.0
     envVars:
       - key: RAILS_MASTER_KEY
