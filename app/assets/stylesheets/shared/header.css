@@ -308,6 +308,109 @@
   margin: 4px 8px;
 }
 
+/* Hamburger Menu Button (Hidden on Desktop) */
+.fb-hamburger-btn,
+.fb-search-icon-btn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e4e6eb;
+  border: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  color: #050505;
+}
+
+.fb-hamburger-btn:hover,
+.fb-search-icon-btn:hover {
+  background: #d8dadf;
+}
+
+/* Desktop Only Class */
+.fb-desktop-only {
+  display: flex;
+}
+
+/* Navigation Dropdown (Mobile Only) */
+.fb-nav-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.15);
+  min-width: 320px;
+  max-width: 360px;
+  display: none;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+  z-index: 1001;
+}
+
+.fb-nav-dropdown.show {
+  display: block;
+}
+
+.fb-nav-dropdown-header {
+  padding: 12px 16px;
+  font-weight: 600;
+  font-size: 16px;
+  color: #050505;
+  border-bottom: 1px solid #e4e6eb;
+}
+
+.fb-nav-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  text-decoration: none;
+  color: #050505;
+  transition: background 0.2s;
+  border: none;
+  background: none;
+  width: 100%;
+  cursor: pointer;
+  font-size: 15px;
+  text-align: left;
+}
+
+.fb-nav-dropdown-item:hover {
+  background: #f0f2f5;
+}
+
+.fb-nav-dropdown-item.active {
+  background: #e7f3ff;
+  color: #1877f2;
+}
+
+.fb-nav-dropdown-item.active .fb-nav-dropdown-icon {
+  background: #1877f2;
+}
+
+.fb-nav-dropdown-item.active .fb-nav-dropdown-icon svg {
+  fill: white;
+}
+
+.fb-nav-dropdown-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e4e6eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.fb-nav-dropdown-item .fb-notification-badge {
+  margin-left: auto;
+}
+
 /* ===================================================
    RESPONSIVE - TABLET
 =================================================== */
@@ -327,27 +430,187 @@
 =================================================== */
 
 @media (max-width: 767px) {
-  .fb-header-content {
-    padding: 0 8px;
+  .fb-header {
+    height: auto;
   }
   
+  .fb-header-content {
+    flex-wrap: wrap;
+    padding: 0;
+    height: auto;
+  }
+  
+  /* Top Row: Logo, Search Icon, Hamburger */
   .fb-header-left {
-    flex: 0 0 auto;
+    flex: 1;
+    order: 1;
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .fb-logo {
+    width: 36px;
+    height: 36px;
   }
   
   .fb-search {
     display: none;
   }
   
-  .fb-header-center {
+  .fb-header-right {
+    flex: 0 0 auto;
+    order: 2;
+    gap: 8px;
+    padding: 8px 8px 8px 0;
+  }
+  
+  /* Show search icon button on mobile */
+  .fb-search-icon-btn {
     display: flex;
-    flex: 1;
-    max-width: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e4e6eb;
+    border: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: #050505;
+  }
+  
+  .fb-search-icon-btn:hover {
+    background: #d8dadf;
+  }
+  
+  .fb-search-icon-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  /* Show hamburger button on mobile */
+  .fb-hamburger-btn {
+    display: flex;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .fb-hamburger-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  /* Hide desktop icons and profile on mobile top row */
+  .fb-desktop-only,
+  .fb-profile-btn {
+    display: none !important;
+  }
+  
+  /* Bottom Row: Navigation Icons */
+  .fb-header-center {
+    order: 3;
+    width: 100%;
+    display: flex;
+    flex: 1 1 100%;
+    max-width: 100%;
     gap: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    border-top: 1px solid #e4e6eb;
+    height: 48px;
+  }
+  
+  .fb-header-center::-webkit-scrollbar {
+    display: none;
   }
   
   .fb-nav-item {
     min-width: 60px;
+    padding: 0 8px;
+    flex-shrink: 0;
+    height: 48px;
+  }
+  
+  .fb-nav-item svg {
+    width: 24px;
+    height: 24px;
+  }
+  
+  .fb-nav-item.active {
+    border-bottom: 2px solid #1877f2;
+  }
+  
+  .fb-user-dropdown,
+  .fb-nav-dropdown {
+    right: 8px;
+    top: 56px;
+    min-width: 300px;
+    max-width: calc(100vw - 16px);
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .fb-header-left {
+    padding: 6px;
+    gap: 6px;
+  }
+  
+  .fb-logo {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .fb-header-right {
+    gap: 6px;
+    padding: 6px 6px 6px 0;
+  }
+  
+  .fb-search-icon-btn,
+  .fb-hamburger-btn {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .fb-search-icon-btn svg,
+  .fb-hamburger-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .fb-header-center {
+    height: 44px;
+  }
+  
+  .fb-nav-item {
+    min-width: 50px;
+    padding: 0 6px;
+    height: 44px;
+  }
+  
+  .fb-nav-item svg {
+    width: 22px;
+    height: 22px;
+  }
+  
+  .fb-user-dropdown,
+  .fb-nav-dropdown {
+    right: 6px;
+    min-width: 280px;
+  }
+}
+
+/* Tablet landscape - show some navigation */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .fb-header-center {
+    display: flex;
+    gap: 2px;
+  }
+  
+  .fb-nav-item {
+    min-width: 70px;
     padding: 0 8px;
   }
   
@@ -356,23 +619,15 @@
     height: 24px;
   }
   
-  .fb-header-right {
-    flex: 0 0 auto;
-    gap: 4px;
+  /* Hide hamburger and search icon on tablet */
+  .fb-hamburger-btn,
+  .fb-search-icon-btn {
+    display: none;
   }
   
-  .fb-icon-btn {
-    width: 36px;
-    height: 36px;
-  }
-  
-  .fb-icon-btn svg {
-    width: 18px;
-    height: 18px;
-  }
-  
-  .fb-user-dropdown {
-    right: 8px;
-    min-width: 320px;
+  /* Show desktop icons on tablet */
+  .fb-desktop-only,
+  .fb-profile-btn {
+    display: flex !important;
   }
 }

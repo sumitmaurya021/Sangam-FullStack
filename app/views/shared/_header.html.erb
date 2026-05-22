@@ -61,19 +61,34 @@
 
     <!-- Right Section: Icons & Profile -->
     <div class="fb-header-right">
-      <button class="fb-icon-btn" title="Menu">
+      <!-- Search Icon Button (Mobile Only) -->
+      <button class="fb-search-icon-btn" title="Search">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M8.5 3a5.5 5.5 0 014.227 9.02l4.127 4.126a.75.75 0 11-1.061 1.061l-4.126-4.127A5.5 5.5 0 118.5 3zm0 1.5a4 4 0 100 8 4 4 0 000-8z"/>
+        </svg>
+      </button>
+      
+      <!-- Hamburger Menu Button (Mobile Only) -->
+      <button class="fb-hamburger-btn" onclick="toggleNavMenu()" title="Menu">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
           <path d="M2.5 5.5a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm6-6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm6-6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z"/>
         </svg>
       </button>
       
-      <button class="fb-icon-btn" title="Messenger">
+      <!-- Desktop Icons (Hidden on Mobile) -->
+      <button class="fb-icon-btn fb-desktop-only" title="Menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M2.5 5.5a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm6-6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm6-6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z"/>
+        </svg>
+      </button>
+      
+      <button class="fb-icon-btn fb-desktop-only" title="Messenger">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
           <path d="M10 2.5c-4.687 0-8.5 3.439-8.5 7.688 0 2.414 1.203 4.562 3.094 5.969V19.5l3.594-1.969c.938.25 1.938.406 2.969.406 4.687 0 8.5-3.438 8.5-7.688S14.687 2.5 10 2.5zm.906 10.344l-2.187-2.344-4.281 2.344 4.719-5L11.406 10l4.219-2.344-4.719 5z"/>
         </svg>
       </button>
       
-      <button class="fb-icon-btn fb-notification-btn" title="Notifications">
+      <button class="fb-icon-btn fb-notification-btn fb-desktop-only" title="Notifications">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
           <path d="M10 2.5c-.828 0-1.5.672-1.5 1.5v.586C6.348 5.207 5 7.13 5 9.5v3.75l-1.25 1.25v.75h12.5v-.75L15 13.25V9.5c0-2.37-1.348-4.293-3.5-4.914V4c0-.828-.672-1.5-1.5-1.5zm-2.5 15c0 1.379 1.121 2.5 2.5 2.5s2.5-1.121 2.5-2.5h-5z"/>
         </svg>
@@ -81,6 +96,88 @@
           <span class="fb-notification-badge"><%= current_user.pending_friend_requests.count %></span>
         <% end %>
       </button>
+      
+      <!-- Navigation Dropdown (Mobile Only) -->
+      <div class="fb-nav-dropdown" id="navDropdown">
+        <div class="fb-nav-dropdown-header">Navigation</div>
+        
+        <%= link_to posts_path, class: "fb-nav-dropdown-item #{current_page?(posts_path) ? 'active' : ''}" do %>
+          <div class="fb-nav-dropdown-icon">
+            <svg width="20" height="20" viewBox="0 0 28 28" fill="currentColor">
+              <path d="M25.825 12.29C25.824 12.289 25.823 12.288 25.821 12.286L15.027 2.937C14.752 2.675 14.392 2.527 13.989 2.521 13.608 2.527 13.248 2.675 13.001 2.912L2.175 12.29C1.756 12.658 1.629 13.245 1.868 13.759 2.079 14.215 2.567 14.479 3.069 14.479L5 14.479 5 23.729C5 24.695 5.784 25.479 6.75 25.479L11 25.479C11.552 25.479 12 25.031 12 24.479L12 18.309C12 18.126 12.148 17.979 12.33 17.979L15.67 17.979C15.852 17.979 16 18.126 16 18.309L16 24.479C16 25.031 16.448 25.479 17 25.479L21.25 25.479C22.216 25.479 23 24.695 23 23.729L23 14.479 24.931 14.479C25.433 14.479 25.921 14.215 26.132 13.759 26.371 13.245 26.244 12.658 25.825 12.29"/>
+            </svg>
+          </div>
+          <span>Home</span>
+        <% end %>
+        
+        <%= link_to '#', class: 'fb-nav-dropdown-item' do %>
+          <div class="fb-nav-dropdown-icon">
+            <svg width="20" height="20" viewBox="0 0 28 28" fill="currentColor">
+              <path d="M10.5 4.5c-2.272 0-2.75 1.768-2.75 3.25C7.75 9.542 8.983 11 10.5 11s2.75-1.458 2.75-3.25c0-1.482-.478-3.25-2.75-3.25zm0 8c-2.344 0-4.25-2.131-4.25-4.75C6.25 5.776 7.256 3 10.5 3s4.25 2.776 4.25 4.75c0 2.619-1.906 4.75-4.25 4.75zM4.25 23.25v-1.5c0-2.206 1.794-4 4-4h4.5c2.206 0 4 1.794 4 4v1.5h1.5v-1.5c0-3.033-2.467-5.5-5.5-5.5h-4.5c-3.033 0-5.5 2.467-5.5 5.5v1.5h1.5zm13.5-11.75c-1.828 0-2.75 1.768-2.75 3.25 0 1.792 1.233 3.25 2.75 3.25s2.75-1.458 2.75-3.25c0-1.482-.922-3.25-2.75-3.25zm0 8c-2.344 0-4.25-2.131-4.25-4.75 0-1.974 1.006-4.75 4.25-4.75s4.25 2.776 4.25 4.75c0 2.619-1.906 4.75-4.25 4.75zm4.5 3.5v-1.5c0-2.206 1.794-4 4-4h.5v-1.5h-.5c-3.033 0-5.5 2.467-5.5 5.5v1.5h1.5z"/>
+            </svg>
+          </div>
+          <span>Friends</span>
+        <% end %>
+        
+        <%= link_to '#', class: 'fb-nav-dropdown-item' do %>
+          <div class="fb-nav-dropdown-icon">
+            <svg width="20" height="20" viewBox="0 0 28 28" fill="currentColor">
+              <path d="M8.75 25.25C8.336 25.25 8 24.914 8 24.5 8 24.086 8.336 23.75 8.75 23.75L19.25 23.75C19.664 23.75 20 24.086 20 24.5 20 24.914 19.664 25.25 19.25 25.25L8.75 25.25ZM17.163 12.846 12.055 15.923C11.591 16.202 11 15.869 11 15.327L11 9.172C11 8.631 11.591 8.297 12.055 8.576L17.163 11.654C17.612 11.924 17.612 12.575 17.163 12.846ZM21.75 20.25C22.992 20.25 24 19.242 24 18L24 6.5C24 5.258 22.992 4.25 21.75 4.25L6.25 4.25C5.008 4.25 4 5.258 4 6.5L4 18C4 19.242 5.008 20.25 6.25 20.25L21.75 20.25ZM21.75 21.75 6.25 21.75C4.179 21.75 2.5 20.071 2.5 18L2.5 6.5C2.5 4.429 4.179 2.75 6.25 2.75L21.75 2.75C23.821 2.75 25.5 4.429 25.5 6.5L25.5 18C25.5 20.071 23.821 21.75 21.75 21.75Z"/>
+            </svg>
+          </div>
+          <span>Watch</span>
+        <% end %>
+        
+        <%= link_to '#', class: 'fb-nav-dropdown-item' do %>
+          <div class="fb-nav-dropdown-icon">
+            <svg width="20" height="20" viewBox="0 0 28 28" fill="currentColor">
+              <path d="M17.5 23.979 21.25 23.979C21.386 23.979 21.5 23.864 21.5 23.729L21.5 13.979C21.5 13.427 21.949 12.979 22.5 12.979L24.33 12.979 14.017 4.046 3.672 12.979 5.5 12.979C6.052 12.979 6.5 13.427 6.5 13.979L6.5 23.729C6.5 23.864 6.615 23.979 6.75 23.979L10.5 23.979 10.5 17.729C10.5 17.04 11.061 16.479 11.75 16.479L16.25 16.479C16.939 16.479 17.5 17.04 17.5 17.729L17.5 23.979ZM21.25 25.479 17 25.479C16.448 25.479 16 25.031 16 24.479L16 18.327C16 18.135 15.844 17.979 15.652 17.979L12.348 17.979C12.156 17.979 12 18.135 12 18.327L12 24.479C12 25.031 11.552 25.479 11 25.479L6.75 25.479C5.784 25.479 5 24.695 5 23.729L5 14.479 3.069 14.479C2.567 14.479 2.079 14.215 1.868 13.759 1.63 13.245 1.757 12.658 2.175 12.29L13.001 2.912C13.248 2.675 13.608 2.527 13.989 2.521 14.392 2.527 14.753 2.675 15.027 2.937L25.821 12.286C25.823 12.288 25.824 12.289 25.825 12.29 26.244 12.658 26.371 13.245 26.133 13.759 25.921 14.215 25.434 14.479 24.931 14.479L23 14.479 23 23.729C23 24.695 22.217 25.479 21.25 25.479Z"/>
+            </svg>
+          </div>
+          <span>Marketplace</span>
+        <% end %>
+        
+        <%= link_to '#', class: 'fb-nav-dropdown-item' do %>
+          <div class="fb-nav-dropdown-icon">
+            <svg width="20" height="20" viewBox="0 0 28 28" fill="currentColor">
+              <path d="M23.5 9.5H10.25a.75.75 0 00-.75.75v7c0 .414.336.75.75.75H17v5.5H4.5v-19h19v5zm0 14h-5v-6.25a.75.75 0 00-.75-.75H11V11h12.5v12.5zm1.5.25V4.25C25 3.561 24.439 3 23.75 3H4.25C3.561 3 3 3.561 3 4.25v19.5c0 .689.561 1.25 1.25 1.25h19.5c.689 0 1.25-.561 1.25-1.25z"/>
+            </svg>
+          </div>
+          <span>Gaming</span>
+        <% end %>
+        
+        <div class="fb-dropdown-divider"></div>
+        
+        <button class="fb-nav-dropdown-item" title="Menu">
+          <div class="fb-nav-dropdown-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M2.5 5.5a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm6-6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm6-6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z"/>
+            </svg>
+          </div>
+          <span>Menu</span>
+        </button>
+        
+        <button class="fb-nav-dropdown-item" title="Messenger">
+          <div class="fb-nav-dropdown-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 2.5c-4.687 0-8.5 3.439-8.5 7.688 0 2.414 1.203 4.562 3.094 5.969V19.5l3.594-1.969c.938.25 1.938.406 2.969.406 4.687 0 8.5-3.438 8.5-7.688S14.687 2.5 10 2.5zm.906 10.344l-2.187-2.344-4.281 2.344 4.719-5L11.406 10l4.219-2.344-4.719 5z"/>
+            </svg>
+          </div>
+          <span>Messenger</span>
+        </button>
+        
+        <button class="fb-nav-dropdown-item fb-notification-btn" title="Notifications">
+          <div class="fb-nav-dropdown-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 2.5c-.828 0-1.5.672-1.5 1.5v.586C6.348 5.207 5 7.13 5 9.5v3.75l-1.25 1.25v.75h12.5v-.75L15 13.25V9.5c0-2.37-1.348-4.293-3.5-4.914V4c0-.828-.672-1.5-1.5-1.5zm-2.5 15c0 1.379 1.121 2.5 2.5 2.5s2.5-1.121 2.5-2.5h-5z"/>
+            </svg>
+            <% if current_user.pending_friend_requests.any? %>
+              <span class="fb-notification-badge"><%= current_user.pending_friend_requests.count %></span>
+            <% end %>
+          </div>
+          <span>Notifications</span>
+        </button>
+      </div>
       
       <button class="fb-profile-btn" onclick="toggleUserMenu()" title="Account">
         <div class="fb-profile-avatar">
@@ -125,3 +222,31 @@
     </div>
   </div>
 </header>
+
+<script>
+  function toggleNavMenu() {
+    const dropdown = document.getElementById('navDropdown');
+    dropdown.classList.toggle('show');
+  }
+
+  function toggleUserMenu() {
+    const dropdown = document.getElementById('userDropdown');
+    dropdown.classList.toggle('show');
+  }
+
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', function(event) {
+    const navDropdown = document.getElementById('navDropdown');
+    const userDropdown = document.getElementById('userDropdown');
+    
+    // Close nav dropdown if clicking outside
+    if (navDropdown && !event.target.closest('.fb-hamburger-btn') && !event.target.closest('.fb-nav-dropdown')) {
+      navDropdown.classList.remove('show');
+    }
+    
+    // Close user dropdown if clicking outside
+    if (userDropdown && !event.target.closest('.fb-profile-btn') && !event.target.closest('.fb-user-dropdown')) {
+      userDropdown.classList.remove('show');
+    }
+  });
+</script>
