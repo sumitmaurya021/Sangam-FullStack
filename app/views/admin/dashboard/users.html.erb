@@ -1,0 +1,56 @@
+<% content_for :page_title, "Users" %>
+
+<div class="adm-welcome">
+  <div>
+    <h1>All <span>Users</span></h1>
+    <p><%= @users.total_count %> total users registered</p>
+  </div>
+</div>
+
+<div class="adm-table-card" style="margin-bottom:20px">
+  <div class="adm-card-header">
+    <div><h3>User List</h3><p>All registered users with activity stats</p></div>
+  </div>
+  <table class="adm-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>User</th>
+        <th>Email</th>
+        <th>Posts</th>
+        <th>Likes</th>
+        <th>Comments</th>
+        <th>Joined</th>
+        <th>Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each_with_index do |user, i| %>
+        <tr>
+          <td class="adm-muted"><%= i + 1 %></td>
+          <td>
+            <div class="adm-user-cell">
+              <div class="adm-avatar"><%= user.name[0].upcase %></div>
+              <span><%= user.name %></span>
+            </div>
+          </td>
+          <td class="adm-muted"><%= user.email %></td>
+          <td><strong><%= user.posts.count %></strong></td>
+          <td><strong><%= user.likes.count %></strong></td>
+          <td><strong><%= user.comments.count %></strong></td>
+          <td><span class="adm-time-badge"><%= user.created_at.strftime('%b %d, %Y') %></span></td>
+          <td>
+            <% if user.super_admin? %>
+              <span class="adm-stat-badge purple">Admin</span>
+            <% else %>
+              <span class="adm-stat-badge blue">User</span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <div style="padding:16px 0 0; display:flex; justify-content:center">
+    <%= paginate @users %>
+  </div>
+</div>

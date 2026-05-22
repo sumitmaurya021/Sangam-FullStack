@@ -101,6 +101,17 @@
             <div class="fb-dropdown-text">See your profile</div>
           </div>
         <% end %>
+        <% if current_user.super_admin? %>
+          <div class="fb-dropdown-divider"></div>
+          <%= link_to admin_dashboard_path, class: 'fb-dropdown-item super-admin-link' do %>
+            <div class="fb-dropdown-icon">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M10 2L2 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-8-5zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H3V7.89l7-4.67v9.77z"/>
+              </svg>
+            </div>
+            <span>🎯 Super Admin Dashboard</span>
+          <% end %>
+        <% end %>
         <div class="fb-dropdown-divider"></div>
         <%= button_to destroy_user_session_path, method: :delete, class: 'fb-dropdown-item' do %>
           <div class="fb-dropdown-icon">

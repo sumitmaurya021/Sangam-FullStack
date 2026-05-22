@@ -30,6 +30,14 @@ Rails.application.routes.draw do
       patch :reject
     end
   end
+
+  # Super Admin Dashboard
+  namespace :admin do
+    get 'dashboard', to: 'dashboard#index', as: 'dashboard'
+    get 'users', to: 'dashboard#users', as: 'users'
+    get 'posts', to: 'dashboard#posts', as: 'posts'
+    get 'user/:id', to: 'dashboard#user_details', as: 'user_details'
+  end
   
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check

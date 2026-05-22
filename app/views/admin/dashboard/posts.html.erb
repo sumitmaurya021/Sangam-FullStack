@@ -1,0 +1,48 @@
+<% content_for :page_title, "Posts" %>
+
+<div class="adm-welcome">
+  <div>
+    <h1>All <span>Posts</span></h1>
+    <p><%= @posts.total_count %> total posts created</p>
+  </div>
+</div>
+
+<div class="adm-table-card" style="margin-bottom:20px">
+  <div class="adm-card-header">
+    <div><h3>Post List</h3><p>All posts with engagement data</p></div>
+  </div>
+  <table class="adm-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Author</th>
+        <th>Content</th>
+        <th>Likes</th>
+        <th>Comments</th>
+        <th>Shares</th>
+        <th>Posted</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @posts.each_with_index do |post, i| %>
+        <tr>
+          <td class="adm-muted"><%= i + 1 %></td>
+          <td>
+            <div class="adm-user-cell">
+              <div class="adm-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)"><%= post.user.name[0].upcase %></div>
+              <span><%= truncate(post.user.name, length: 16) %></span>
+            </div>
+          </td>
+          <td class="adm-muted"><%= truncate(post.content.to_s, length: 50) %></td>
+          <td><strong><%= post.likes.count %></strong></td>
+          <td><strong><%= post.comments.count %></strong></td>
+          <td><strong><%= post.shares.count %></strong></td>
+          <td><span class="adm-time-badge"><%= post.created_at.strftime('%b %d, %Y') %></span></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  <div style="padding:16px 0 0; display:flex; justify-content:center">
+    <%= paginate @posts %>
+  </div>
+</div>

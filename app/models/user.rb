@@ -27,7 +27,13 @@ class User < ApplicationRecord
   validates :name, presence: true, length: { maximum: 100 }
   validates :bio, length: { maximum: 500 }
 
+  # Scopes
+  scope :super_admins, -> { where(super_admin: true) }
+
   # Methods
+  def super_admin?
+    super_admin == true
+  end
   def all_friends
     friends + inverse_friends
   end

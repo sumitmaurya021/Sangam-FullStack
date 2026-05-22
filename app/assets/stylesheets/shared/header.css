@@ -245,6 +245,23 @@
   background: #f0f2f5;
 }
 
+.super-admin-link {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white !important;
+  border-radius: 8px;
+  margin: 4px 8px;
+  font-weight: 600;
+}
+
+.super-admin-link:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  transform: translateX(3px);
+}
+
+.super-admin-link .fb-dropdown-icon svg {
+  fill: white;
+}
+
 .fb-dropdown-avatar {
   width: 36px;
   height: 36px;

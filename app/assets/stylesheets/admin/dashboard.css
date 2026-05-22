@@ -1,0 +1,394 @@
+/* =============================================
+   SANGAM ADMIN DASHBOARD — PREMIUM UI v3
+   Light + Dark mode via [data-theme]
+============================================= */
+
+/* ---- WELCOME BAR ---- */
+.adm-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.adm-welcome h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.adm-welcome h1 span { color: var(--blue); }
+.adm-welcome p { color: var(--text-muted); font-size: 0.9rem; }
+
+.adm-date {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+  flex-shrink: 0;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+/* ---- STAT CARDS ---- */
+.adm-stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.adm-stat-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 20px 18px;
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  align-items: start;
+  gap: 14px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: box-shadow 0.25s, transform 0.25s, background 0.3s, border-color 0.3s;
+}
+
+.adm-stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+.adm-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Dark mode: soften icon backgrounds */
+[data-theme="dark"] .adm-stat-icon { filter: brightness(0.85) saturate(1.2); }
+
+.adm-stat-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.adm-stat-body p {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+}
+
+.adm-stat-body h3 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+
+.adm-stat-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+  width: fit-content;
+  line-height: 1.5;
+}
+
+/* Light badges */
+.adm-stat-badge.blue   { background: #eff6ff; color: #3b82f6; }
+.adm-stat-badge.green  { background: #f0fdf4; color: #10b981; }
+.adm-stat-badge.red    { background: #fef2f2; color: #ef4444; }
+.adm-stat-badge.purple { background: #fdf4ff; color: #8b5cf6; }
+.adm-stat-badge.orange { background: #fff7ed; color: #f59e0b; }
+
+/* Dark badges */
+[data-theme="dark"] .adm-stat-badge.blue   { background: rgba(59,130,246,0.18);  color: #93c5fd; }
+[data-theme="dark"] .adm-stat-badge.green  { background: rgba(16,185,129,0.18);  color: #6ee7b7; }
+[data-theme="dark"] .adm-stat-badge.red    { background: rgba(239,68,68,0.18);   color: #fca5a5; }
+[data-theme="dark"] .adm-stat-badge.purple { background: rgba(139,92,246,0.18);  color: #c4b5fd; }
+[data-theme="dark"] .adm-stat-badge.orange { background: rgba(245,158,11,0.18);  color: #fcd34d; }
+
+.adm-mini-chart { flex-shrink: 0; align-self: center; opacity: 0.8; }
+
+/* ---- CHARTS ROW ---- */
+.adm-charts-row {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.adm-chart-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 22px 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.adm-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.adm-card-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+
+.adm-card-header p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
+
+.adm-legend { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+
+.adm-legend span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.adm-legend span i {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Donut legend */
+.adm-donut-legend {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.adm-donut-legend div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.adm-donut-legend span {
+  width: 10px; height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.adm-donut-legend strong {
+  margin-left: auto;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* ---- TABLES ROW ---- */
+.adm-tables-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.adm-table-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 22px 24px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: auto;
+  transition: background 0.3s, border-color 0.3s;
+}
+
+.adm-view-all {
+  font-size: 0.8rem;
+  color: var(--blue);
+  text-decoration: none;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  transition: gap 0.2s;
+  flex-shrink: 0;
+}
+
+.adm-view-all:hover { gap: 9px; }
+
+/* ---- TABLE ---- */
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  min-width: 360px;
+}
+
+.adm-table thead tr { border-bottom: 2px solid var(--border); }
+
+.adm-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  white-space: nowrap;
+}
+
+.adm-table td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  vertical-align: middle;
+  transition: background 0.15s;
+}
+
+.adm-table tbody tr:last-child td { border-bottom: none; }
+.adm-table tbody tr:hover td { background: var(--surface2); }
+
+.adm-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.adm-user-cell span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.adm-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+
+.adm-muted {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 160px;
+}
+
+.adm-time-badge {
+  background: var(--input-bg);
+  color: var(--text-muted);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  display: inline-block;
+  border: 1px solid var(--border);
+}
+
+/* Rank badges */
+.adm-rank {
+  width: 26px; height: 26px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+  background: #d1d5db;
+  flex-shrink: 0;
+}
+
+.adm-rank-1 { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+.adm-rank-2 { background: linear-gradient(135deg, #9ca3af, #6b7280); }
+.adm-rank-3 { background: linear-gradient(135deg, #f97316, #ea580c); }
+
+/* Progress bar */
+.adm-bar-wrap {
+  height: 6px;
+  background: var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  min-width: 50px;
+  max-width: 100px;
+}
+
+.adm-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  min-width: 4px;
+  transition: width 0.8s ease;
+}
+
+/* =============================================
+   RESPONSIVE
+============================================= */
+@media (max-width: 1280px) {
+  .adm-mini-chart { display: none; }
+  .adm-stat-card { grid-template-columns: 48px 1fr; }
+}
+
+@media (max-width: 1100px) {
+  .adm-stat-row { grid-template-columns: repeat(2, 1fr); }
+  .adm-charts-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .adm-tables-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .adm-stat-row { grid-template-columns: repeat(2, 1fr); }
+  .adm-stat-body h3 { font-size: 1.6rem; }
+  .adm-welcome h1 { font-size: 1.3rem; }
+  .adm-stat-card { padding: 16px 14px; gap: 10px; }
+}
+
+@media (max-width: 420px) {
+  .adm-stat-row { grid-template-columns: 1fr; }
+  .adm-stat-card { grid-template-columns: 44px 1fr; }
+}

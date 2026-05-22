@@ -1,11 +1,14 @@
-# Clear existing data
+# Clear existing data (except super admin)
 puts "🧹 Clearing existing data..."
 Comment.destroy_all
 Like.destroy_all
 Share.destroy_all
 Friendship.destroy_all
 Post.destroy_all
-User.destroy_all
+User.where(super_admin: false).destroy_all
+
+# Create Super Admin first
+load Rails.root.join('db', 'seeds', 'super_admin.rb')
 
 # Setup for image downloads
 require 'net/http'

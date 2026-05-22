@@ -97,3 +97,6 @@ gem 'rack-timeout'
 
 # Cloudinary for image storage
 gem 'cloudinary', '~> 2.2'
+
+# Groupdate for time-based grouping
+gem 'groupdate', '~> 6.4'

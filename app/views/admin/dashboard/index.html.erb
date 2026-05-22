@@ -1,0 +1,389 @@
+<% content_for :page_title, "Dashboard" %>
+
+<!-- Welcome Bar -->
+<div class="adm-welcome">
+  <div>
+    <h1>Welcome back, <span><%= current_user.name %></span> 👋</h1>
+    <p>Here's what's happening with Sangam today.</p>
+  </div>
+  <div class="adm-date"><i class="fa-regular fa-calendar"></i> <%= Date.today.strftime('%B %d, %Y') %></div>
+</div>
+
+<!-- Row 1: Main Stats -->
+<div class="adm-stat-row">
+
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:#eff6ff;color:#3b82f6">
+      <i class="fa-solid fa-users"></i>
+    </div>
+    <div class="adm-stat-body">
+      <p>Total Users</p>
+      <h3><%= number_with_delimiter(@total_users) %></h3>
+      <span class="adm-stat-badge blue">+<%= @users_last_30_days %> this month</span>
+    </div>
+    <canvas class="adm-mini-chart" id="miniUsers" width="72" height="44"></canvas>
+  </div>
+
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:#f0fdf4;color:#10b981">
+      <i class="fa-solid fa-newspaper"></i>
+    </div>
+    <div class="adm-stat-body">
+      <p>Total Posts</p>
+      <h3><%= number_with_delimiter(@total_posts) %></h3>
+      <span class="adm-stat-badge green">+<%= @posts_last_30_days %> this month</span>
+    </div>
+    <canvas class="adm-mini-chart" id="miniPosts" width="72" height="44"></canvas>
+  </div>
+
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:#fef2f2;color:#ef4444">
+      <i class="fa-solid fa-heart"></i>
+    </div>
+    <div class="adm-stat-body">
+      <p>Total Likes</p>
+      <h3><%= number_with_delimiter(@total_likes) %></h3>
+      <span class="adm-stat-badge red">+<%= @likes_last_30_days %> this month</span>
+    </div>
+    <canvas class="adm-mini-chart" id="miniLikes" width="72" height="44"></canvas>
+  </div>
+
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:#fdf4ff;color:#8b5cf6">
+      <i class="fa-solid fa-comments"></i>
+    </div>
+    <div class="adm-stat-body">
+      <p>Total Comments</p>
+      <h3><%= number_with_delimiter(@total_comments) %></h3>
+      <span class="adm-stat-badge purple">+<%= @comments_last_30_days %> this month</span>
+    </div>
+    <canvas class="adm-mini-chart" id="miniComments" width="72" height="44"></canvas>
+  </div>
+
+</div>
+
+<!-- Row 2: Secondary Stats -->
+<div class="adm-stat-row">
+
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:#fff7ed;color:#f59e0b">
+      <i class="fa-solid fa-share-nodes"></i>
+    </div>
+    <div class="adm-stat-body">
+      <p>Total Shares</p>
+      <h3><%= number_with_delimiter(@total_shares) %></h3>
+      <span class="adm-stat-badge orange">All time</span>
+    </div>
+  </div>
+
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:#f0fdf4;color:#10b981">
+      <i class="fa-solid fa-handshake"></i>
+    </div>
+    <div class="adm-stat-body">
+      <p>Friendships</p>
+      <h3><%= number_with_delimiter(@total_friendships) %></h3>
+      <span class="adm-stat-badge green">Active</span>
+    </div>
+  </div>
+
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:#eff6ff;color:#3b82f6">
+      <i class="fa-solid fa-chart-line"></i>
+    </div>
+    <div class="adm-stat-body">
+      <p>Avg Posts / User</p>
+      <h3><%= @avg_posts_per_user %></h3>
+      <span class="adm-stat-badge blue">Average</span>
+    </div>
+  </div>
+
+  <div class="adm-stat-card">
+    <div class="adm-stat-icon" style="background:#fef2f2;color:#ef4444">
+      <i class="fa-solid fa-fire"></i>
+    </div>
+    <div class="adm-stat-body">
+      <p>Avg Likes / Post</p>
+      <h3><%= @avg_likes_per_post %></h3>
+      <span class="adm-stat-badge red">Average</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Charts Row -->
+<div class="adm-charts-row">
+
+  <!-- Line Chart -->
+  <div class="adm-chart-card">
+    <div class="adm-card-header">
+      <div>
+        <h3>Activity Overview</h3>
+        <p>Last 7 days — Users, Posts &amp; Likes</p>
+      </div>
+      <div class="adm-legend">
+        <span><i style="background:#3b82f6"></i>Users</span>
+        <span><i style="background:#10b981"></i>Posts</span>
+        <span><i style="background:#ef4444"></i>Likes</span>
+      </div>
+    </div>
+    <canvas id="activityChart" height="110"></canvas>
+  </div>
+
+  <!-- Donut Chart -->
+  <div class="adm-chart-card">
+    <div class="adm-card-header">
+      <div>
+        <h3>Content Mix</h3>
+        <p>Distribution breakdown</p>
+      </div>
+    </div>
+    <canvas id="donutChart" height="190"></canvas>
+    <div class="adm-donut-legend">
+      <div><span style="background:#3b82f6"></span>Posts<strong><%= number_with_delimiter(@total_posts) %></strong></div>
+      <div><span style="background:#ef4444"></span>Likes<strong><%= number_with_delimiter(@total_likes) %></strong></div>
+      <div><span style="background:#8b5cf6"></span>Comments<strong><%= number_with_delimiter(@total_comments) %></strong></div>
+      <div><span style="background:#f59e0b"></span>Shares<strong><%= number_with_delimiter(@total_shares) %></strong></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Top Users Tables -->
+<div class="adm-tables-row">
+
+  <!-- Top Posters -->
+  <div class="adm-table-card">
+    <div class="adm-card-header">
+      <div><h3>Top Posters</h3><p>Most active content creators</p></div>
+    </div>
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th style="width:36px">#</th>
+          <th>User</th>
+          <th style="width:60px">Posts</th>
+          <th>Progress</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @top_posters.each_with_index do |user, i| %>
+          <tr>
+            <td><span class="adm-rank adm-rank-<%= [i+1, 3].min %>"><%= i+1 %></span></td>
+            <td>
+              <div class="adm-user-cell">
+                <div class="adm-avatar"><%= user.name[0].upcase %></div>
+                <span><%= truncate(user.name, length: 18) %></span>
+              </div>
+            </td>
+            <td><strong><%= user.posts_count %></strong></td>
+            <td>
+              <div class="adm-bar-wrap">
+                <div class="adm-bar-fill" style="width:<%= @top_posters.first.posts_count > 0 ? (user.posts_count.to_f / @top_posters.first.posts_count * 100).round : 0 %>%;background:#3b82f6"></div>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Top Likers -->
+  <div class="adm-table-card">
+    <div class="adm-card-header">
+      <div><h3>Top Likers</h3><p>Most engaged users</p></div>
+    </div>
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th style="width:36px">#</th>
+          <th>User</th>
+          <th style="width:60px">Likes</th>
+          <th>Progress</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @top_likers.each_with_index do |user, i| %>
+          <tr>
+            <td><span class="adm-rank adm-rank-<%= [i+1, 3].min %>"><%= i+1 %></span></td>
+            <td>
+              <div class="adm-user-cell">
+                <div class="adm-avatar" style="background:linear-gradient(135deg,#ef4444,#f97316)"><%= user.name[0].upcase %></div>
+                <span><%= truncate(user.name, length: 18) %></span>
+              </div>
+            </td>
+            <td><strong><%= user.likes_count %></strong></td>
+            <td>
+              <div class="adm-bar-wrap">
+                <div class="adm-bar-fill" style="width:<%= @top_likers.first.likes_count > 0 ? (user.likes_count.to_f / @top_likers.first.likes_count * 100).round : 0 %>%;background:#ef4444"></div>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Recent Activity Tables -->
+<div class="adm-tables-row">
+
+  <!-- Recent Users -->
+  <div class="adm-table-card">
+    <div class="adm-card-header">
+      <div><h3>Recent Users</h3><p>Latest registrations</p></div>
+      <%= link_to admin_users_path, class: 'adm-view-all' do %>View All <i class="fa-solid fa-arrow-right"></i><% end %>
+    </div>
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Email</th>
+          <th>Joined</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @recent_users.each do |user| %>
+          <tr>
+            <td>
+              <div class="adm-user-cell">
+                <div class="adm-avatar" style="background:linear-gradient(135deg,#8b5cf6,#ec4899)"><%= user.name[0].upcase %></div>
+                <span><%= truncate(user.name, length: 16) %></span>
+              </div>
+            </td>
+            <td class="adm-muted"><%= truncate(user.email, length: 22) %></td>
+            <td><span class="adm-time-badge"><%= time_ago_in_words(user.created_at) %> ago</span></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Recent Posts -->
+  <div class="adm-table-card">
+    <div class="adm-card-header">
+      <div><h3>Recent Posts</h3><p>Latest content</p></div>
+      <%= link_to admin_posts_path, class: 'adm-view-all' do %>View All <i class="fa-solid fa-arrow-right"></i><% end %>
+    </div>
+    <table class="adm-table">
+      <thead>
+        <tr>
+          <th>Author</th>
+          <th>Content</th>
+          <th>Posted</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @recent_posts.each do |post| %>
+          <tr>
+            <td>
+              <div class="adm-user-cell">
+                <div class="adm-avatar" style="background:linear-gradient(135deg,#10b981,#3b82f6)"><%= post.user.name[0].upcase %></div>
+                <span><%= truncate(post.user.name, length: 14) %></span>
+              </div>
+            </td>
+            <td class="adm-muted"><%= truncate(post.content.to_s, length: 28) %></td>
+            <td><span class="adm-time-badge"><%= time_ago_in_words(post.created_at) %> ago</span></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Chart.js Scripts -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const labels = <%= raw @chart_labels %>;
+  const uData  = <%= raw @chart_users %>;
+  const pData  = <%= raw @chart_posts %>;
+  const lData  = <%= raw @chart_likes %>;
+
+  function isDark() {
+    return document.documentElement.getAttribute('data-theme') === 'dark';
+  }
+
+  function gridColor()  { return isDark() ? '#2d3f55' : '#f3f4f6'; }
+  function tickColor()  { return isDark() ? '#94a3b8' : '#9ca3af'; }
+  function tooltipBg()  { return isDark() ? '#0f172a' : '#1e2a3a'; }
+
+  const tickFont = { size: 11, family: 'Segoe UI, system-ui, sans-serif' };
+
+  // ---- Activity Line Chart ----
+  const actChart = new Chart(document.getElementById('activityChart'), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Users', data: uData, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.08)', tension: 0.4, pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: '#3b82f6', pointBorderColor: '#fff', pointBorderWidth: 2, fill: true, borderWidth: 2.5 },
+        { label: 'Posts', data: pData, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.08)', tension: 0.4, pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: '#10b981', pointBorderColor: '#fff', pointBorderWidth: 2, fill: true, borderWidth: 2.5 },
+        { label: 'Likes', data: lData, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.08)',  tension: 0.4, pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: '#ef4444', pointBorderColor: '#fff', pointBorderWidth: 2, fill: true, borderWidth: 2.5 }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: tooltipBg(), titleColor: '#fff', bodyColor: '#cbd5e1', padding: 12, cornerRadius: 8 }
+      },
+      scales: {
+        x: { grid: { color: gridColor() }, ticks: { color: tickColor(), font: tickFont } },
+        y: { grid: { color: gridColor() }, ticks: { color: tickColor(), font: tickFont, precision: 0 }, beginAtZero: true }
+      }
+    }
+  });
+
+  // ---- Donut Chart ----
+  const donutChart = new Chart(document.getElementById('donutChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Posts', 'Likes', 'Comments', 'Shares'],
+      datasets: [{ data: <%= raw @donut_data %>, backgroundColor: ['#3b82f6','#ef4444','#8b5cf6','#f59e0b'], borderWidth: 3, borderColor: isDark() ? '#1e293b' : '#fff', hoverOffset: 8 }]
+    },
+    options: {
+      responsive: true, cutout: '68%',
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: tooltipBg(), titleColor: '#fff', bodyColor: '#cbd5e1', padding: 10, cornerRadius: 8 }
+      }
+    }
+  });
+
+  // ---- Mini Sparklines ----
+  function miniChart(id, data, color) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    new Chart(el, {
+      type: 'bar',
+      data: { labels: labels, datasets: [{ data: data, backgroundColor: color + '40', borderColor: color, borderWidth: 1.5, borderRadius: 3 }] },
+      options: { responsive: false, animation: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, scales: { x: { display: false }, y: { display: false, beginAtZero: true } } }
+    });
+  }
+
+  miniChart('miniUsers',    uData, '#3b82f6');
+  miniChart('miniPosts',    pData, '#10b981');
+  miniChart('miniLikes',    lData, '#ef4444');
+  miniChart('miniComments', lData, '#8b5cf6');
+
+  // ---- Update charts on theme change ----
+  var observer = new MutationObserver(function() {
+    var gc = gridColor(), tc = tickColor(), tb = tooltipBg();
+    [actChart].forEach(function(c) {
+      c.options.scales.x.grid.color = gc;
+      c.options.scales.x.ticks.color = tc;
+      c.options.scales.y.grid.color = gc;
+      c.options.scales.y.ticks.color = tc;
+      c.options.plugins.tooltip.backgroundColor = tb;
+      c.update('none');
+    });
+    donutChart.data.datasets[0].borderColor = isDark() ? '#1e293b' : '#fff';
+    donutChart.options.plugins.tooltip.backgroundColor = tb;
+    donutChart.update('none');
+  });
+
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+});
+</script>
