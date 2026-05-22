@@ -94,3 +94,6 @@ end
 gem "devise"
 gem 'dotenv-rails', groups: [:development, :test]
 gem 'rack-timeout'
+
+# Cloudinary for image storage
+gem 'cloudinary', '~> 2.2'

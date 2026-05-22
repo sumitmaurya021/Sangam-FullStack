@@ -201,14 +201,14 @@ COMMENTS_LIST = [
 ]
 
 # -------------------------------------------------------
-# 100 Users (Indian names)
+# 1000 Users (Indian names)
 # -------------------------------------------------------
-puts "\n👥 Creating 100 users..."
+puts "\n👥 Creating 1000 users..."
 users        = []
-human_photos = fetch_user_photos(100)
+human_photos = fetch_user_photos(1000)
 
-100.times do |i|
-  if i < 99
+1000.times do |i|
+  if i < 999
     fname, lname = INDIAN_NAMES[i % INDIAN_NAMES.length]
     email_addr   = "#{fname.downcase}.#{lname.downcase}#{i}@example.com"
   else
@@ -282,12 +282,12 @@ end
 puts "✅ Total users: #{users.count}"
 
 # -------------------------------------------------------
-# Friendships — 300 random friendships
+# Friendships — 3000 random friendships
 # -------------------------------------------------------
-puts "\n🤝 Creating friendships (300 random)..."
+puts "\n🤝 Creating friendships (3000 random)..."
 friendship_count = 0
 
-300.times do
+3000.times do
   u = users.sample
   f = users.sample
   next if u == f || u.friends_with?(f) || u.friend_request_pending?(f)
@@ -296,9 +296,9 @@ friendship_count = 0
   friendship_count += 1 if fr.persisted?
 end
 
-# 20 pending requests
-puts "📬 Creating 20 pending friend requests..."
-20.times do
+# 200 pending requests
+puts "📬 Creating 200 pending friend requests..."
+200.times do
   u = users.sample
   f = users.sample
   next if u == f || u.friends_with?(f) || u.friend_request_pending?(f)
@@ -306,15 +306,15 @@ puts "📬 Creating 20 pending friend requests..."
   u.friendships.create(friend: f, status: 'pending')
 end
 
-puts "✅ #{friendship_count} friendships, 20 pending requests"
+puts "✅ #{friendship_count} friendships, 200 pending requests"
 
 # -------------------------------------------------------
-# Posts — 500 posts, each with 3-5 images
+# Posts — 5000 posts, each with 3-5 images
 # -------------------------------------------------------
-puts "\n📝 Creating posts (500 posts, 3-5 images each)..."
+puts "\n📝 Creating posts (5000 posts, 3-5 images each)..."
 post_count = 0
 
-500.times do |pi|
+5000.times do |pi|
   user = users.sample
   post = user.posts.create!(content: POST_CONTENTS.sample)
   image_count = rand(3..5)
