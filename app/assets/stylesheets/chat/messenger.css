@@ -1471,11 +1471,6 @@
     min-height: 32px;
   }
 
-  /* Hide GIF button on very small screens to save space */
-  .messenger-gif-btn {
-    display: none;
-  }
-
   /* iOS Safari dynamic viewport fix */
   .messenger-layout {
     height: calc(100vh - var(--header-height, 100px));
