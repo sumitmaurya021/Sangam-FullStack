@@ -294,6 +294,8 @@
     conversationsPath: "<%= conversations_path %>",
     loadMorePath:    "<%= messages_conversation_path(@conversation) %>"
   };
-  console.log("[Chat] CHAT_DATA ready:", window.CHAT_DATA);
+  // Mobile: add chat-open so main panel is visible instead of sidebar
+  var layout = document.getElementById("messengerLayout");
+  if (layout) layout.classList.add("chat-open");
   document.dispatchEvent(new Event("chat:data-ready"));
 </script>

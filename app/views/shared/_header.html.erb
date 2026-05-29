@@ -175,15 +175,20 @@
           </div>
           <span>Menu</span>
         </button>
-        
-        <button class="fb-nav-dropdown-item" title="Messenger">
-          <div class="fb-nav-dropdown-icon">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+
+        <%# Messenger link — works on mobile %>
+        <%= link_to conversations_path, class: "fb-nav-dropdown-item", title: "Messenger", style: "position:relative;" do %>
+          <div class="fb-nav-dropdown-icon" style="background:#e7f3ff;">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="#0084ff">
               <path d="M10 2.5c-4.687 0-8.5 3.439-8.5 7.688 0 2.414 1.203 4.562 3.094 5.969V19.5l3.594-1.969c.938.25 1.938.406 2.969.406 4.687 0 8.5-3.438 8.5-7.688S14.687 2.5 10 2.5zm.906 10.344l-2.187-2.344-4.281 2.344 4.719-5L11.406 10l4.219-2.344-4.719 5z"/>
             </svg>
           </div>
           <span>Messenger</span>
-        </button>
+          <% unread = current_user.total_unread_messages %>
+          <% if unread > 0 %>
+            <span class="fb-notification-badge" style="position:static;margin-left:auto;"><%= unread %></span>
+          <% end %>
+        <% end %>
         
         <button class="fb-nav-dropdown-item fb-notification-btn" title="Notifications">
           <div class="fb-nav-dropdown-icon">
@@ -582,9 +587,25 @@
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  // ── Header Height CSS Variable (for messenger layout positioning) ──────────
+  function setHeaderHeight() {
+    var header = document.querySelector('.fb-header');
+    if (header) {
+      var h = header.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--header-height', h + 'px');
+    }
+  }
+
+  // Set on load and on resize
+  setHeaderHeight();
+  window.addEventListener('resize', setHeaderHeight);
+
   // Init on DOM ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initHeaderSearch);
+    document.addEventListener('DOMContentLoaded', function() {
+      initHeaderSearch();
+      setHeaderHeight();
+    });
   } else {
     initHeaderSearch();
   }

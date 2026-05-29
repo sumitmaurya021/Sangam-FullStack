@@ -417,7 +417,13 @@ export class ChatApp {
 
   _setupBackButton() {
     document.getElementById("backBtn")?.addEventListener("click", () => {
-      window.location.href = this.conversationsPath;
+      // On mobile: go back to sidebar instead of navigating away
+      const layout = document.getElementById("messengerLayout");
+      if (layout && window.innerWidth <= 768) {
+        layout.classList.remove("chat-open");
+      } else {
+        window.location.href = this.conversationsPath;
+      }
     });
   }
 
