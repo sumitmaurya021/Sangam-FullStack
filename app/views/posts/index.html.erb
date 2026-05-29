@@ -81,8 +81,20 @@
       </div>
 
       <!-- Posts Feed -->
-      <div class="posts-feed">
+      <div class="posts-feed"
+           id="posts-feed"
+           data-next-page="<%= @posts.next_page %>"
+           data-total-pages="<%= @posts.total_pages %>"
+           data-loading="false">
         <%= render partial: 'posts/post_card', collection: @posts, as: :post %>
+      </div>
+
+      <!-- Infinite Scroll Sentinel -->
+      <div id="infinite-scroll-sentinel" style="height: 1px;"></div>
+
+      <!-- Loading Spinner -->
+      <div id="posts-loading-spinner" style="display: none; text-align: center; padding: 1.5rem;">
+        <div class="posts-spinner"></div>
       </div>
     </main>
 
