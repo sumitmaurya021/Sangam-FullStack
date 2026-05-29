@@ -1,0 +1,127 @@
+<% content_for :title, "Messenger - Sangam" %>
+<% content_for :head do %>
+  <meta name="turbo-visit-control" content="reload">
+  <meta name="turbo-cache-control" content="no-cache">
+<% end %>
+
+<%= render 'shared/header' %>
+
+<div class="messenger-layout" id="messengerLayout">
+  <!-- Left Sidebar: Conversations List -->
+  <div class="messenger-sidebar" id="messengerSidebar">
+    <div class="messenger-sidebar-header">
+      <h1 class="messenger-title">Chats</h1>
+      <div class="messenger-header-actions">
+        <button class="messenger-icon-btn" title="New Message" id="newMessageBtn">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M17.5 2.5a2.121 2.121 0 00-3 0L3 14l-.5 3.5 3.5-.5L17.5 5.5a2.121 2.121 0 000-3z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="messenger-search-box">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="messenger-search-icon">
+        <path d="M10.917 10.917a6.5 6.5 0 111.414-1.414l4.242 4.242a1 1 0 01-1.414 1.414l-4.242-4.242z"/>
+      </svg>
+      <input type="text" placeholder="Search Messenger" class="messenger-search-input" id="conversationSearch">
+    </div>
+
+    <!-- Conversations List -->
+    <div class="messenger-conversations-list" id="conversationsList">
+      <% if @conversations.empty? %>
+        <div class="messenger-empty-state">
+          <div class="messenger-empty-icon">💬</div>
+          <p>No conversations yet</p>
+          <p class="messenger-empty-sub">Start a chat with your friends!</p>
+        </div>
+      <% else %>
+        <% @conversations.each do |conversation| %>
+          <% other = conversation.other_participant(current_user) %>
+          <% unread = conversation.unread_count_for(current_user) %>
+          <% last_msg = conversation.last_message %>
+          <%= link_to conversation_path(conversation),
+                      class: "messenger-conversation-item #{'unread' if unread > 0}",
+                      data: { conversation_id: conversation.id, turbo: false } do %>
+            <div class="messenger-avatar-wrapper">
+              <% if other.avatar.attached? %>
+                <%= image_tag url_for(other.avatar), class: "messenger-avatar", alt: other.name %>
+              <% else %>
+                <div class="messenger-avatar-placeholder">
+                  <%= other.name&.first&.upcase %>
+                </div>
+              <% end %>
+              <span class="messenger-online-dot <%= other.online? ? 'online' : 'offline' %>"
+                    data-user-id="<%= other.id %>"></span>
+            </div>
+            <div class="messenger-conversation-info">
+              <div class="messenger-conversation-top">
+                <span class="messenger-conversation-name"><%= other.name %></span>
+                <span class="messenger-conversation-time">
+                  <%= last_msg ? time_ago_in_words(last_msg.created_at) : '' %>
+                </span>
+              </div>
+              <div class="messenger-conversation-bottom">
+                <span class="messenger-last-message">
+                  <% if last_msg %>
+                    <% if last_msg.deleted %>
+                      <em>Message deleted</em>
+                    <% elsif last_msg.message_type != 'text' %>
+                      📎 <%= last_msg.message_type.capitalize %>
+                    <% else %>
+                      <%= truncate(last_msg.body, length: 35) %>
+                    <% end %>
+                  <% end %>
+                </span>
+                <% if unread > 0 %>
+                  <span class="messenger-unread-badge"><%= unread %></span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Right Panel: Empty State (when no conversation selected) -->
+  <div class="messenger-main messenger-welcome" id="messengerMain">
+    <div class="messenger-welcome-content">
+      <div class="messenger-welcome-icon">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+          <circle cx="40" cy="40" r="40" fill="#f0f2f5"/>
+          <path d="M40 15C26.2 15 15 25.4 15 38.2c0 7.2 3.6 13.6 9.2 17.8v8.5l8.5-4.7c2.4.7 4.9 1 7.3 1 13.8 0 25-10.4 25-23.2S53.8 15 40 15z" fill="#0084ff" opacity="0.2"/>
+          <path d="M35 35l8 8 12-14" stroke="#0084ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2>Your Messages</h2>
+      <p>Send private messages to your friends</p>
+      <button class="btn-start-chat" id="startNewChatBtn">Start a new chat</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Message Modal -->
+<div class="messenger-modal-overlay" id="newMessageModal" style="display:none;">
+  <div class="messenger-modal">
+    <div class="messenger-modal-header">
+      <h3>New Message</h3>
+      <button class="messenger-modal-close" id="closeNewMessageModal">✕</button>
+    </div>
+    <div class="messenger-modal-search">
+      <input type="text" placeholder="Search friends..." id="friendSearch" class="messenger-friend-search">
+    </div>
+    <div class="messenger-friends-list" id="friendsList">
+      <!-- Populated via JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+  window.CHAT_DATA = {
+    currentUserId: <%= current_user.id %>,
+    isListPage: true
+  };
+  document.dispatchEvent(new Event("chat:data-ready"));
+</script>

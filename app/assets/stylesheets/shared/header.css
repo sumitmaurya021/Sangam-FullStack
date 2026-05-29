@@ -631,3 +631,320 @@
     display: flex !important;
   }
 }
+
+/* ===================================================
+   SEARCH DROPDOWN
+=================================================== */
+
+/* Make search box relative for dropdown positioning */
+#headerSearchBox {
+  position: relative;
+}
+
+/* Expand search box when focused/active */
+#headerSearchBox:focus-within {
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  border-radius: 20px 20px 0 0;
+}
+
+#headerSearchBox:focus-within .fb-search-input {
+  width: 260px;
+}
+
+.fb-search-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 360px;
+  background: #fff;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  z-index: 2000;
+  overflow: hidden;
+  animation: searchDropIn 0.15s ease;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.fb-search-dropdown.show {
+  display: block;
+}
+
+@keyframes searchDropIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Section label */
+.fb-search-section-label {
+  padding: 10px 16px 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #65676b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ── Result Item ── */
+.fb-search-result-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  gap: 8px;
+  transition: background 0.15s;
+}
+
+.fb-search-result-item:hover {
+  background: #f0f2f5;
+}
+
+.fb-search-result-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+}
+
+/* Avatar */
+.fb-search-result-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.fb-search-result-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.fb-search-result-avatar-placeholder {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fb-search-online-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #31a24c;
+  border: 2px solid #fff;
+}
+
+/* Info */
+.fb-search-result-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fb-search-result-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #050505;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fb-search-mutual {
+  font-size: 12px;
+  color: #65676b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Action buttons */
+.fb-search-result-actions {
+  flex-shrink: 0;
+}
+
+.fb-search-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: filter 0.15s, transform 0.1s;
+}
+
+.fb-search-action-btn:active { transform: scale(0.96); }
+
+.fb-search-btn-add {
+  background: #e7f3ff;
+  color: #1877f2;
+}
+.fb-search-btn-add:hover { background: #cce4ff; }
+
+.fb-search-btn-pending {
+  background: #f0f2f5;
+  color: #65676b;
+  cursor: not-allowed;
+}
+
+.fb-search-btn-accept {
+  background: #e6f4ea;
+  color: #1a7f37;
+}
+.fb-search-btn-accept:hover { background: #c8e6c9; }
+
+.fb-search-btn-message {
+  background: #e7f3ff;
+  color: #1877f2;
+}
+.fb-search-btn-message:hover { background: #cce4ff; }
+
+/* Empty state */
+.fb-search-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: #65676b;
+}
+
+.fb-search-empty-icon { font-size: 32px; margin-bottom: 8px; }
+.fb-search-empty p { margin: 4px 0; font-size: 14px; }
+.fb-search-empty strong { color: #050505; }
+.fb-search-empty-sub { font-size: 12px; }
+
+/* Loading */
+.fb-search-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  color: #65676b;
+  font-size: 14px;
+}
+
+.fb-search-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e4e6eb;
+  border-top-color: #1877f2;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.fb-search-spinner-sm {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(255,255,255,0.4);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ===================================================
+   MOBILE SEARCH BAR
+=================================================== */
+.fb-mobile-search-bar {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  z-index: 1100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  flex-direction: column;
+  transform: translateY(-100%);
+  transition: transform 0.2s ease;
+}
+
+.fb-mobile-search-bar.show {
+  transform: translateY(0);
+}
+
+.fb-mobile-search-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e4e6eb;
+}
+
+.fb-mobile-search-back {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #f0f2f5;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #050505;
+}
+
+.fb-mobile-search-box {
+  flex: 1;
+  max-width: none;
+  height: 38px;
+}
+
+.fb-mobile-search-results {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Show mobile search bar only on mobile */
+@media (max-width: 767px) {
+  .fb-mobile-search-bar {
+    display: flex;
+  }
+
+  /* Desktop dropdown hidden on mobile — results go into mobile bar */
+  .fb-search-dropdown {
+    display: none !important;
+  }
+
+  /* When mobile search is open, show results inside it */
+  .fb-mobile-search-bar.show .fb-search-dropdown-inner {
+    display: block;
+  }
+}
+
+/* Scrollbar styling for dropdown */
+.fb-search-dropdown::-webkit-scrollbar,
+.fb-mobile-search-results::-webkit-scrollbar {
+  width: 4px;
+}
+.fb-search-dropdown::-webkit-scrollbar-track,
+.fb-mobile-search-results::-webkit-scrollbar-track {
+  background: transparent;
+}
+.fb-search-dropdown::-webkit-scrollbar-thumb,
+.fb-mobile-search-results::-webkit-scrollbar-thumb {
+  background: #d8dadf;
+  border-radius: 2px;
+}

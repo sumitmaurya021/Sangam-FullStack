@@ -1,0 +1,97 @@
+<% is_mine = message.sent_by?(current_user) %>
+<div class="message-wrapper <%= is_mine ? 'mine' : 'theirs' %>"
+     id="message-<%= message.id %>"
+     data-message-id="<%= message.id %>">
+
+  <% unless is_mine %>
+    <div class="message-avatar-wrapper">
+      <% if message.user.avatar.attached? %>
+        <%= image_tag url_for(message.user.avatar), class: "message-avatar", alt: message.user.name %>
+      <% else %>
+        <div class="message-avatar-placeholder"><%= message.user.name&.first&.upcase %></div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="message-content-wrapper">
+    <div class="message-bubble <%= message.deleted ? 'deleted' : '' %>"
+         data-message-id="<%= message.id %>">
+      <% if message.deleted %>
+        <em class="message-deleted-text">Message deleted</em>
+      <% elsif message.message_type == 'text' %>
+        <p class="message-text"><%= simple_format(message.body) %></p>
+      <% elsif message.message_type == 'image' && message.attachment.attached? %>
+        <div class="message-image-wrapper">
+          <%= image_tag url_for(message.attachment), class: "message-image",
+                        loading: "lazy",
+                        onclick: "chatApp.openImageViewer('#{url_for(message.attachment)}')" %>
+        </div>
+      <% elsif message.message_type == 'gif' && message.attachment.attached? %>
+        <div class="message-image-wrapper">
+          <%= image_tag url_for(message.attachment), class: "message-image message-gif" %>
+        </div>
+      <% elsif message.message_type == 'video' && message.attachment.attached? %>
+        <div class="message-video-wrapper">
+          <video controls class="message-video" preload="metadata">
+            <source src="<%= url_for(message.attachment) %>">
+          </video>
+        </div>
+      <% elsif message.message_type == 'audio' && message.attachment.attached? %>
+        <div class="message-audio-wrapper">
+          <audio controls class="message-audio">
+            <source src="<%= url_for(message.attachment) %>">
+          </audio>
+        </div>
+      <% elsif message.message_type == 'file' && message.attachment.attached? %>
+        <div class="message-file-wrapper">
+          <div class="message-file-icon">📎</div>
+          <div class="message-file-info">
+            <span class="message-file-name"><%= message.attachment_filename %></span>
+          </div>
+          <%= link_to url_for(message.attachment), class: "message-file-download",
+                      download: message.attachment_filename, target: "_blank" do %>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 12l-4-4h2.5V3h3v5H12L8 12zm-5 2h10v1.5H3V14z"/>
+            </svg>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="message-meta">
+      <span class="message-time">
+        <%= message.created_at.strftime("%I:%M %p") %>
+      </span>
+      <% if is_mine %>
+        <span class="message-status" data-message-id="<%= message.id %>">
+          <% if message.read_at %>
+            <span class="seen-indicator" title="Seen <%= message.read_at.strftime('%I:%M %p') %>">
+              <svg width="16" height="10" viewBox="0 0 16 10" fill="#0084ff">
+                <path d="M1 5l3 3 5-7M6 8l3-3 5-7" stroke="#0084ff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              </svg>
+            </span>
+          <% else %>
+            <span class="sent-indicator">
+              <svg width="12" height="10" viewBox="0 0 12 10" fill="none">
+                <path d="M1 5l3 3 7-7" stroke="#8a8d91" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </span>
+          <% end %>
+        </span>
+      <% end %>
+    </div>
+
+    <!-- Message Context Menu (on hover) -->
+    <% if is_mine && !message.deleted %>
+      <div class="message-actions" data-message-id="<%= message.id %>">
+        <button class="message-action-btn delete-message-btn"
+                onclick="chatApp.deleteMessage(<%= message.id %>)"
+                title="Delete">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+            <path d="M5.5 1.5h3a.5.5 0 010 1h-3a.5.5 0 010-1zM2 3.5h10l-.8 8H2.8L2 3.5zm2 2v4h1v-4H4zm3 0v4h1v-4H7z"/>
+          </svg>
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>

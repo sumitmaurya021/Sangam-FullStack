@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_29_071535) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_29_120002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -57,6 +57,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_071535) do
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
+  create_table "conversations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "last_message_at"
+    t.bigint "recipient_id", null: false
+    t.bigint "sender_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["last_message_at"], name: "index_conversations_on_last_message_at"
+    t.index ["recipient_id"], name: "index_conversations_on_recipient_id"
+    t.index ["sender_id", "recipient_id"], name: "index_conversations_on_sender_id_and_recipient_id", unique: true
+    t.index ["sender_id"], name: "index_conversations_on_sender_id"
+  end
+
   create_table "friendships", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "friend_id", null: false
@@ -78,6 +90,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_071535) do
     t.index ["post_id"], name: "index_likes_on_post_id"
     t.index ["reaction_type"], name: "index_likes_on_reaction_type"
     t.index ["user_id"], name: "index_likes_on_user_id"
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.text "body"
+    t.bigint "conversation_id", null: false
+    t.datetime "created_at", null: false
+    t.boolean "deleted", default: false, null: false
+    t.string "message_type", default: "text", null: false
+    t.datetime "read_at"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["conversation_id"], name: "index_messages_on_conversation_id"
+    t.index ["created_at"], name: "index_messages_on_created_at"
+    t.index ["message_type"], name: "index_messages_on_message_type"
+    t.index ["read_at"], name: "index_messages_on_read_at"
+    t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
   create_table "posts", force: :cascade do |t|
@@ -249,13 +277,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_071535) do
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
+    t.datetime "last_seen_at"
     t.string "name"
+    t.boolean "online", default: false, null: false
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
     t.boolean "super_admin", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["last_seen_at"], name: "index_users_on_last_seen_at"
+    t.index ["online"], name: "index_users_on_online"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["super_admin"], name: "index_users_on_super_admin"
   end
@@ -266,10 +298,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_071535) do
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"
   add_foreign_key "comments", "users", column: "replied_to_user_id"
+  add_foreign_key "conversations", "users", column: "recipient_id"
+  add_foreign_key "conversations", "users", column: "sender_id"
   add_foreign_key "friendships", "users"
   add_foreign_key "friendships", "users", column: "friend_id"
   add_foreign_key "likes", "posts"
   add_foreign_key "likes", "users"
+  add_foreign_key "messages", "conversations"
+  add_foreign_key "messages", "users"
   add_foreign_key "posts", "users"
   add_foreign_key "shares", "posts"
   add_foreign_key "shares", "users"

@@ -8,6 +8,11 @@
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <meta name="action-cable-url" content="/cable">
+    <meta name="giphy-api-key" content="<%= ENV['GIPHY_API_KEY'].to_s %>">
+    <meta name="turn-server-url" content="<%= ENV['TURN_SERVER_URL'].to_s %>">
+    <meta name="turn-server-username" content="<%= ENV['TURN_SERVER_USERNAME'].to_s %>">
+    <meta name="turn-server-credential" content="<%= ENV['TURN_SERVER_CREDENTIAL'].to_s %>">
 
     <%= yield :head %>
 
@@ -21,10 +26,13 @@
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag 'shared/header', 'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'chat/messenger', 'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'chat/chat_widget', 'data-turbo-track': 'reload' %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
     <%= yield %>
+    <%= render 'shared/chat_widget' if user_signed_in? %>
   </body>
 </html>

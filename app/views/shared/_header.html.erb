@@ -18,11 +18,24 @@
           <circle cx="28" cy="28" r="2.5" fill="white" opacity="0.8"/>
         </svg>
       <% end %>
-      <div class="fb-search">
+      <div class="fb-search" id="headerSearchBox">
         <svg class="fb-search-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
           <path d="M10.917 10.917a6.5 6.5 0 111.414-1.414l4.242 4.242a1 1 0 01-1.414 1.414l-4.242-4.242zM11.5 6.5a5 5 0 11-10 0 5 5 0 0110 0z"/>
         </svg>
-        <input type="text" placeholder="Search Sangam" class="fb-search-input">
+        <input
+          type="text"
+          id="headerSearchInput"
+          placeholder="Search Sangam"
+          class="fb-search-input"
+          autocomplete="off"
+          aria-label="Search users"
+          aria-expanded="false"
+          aria-controls="searchDropdown"
+        >
+        <!-- Live search dropdown -->
+        <div class="fb-search-dropdown" id="searchDropdown" role="listbox" aria-label="Search results">
+          <div class="fb-search-dropdown-inner" id="searchDropdownInner"></div>
+        </div>
       </div>
     </div>
 
@@ -62,7 +75,7 @@
     <!-- Right Section: Icons & Profile -->
     <div class="fb-header-right">
       <!-- Search Icon Button (Mobile Only) -->
-      <button class="fb-search-icon-btn" title="Search">
+      <button class="fb-search-icon-btn" title="Search" onclick="toggleMobileSearch()">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
           <path d="M8.5 3a5.5 5.5 0 014.227 9.02l4.127 4.126a.75.75 0 11-1.061 1.061l-4.126-4.127A5.5 5.5 0 118.5 3zm0 1.5a4 4 0 100 8 4 4 0 000-8z"/>
         </svg>
@@ -82,11 +95,17 @@
         </svg>
       </button>
       
-      <button class="fb-icon-btn fb-desktop-only" title="Messenger">
+      <%= link_to conversations_path, class: "fb-icon-btn fb-desktop-only", title: "Messenger", style: "position:relative;text-decoration:none;" do %>
         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
           <path d="M10 2.5c-4.687 0-8.5 3.439-8.5 7.688 0 2.414 1.203 4.562 3.094 5.969V19.5l3.594-1.969c.938.25 1.938.406 2.969.406 4.687 0 8.5-3.438 8.5-7.688S14.687 2.5 10 2.5zm.906 10.344l-2.187-2.344-4.281 2.344 4.719-5L11.406 10l4.219-2.344-4.719 5z"/>
         </svg>
-      </button>
+        <% unread = current_user.total_unread_messages %>
+        <% if unread > 0 %>
+          <span class="fb-notification-badge" id="chatUnreadBadge"><%= unread %></span>
+        <% else %>
+          <span class="fb-notification-badge" id="chatUnreadBadge" style="display:none;"></span>
+        <% end %>
+      <% end %>
       
       <button class="fb-icon-btn fb-notification-btn fb-desktop-only" title="Notifications">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -223,30 +242,350 @@
   </div>
 </header>
 
-<script>
-  function toggleNavMenu() {
-    const dropdown = document.getElementById('navDropdown');
-    dropdown.classList.toggle('show');
-  }
+<!-- Mobile Search Bar (slides down on mobile) -->
+<div class="fb-mobile-search-bar" id="mobileSearchBar">
+  <div class="fb-mobile-search-inner">
+    <button class="fb-mobile-search-back" onclick="toggleMobileSearch()">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M12.5 15L7.5 10l5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </svg>
+    </button>
+    <div class="fb-search fb-mobile-search-box">
+      <svg class="fb-search-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M10.917 10.917a6.5 6.5 0 111.414-1.414l4.242 4.242a1 1 0 01-1.414 1.414l-4.242-4.242zM11.5 6.5a5 5 0 11-10 0 5 5 0 0110 0z"/>
+      </svg>
+      <input
+        type="text"
+        id="mobileSearchInput"
+        placeholder="Search Sangam"
+        class="fb-search-input"
+        autocomplete="off"
+      >
+    </div>
+  </div>
+  <div class="fb-mobile-search-results" id="mobileSearchResults">
+    <div class="fb-search-dropdown-inner" id="searchDropdownInner"></div>
+  </div>
+</div>
 
+<script>
+  // ── Dropdowns ──────────────────────────────────────────────────────────────
+  function toggleNavMenu() {
+    document.getElementById('navDropdown').classList.toggle('show');
+  }
   function toggleUserMenu() {
-    const dropdown = document.getElementById('userDropdown');
-    dropdown.classList.toggle('show');
+    document.getElementById('userDropdown').classList.toggle('show');
   }
 
   // Close dropdowns when clicking outside
-  document.addEventListener('click', function(event) {
-    const navDropdown = document.getElementById('navDropdown');
-    const userDropdown = document.getElementById('userDropdown');
-    
-    // Close nav dropdown if clicking outside
-    if (navDropdown && !event.target.closest('.fb-hamburger-btn') && !event.target.closest('.fb-nav-dropdown')) {
+  document.addEventListener('click', function(e) {
+    const navDropdown   = document.getElementById('navDropdown');
+    const userDropdown  = document.getElementById('userDropdown');
+    const searchDropdown = document.getElementById('searchDropdown');
+
+    if (navDropdown && !e.target.closest('.fb-hamburger-btn') && !e.target.closest('.fb-nav-dropdown'))
       navDropdown.classList.remove('show');
-    }
-    
-    // Close user dropdown if clicking outside
-    if (userDropdown && !event.target.closest('.fb-profile-btn') && !event.target.closest('.fb-user-dropdown')) {
+
+    if (userDropdown && !e.target.closest('.fb-profile-btn') && !e.target.closest('.fb-user-dropdown'))
       userDropdown.classList.remove('show');
-    }
+
+    if (searchDropdown && !e.target.closest('#headerSearchBox') && !e.target.closest('#mobileSearchBar'))
+      closeSearch();
   });
+
+  // ── Mobile Search ──────────────────────────────────────────────────────────
+  function toggleMobileSearch() {
+    const bar = document.getElementById('mobileSearchBar');
+    if (!bar) return;
+    const isOpen = bar.classList.toggle('show');
+    if (isOpen) {
+      bar.querySelector('input').focus();
+    } else {
+      closeSearch();
+    }
+  }
+
+  // ── Live Search ────────────────────────────────────────────────────────────
+  let _searchTimer = null;
+  let _currentQuery = '';
+
+  function initHeaderSearch() {
+    const inputs = [
+      document.getElementById('headerSearchInput'),
+      document.getElementById('mobileSearchInput')
+    ].filter(Boolean);
+
+    inputs.forEach(input => {
+      input.addEventListener('input', function() {
+        const q = this.value.trim();
+        _currentQuery = q;
+        clearTimeout(_searchTimer);
+
+        if (q.length < 2) {
+          closeSearch();
+          return;
+        }
+
+        showSearchLoading();
+        _searchTimer = setTimeout(() => fetchSearchResults(q), 300);
+      });
+
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          this.value = '';
+          closeSearch();
+        }
+      });
+
+      input.addEventListener('focus', function() {
+        if (this.value.trim().length >= 2) {
+          openDropdown(this);
+        }
+      });
+    });
+  }
+
+  function fetchSearchResults(query) {
+    if (query !== _currentQuery) return;
+
+    fetch(`/profiles/search?q=${encodeURIComponent(query)}`, {
+      headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(r => r.json())
+    .then(users => {
+      if (query !== _currentQuery) return;
+      renderSearchResults(users, query);
+    })
+    .catch(() => {
+      renderSearchError();
+    });
+  }
+
+  function renderSearchResults(users, query) {
+    const inner = document.getElementById('searchDropdownInner');
+    if (!inner) return;
+
+    if (users.length === 0) {
+      inner.innerHTML = `
+        <div class="fb-search-empty">
+          <div class="fb-search-empty-icon">🔍</div>
+          <p>No results for "<strong>${escapeHtml(query)}</strong>"</p>
+          <p class="fb-search-empty-sub">Try a different name or email</p>
+        </div>`;
+    } else {
+      inner.innerHTML = `
+        <div class="fb-search-section-label">People</div>
+        ${users.map(u => buildUserResultHTML(u)).join('')}
+      `;
+    }
+
+    openDropdown(document.getElementById('headerSearchInput') || document.getElementById('mobileSearchInput'));
+  }
+
+  function buildUserResultHTML(u) {
+    const avatarHtml = u.avatar
+      ? `<img src="${u.avatar}" class="fb-search-result-avatar" alt="${escapeHtml(u.name)}">`
+      : `<div class="fb-search-result-avatar fb-search-result-avatar-placeholder">${(u.name || '?')[0].toUpperCase()}</div>`;
+
+    const onlineDot = u.online
+      ? `<span class="fb-search-online-dot"></span>` : '';
+
+    const mutualText = u.mutual_friends_count > 0
+      ? `<span class="fb-search-mutual">${u.mutual_friends_count} mutual friend${u.mutual_friends_count > 1 ? 's' : ''}</span>`
+      : `<span class="fb-search-mutual">${escapeHtml(u.email)}</span>`;
+
+    const actionBtn = buildActionButton(u);
+
+    return `
+      <div class="fb-search-result-item" data-user-id="${u.id}">
+        <a href="${u.profile_url}" class="fb-search-result-link">
+          <div class="fb-search-result-avatar-wrap">
+            ${avatarHtml}
+            ${onlineDot}
+          </div>
+          <div class="fb-search-result-info">
+            <span class="fb-search-result-name">${escapeHtml(u.name)}</span>
+            ${mutualText}
+          </div>
+        </a>
+        <div class="fb-search-result-actions">
+          ${actionBtn}
+        </div>
+      </div>
+    `;
+  }
+
+  function buildActionButton(u) {
+    switch (u.friendship_status) {
+      case 'friends':
+        return `
+          <a href="${u.profile_url}" class="fb-search-action-btn fb-search-btn-message" title="Message">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 2.5c-4.687 0-8.5 3.439-8.5 7.688 0 2.414 1.203 4.562 3.094 5.969V19.5l3.594-1.969c.938.25 1.938.406 2.969.406 4.687 0 8.5-3.438 8.5-7.688S14.687 2.5 10 2.5z"/>
+            </svg>
+            Message
+          </a>`;
+
+      case 'request_sent':
+        return `
+          <button class="fb-search-action-btn fb-search-btn-pending" disabled title="Request sent">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+            </svg>
+            Pending
+          </button>`;
+
+      case 'request_received':
+        return `
+          <button class="fb-search-action-btn fb-search-btn-accept"
+                  onclick="searchAcceptRequest(${u.friendship_id}, ${u.id}, this)"
+                  title="Accept request">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+            Accept
+          </button>`;
+
+      default:
+        return `
+          <button class="fb-search-action-btn fb-search-btn-add"
+                  onclick="searchAddFriend(${u.id}, this)"
+                  title="Add friend">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/>
+            </svg>
+            Add Friend
+          </button>`;
+    }
+  }
+
+  function showSearchLoading() {
+    const inner = document.getElementById('searchDropdownInner');
+    if (!inner) return;
+    inner.innerHTML = `
+      <div class="fb-search-loading">
+        <div class="fb-search-spinner"></div>
+        <span>Searching...</span>
+      </div>`;
+    openDropdown(document.getElementById('headerSearchInput') || document.getElementById('mobileSearchInput'));
+  }
+
+  function renderSearchError() {
+    const inner = document.getElementById('searchDropdownInner');
+    if (inner) inner.innerHTML = `<div class="fb-search-empty"><p>Something went wrong. Try again.</p></div>`;
+  }
+
+  function openDropdown(inputEl) {
+    const isMobile = window.innerWidth <= 767;
+    if (isMobile) {
+      // On mobile, results are already inside the mobile bar — just make sure bar is open
+      const bar = document.getElementById('mobileSearchBar');
+      if (bar) bar.classList.add('show');
+    } else {
+      const dropdown = document.getElementById('searchDropdown');
+      if (dropdown) {
+        dropdown.classList.add('show');
+        if (inputEl) inputEl.setAttribute('aria-expanded', 'true');
+      }
+    }
+  }
+
+  function closeSearch() {
+    const dropdown = document.getElementById('searchDropdown');
+    if (dropdown) dropdown.classList.remove('show');
+    const input = document.getElementById('headerSearchInput');
+    if (input) input.setAttribute('aria-expanded', 'false');
+  }
+
+  // ── Friend Actions from Search ─────────────────────────────────────────────
+  function searchAddFriend(userId, btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<span class="fb-search-spinner-sm"></span> Sending...`;
+
+    fetch('/friendships', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ friend_id: userId })
+    })
+    .then(r => {
+      if (r.ok || r.status === 422) return r.json();
+      throw new Error('Request failed');
+    })
+    .then(() => {
+      btn.outerHTML = `
+        <button class="fb-search-action-btn fb-search-btn-pending" disabled>
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+          </svg>
+          Pending
+        </button>`;
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.innerHTML = 'Add Friend';
+    });
+  }
+
+  function searchAcceptRequest(friendshipId, userId, btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<span class="fb-search-spinner-sm"></span>`;
+
+    fetch(`/friendships/${friendshipId}/accept`, {
+      method: 'PATCH',
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      }
+    })
+    .then(r => {
+      if (r.ok) {
+        btn.outerHTML = `
+          <a href="/conversations" class="fb-search-action-btn fb-search-btn-message"
+             onclick="searchStartChat(${userId}, event)">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10 2.5c-4.687 0-8.5 3.439-8.5 7.688 0 2.414 1.203 4.562 3.094 5.969V19.5l3.594-1.969c.938.25 1.938.406 2.969.406 4.687 0 8.5-3.438 8.5-7.688S14.687 2.5 10 2.5z"/>
+            </svg>
+            Message
+          </a>`;
+      }
+    })
+    .catch(() => {
+      btn.disabled = false;
+      btn.innerHTML = 'Accept';
+    });
+  }
+
+  function searchStartChat(userId, e) {
+    e.preventDefault();
+    fetch('/conversations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ recipient_id: userId })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.conversation_id) window.location.href = `/conversations/${data.conversation_id}`;
+    });
+  }
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Init on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHeaderSearch);
+  } else {
+    initHeaderSearch();
+  }
 </script>

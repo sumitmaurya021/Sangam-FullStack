@@ -1,0 +1,16 @@
+<%# Floating chat widget - shows on all pages except messenger page %>
+<% unless controller_name == 'conversations' %>
+<div id="chatWidget" class="chat-widget">
+  <div id="activeChatWindows" class="active-chat-windows"></div>
+  <div id="chatSidebar" class="chat-sidebar-widget">
+    <div id="chatSidebarFriends" class="chat-sidebar-friends"></div>
+  </div>
+</div>
+
+<script>
+  window.WIDGET_DATA = {
+    currentUserId: <%= current_user.id %>,
+    conversationsPath: "<%= conversations_path %>"
+  };
+</script>
+<% end %>

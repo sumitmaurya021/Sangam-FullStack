@@ -22,7 +22,7 @@ production:
 
   cache:
     <<: *primary_production
-    database_tasks: false   # use same DB, no separate tasks
+    database_tasks: false
 
   queue:
     <<: *primary_production
@@ -31,4 +31,3 @@ production:
   cable:
     <<: *primary_production
     database_tasks: false
-    

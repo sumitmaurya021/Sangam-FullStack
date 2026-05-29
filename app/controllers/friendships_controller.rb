@@ -4,35 +4,51 @@ class FriendshipsController < ApplicationController
   def create
     @friend = User.find(params[:friend_id])
     @friendship = current_user.friendships.build(friend: @friend)
-    
-    if @friendship.save
-      redirect_back(fallback_location: root_path, notice: 'Friend request sent!')
-    else
-      redirect_back(fallback_location: root_path, alert: 'Could not send friend request.')
+
+    respond_to do |format|
+      if @friendship.save
+        format.html { redirect_back(fallback_location: root_path, notice: 'Friend request sent!') }
+        format.json { render json: { success: true, friendship_id: @friendship.id, status: 'request_sent' } }
+      else
+        format.html { redirect_back(fallback_location: root_path, alert: 'Could not send friend request.') }
+        format.json { render json: { success: false, errors: @friendship.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
 
   def accept
-    if @friendship.friend == current_user && @friendship.accept!
-      redirect_back(fallback_location: root_path, notice: 'Friend request accepted!')
-    else
-      redirect_back(fallback_location: root_path, alert: 'Could not accept friend request.')
+    respond_to do |format|
+      if @friendship.friend == current_user && @friendship.accept!
+        format.html { redirect_back(fallback_location: root_path, notice: 'Friend request accepted!') }
+        format.json { render json: { success: true, status: 'friends' } }
+      else
+        format.html { redirect_back(fallback_location: root_path, alert: 'Could not accept friend request.') }
+        format.json { render json: { success: false }, status: :unprocessable_entity }
+      end
     end
   end
 
   def reject
-    if @friendship.friend == current_user && @friendship.reject!
-      redirect_back(fallback_location: root_path, notice: 'Friend request rejected.')
-    else
-      redirect_back(fallback_location: root_path, alert: 'Could not reject friend request.')
+    respond_to do |format|
+      if @friendship.friend == current_user && @friendship.reject!
+        format.html { redirect_back(fallback_location: root_path, notice: 'Friend request rejected.') }
+        format.json { render json: { success: true } }
+      else
+        format.html { redirect_back(fallback_location: root_path, alert: 'Could not reject friend request.') }
+        format.json { render json: { success: false }, status: :unprocessable_entity }
+      end
     end
   end
 
   def destroy
-    if (@friendship.user == current_user || @friendship.friend == current_user) && @friendship.destroy
-      redirect_back(fallback_location: root_path, notice: 'Friendship removed.')
-    else
-      redirect_back(fallback_location: root_path, alert: 'Could not remove friendship.')
+    respond_to do |format|
+      if (@friendship.user == current_user || @friendship.friend == current_user) && @friendship.destroy
+        format.html { redirect_back(fallback_location: root_path, notice: 'Friendship removed.') }
+        format.json { render json: { success: true } }
+      else
+        format.html { redirect_back(fallback_location: root_path, alert: 'Could not remove friendship.') }
+        format.json { render json: { success: false }, status: :unprocessable_entity }
+      end
     end
   end
 

@@ -20,8 +20,10 @@ Rails.application.routes.draw do
   end
   
   # Profiles
-  get 'profile/:id', to: 'profiles#show', as: 'profile'
-  get 'profile/:id/friends', to: 'profiles#friends', as: 'profile_friends'
+  get 'profiles/friends_list', to: 'profiles#friends_list', as: 'friends_list'
+  get 'profiles/search',       to: 'profiles#search',       as: 'search_profiles'
+  get 'profile/:id',           to: 'profiles#show',         as: 'profile'
+  get 'profile/:id/friends',   to: 'profiles#friends',      as: 'profile_friends'
   
   # Friendships
   resources :friendships, only: [:create, :destroy] do
@@ -30,6 +32,17 @@ Rails.application.routes.draw do
       patch :reject
     end
   end
+
+  # Chat / Conversations
+  resources :conversations, only: [:index, :show, :create, :destroy] do
+    member do
+      get :messages
+    end
+    resources :messages, only: [:create, :destroy]
+  end
+
+  # Action Cable mount
+  mount ActionCable.server => '/cable'
 
   # Super Admin Dashboard
   namespace :admin do

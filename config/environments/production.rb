@@ -56,6 +56,13 @@ Rails.application.configure do
   config.active_job.queue_adapter = :solid_queue
   config.solid_queue.connects_to = { database: { writing: :queue } }
 
+  # Action Cable — use Redis in production for real-time chat across dynos
+  config.action_cable.url = ENV.fetch("REDIS_URL", nil)
+  config.action_cable.allowed_request_origins = [
+    /https?:\/\/.*\.onrender\.com/,
+    /https?:\/\/localhost(:\d+)?/
+  ]
+
   # Enable delivery errors in production
   config.action_mailer.raise_delivery_errors = true
 
