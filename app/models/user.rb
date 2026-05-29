@@ -10,6 +10,11 @@ class User < ApplicationRecord
 
   # Associations
   has_many :posts, dependent: :destroy
+
+  # Chat associations
+  has_many :sent_conversations, class_name: 'Conversation', foreign_key: 'sender_id', dependent: :destroy
+  has_many :received_conversations, class_name: 'Conversation', foreign_key: 'recipient_id', dependent: :destroy
+  has_many :messages, dependent: :destroy
   has_many :likes, dependent: :destroy
   has_many :liked_posts, through: :likes, source: :post
   has_many :comments, dependent: :destroy
@@ -49,5 +54,25 @@ class User < ApplicationRecord
 
   def liked?(post)
     likes.exists?(post_id: post.id)
+  end
+
+  def conversations
+    Conversation.involving(self).recent
+  end
+
+  def total_unread_messages
+    Conversation.involving(self).sum { |c| c.unread_count_for(self) }
+  end
+
+  def mark_online!
+    update_columns(online: true, last_seen_at: Time.current)
+  end
+
+  def mark_offline!
+    update_columns(online: false, last_seen_at: Time.current)
+  end
+
+  def online_status
+    online? ? 'online' : (last_seen_at ? "Last seen #{ActionController::Base.helpers.time_ago_in_words(last_seen_at)} ago" : 'Offline')
   end
 end

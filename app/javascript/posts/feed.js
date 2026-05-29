@@ -86,6 +86,20 @@ style.textContent = `
       transform: translateY(-60px) scale(0.8);
     }
   }
+
+  .posts-spinner {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    border: 4px solid #e4e6ea;
+    border-top-color: #1877f2;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
 `;
 document.head.appendChild(style);
 
@@ -173,4 +187,59 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+});
+
+// ─── Infinite Scroll ───────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+  const feed      = document.getElementById('posts-feed');
+  const sentinel  = document.getElementById('infinite-scroll-sentinel');
+  const spinner   = document.getElementById('posts-loading-spinner');
+
+  if (!feed || !sentinel) return;
+
+  const observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+
+      const nextPage   = feed.dataset.nextPage;
+      const isLoading  = feed.dataset.loading === 'true';
+
+      // No more pages or already fetching
+      if (!nextPage || isLoading) return;
+
+      feed.dataset.loading = 'true';
+      spinner.style.display = 'block';
+
+      fetch(`/posts?page=${nextPage}`, {
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          // Append new posts HTML
+          feed.insertAdjacentHTML('beforeend', data.posts_html);
+
+          // Update pagination state
+          feed.dataset.nextPage  = data.next_page || '';
+          feed.dataset.loading   = 'false';
+          spinner.style.display  = 'none';
+
+          // Hide spinner permanently when all pages loaded
+          if (!data.next_page) {
+            observer.disconnect();
+            spinner.style.display = 'none';
+          }
+        })
+        .catch(function () {
+          feed.dataset.loading  = 'false';
+          spinner.style.display = 'none';
+        });
+    });
+  }, {
+    rootMargin: '200px'   // start loading 200px before sentinel is visible
+  });
+
+  observer.observe(sentinel);
 });

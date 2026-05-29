@@ -9,3 +9,6 @@ pin_all_from "app/javascript/shared", under: "shared"
 pin_all_from "app/javascript/posts", under: "posts"
 pin_all_from "app/javascript/profiles", under: "profiles"
 pin "posts_interactions", to: "posts_interactions.js"
+pin "@rails/actioncable", to: "@rails--actioncable.js" # @8.1.300
+pin_all_from "app/javascript/channels", under: "channels"
+pin_all_from "app/javascript/chat", under: "chat"

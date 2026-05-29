@@ -80,6 +80,18 @@
               </svg>
               View Friends
             <% end %>
+
+            <% if @user != current_user %>
+              <%= button_to conversations_path(recipient_id: @user.id),
+                            method: :post,
+                            class: 'btn-profile-action btn-message',
+                            form: { data: { turbo: false } } do %>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 2.5c-4.687 0-8.5 3.439-8.5 7.688 0 2.414 1.203 4.562 3.094 5.969V19.5l3.594-1.969c.938.25 1.938.406 2.969.406 4.687 0 8.5-3.438 8.5-7.688S14.687 2.5 10 2.5z"/>
+                </svg>
+                Message
+              <% end %>
+            <% end %>
           </div>
         </div>
       </div>
