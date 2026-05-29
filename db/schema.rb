@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_29_120002) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_29_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -131,10 +131,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_120002) do
   end
 
   create_table "solid_cable_messages", force: :cascade do |t|
-    t.text "channel", null: false
+    t.binary "channel", null: false
+    t.bigint "channel_hash", null: false
     t.datetime "created_at", null: false
-    t.text "payload", null: false
+    t.binary "payload", null: false
     t.index ["channel"], name: "index_solid_cable_messages_on_channel"
+    t.index ["channel_hash"], name: "index_solid_cable_messages_on_channel_hash"
     t.index ["created_at"], name: "index_solid_cable_messages_on_created_at"
   end
 

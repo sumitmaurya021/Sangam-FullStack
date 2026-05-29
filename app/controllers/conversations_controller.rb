@@ -62,7 +62,10 @@ class ConversationsController < ApplicationController
 
   def destroy
     @conversation.destroy
-    redirect_to conversations_path, notice: "Conversation deleted."
+    respond_to do |format|
+      format.html { redirect_to conversations_path, notice: "Conversation deleted." }
+      format.json { render json: { success: true }, status: :ok }
+    end
   end
 
   # Load more messages (pagination)
@@ -89,7 +92,10 @@ class ConversationsController < ApplicationController
   def set_conversation
     @conversation = current_user.conversations.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    redirect_to conversations_path, alert: "Conversation not found."
+    respond_to do |format|
+      format.html { redirect_to conversations_path, alert: "Conversation not found." }
+      format.json { render json: { error: "Conversation not found" }, status: :not_found }
+    end
   end
 
   def conversation_json(conversation, messages)

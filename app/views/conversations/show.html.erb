@@ -28,40 +28,54 @@
         <% other = conv.other_participant(current_user) %>
         <% unread = conv.unread_count_for(current_user) %>
         <% last_msg = conv.last_message %>
-        <%= link_to conversation_path(conv),
-                    class: "messenger-conversation-item #{'active' if conv.id == @conversation.id} #{'unread' if unread > 0}",
-                    data: { conversation_id: conv.id, turbo: false } do %>
-          <div class="messenger-avatar-wrapper">
-            <% if other.avatar.attached? %>
-              <%= image_tag url_for(other.avatar), class: "messenger-avatar", alt: other.name %>
-            <% else %>
-              <div class="messenger-avatar-placeholder"><%= other.name&.first&.upcase %></div>
-            <% end %>
-            <span class="messenger-online-dot <%= other.online? ? 'online' : 'offline' %>"
-                  data-user-id="<%= other.id %>"></span>
-          </div>
-          <div class="messenger-conversation-info">
-            <div class="messenger-conversation-top">
-              <span class="messenger-conversation-name"><%= other.name %></span>
-              <span class="messenger-conversation-time">
-                <%= last_msg ? time_ago_in_words(last_msg.created_at) : '' %>
-              </span>
-            </div>
-            <div class="messenger-conversation-bottom">
-              <span class="messenger-last-message">
-                <% if last_msg %>
-                  <% if last_msg.deleted %><em>Message deleted</em>
-                  <% elsif last_msg.message_type != 'text' %>📎 <%= last_msg.message_type.capitalize %>
-                  <% else %><%= truncate(last_msg.body, length: 35) %>
-                  <% end %>
-                <% end %>
-              </span>
-              <% if unread > 0 %>
-                <span class="messenger-unread-badge"><%= unread %></span>
+        <div class="messenger-conversation-item-wrapper"
+             data-conv-id="<%= conv.id %>"
+             data-conv-url="<%= conversation_path(conv) %>">
+          <%= link_to conversation_path(conv),
+                      class: "messenger-conversation-item #{'active' if conv.id == @conversation.id} #{'unread' if unread > 0}",
+                      data: { conversation_id: conv.id, turbo: false } do %>
+            <div class="messenger-avatar-wrapper">
+              <% if other.avatar.attached? %>
+                <%= image_tag url_for(other.avatar), class: "messenger-avatar", alt: other.name %>
+              <% else %>
+                <div class="messenger-avatar-placeholder"><%= other.name&.first&.upcase %></div>
               <% end %>
+              <span class="messenger-online-dot <%= other.online? ? 'online' : 'offline' %>"
+                    data-user-id="<%= other.id %>"></span>
             </div>
-          </div>
-        <% end %>
+            <div class="messenger-conversation-info">
+              <div class="messenger-conversation-top">
+                <span class="messenger-conversation-name"><%= other.name %></span>
+                <span class="messenger-conversation-time">
+                  <%= last_msg ? time_ago_in_words(last_msg.created_at) : '' %>
+                </span>
+              </div>
+              <div class="messenger-conversation-bottom">
+                <span class="messenger-last-message">
+                  <% if last_msg %>
+                    <% if last_msg.deleted %><em>Message deleted</em>
+                    <% elsif last_msg.message_type != 'text' %>📎 <%= last_msg.message_type.capitalize %>
+                    <% else %><%= truncate(last_msg.body, length: 35) %>
+                    <% end %>
+                  <% end %>
+                </span>
+                <% if unread > 0 %>
+                  <span class="messenger-unread-badge"><%= unread %></span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+          <%= button_to conversation_path(conv),
+                method: :delete,
+                class: "messenger-conv-delete-btn",
+                title: "Delete conversation",
+                data: { turbo: false },
+                form: { onsubmit: "return confirm('Delete this conversation? This cannot be undone.')" } do %>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M6.5 1.5h3a.5.5 0 010 1h-3a.5.5 0 010-1zM2 3.5h12l-.9 9.5a1 1 0 01-1 .9H3.9a1 1 0 01-1-.9L2 3.5zm3 2v5.5h1V5.5H5zm3 0v5.5h1V5.5H8zm3 0v5.5h1V5.5h-1z"/>
+            </svg>
+          <% end %>
+        </div>
       <% end %>
     </div>
   </div>
@@ -209,6 +223,14 @@
       <div class="info-section">
         <h5>Shared Media</h5>
         <div class="info-shared-media" id="sharedMedia"></div>
+      </div>
+      <div class="info-section info-danger-section">
+        <button class="info-delete-chat-btn" onclick="chatApp.deleteConversation()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M6.5 1.5h3a.5.5 0 010 1h-3a.5.5 0 010-1zM2 3.5h12l-.9 9.5a1 1 0 01-1 .9H3.9a1 1 0 01-1-.9L2 3.5zm3 2v5.5h1V5.5H5zm3 0v5.5h1V5.5H8zm3 0v5.5h1V5.5h-1z"/>
+          </svg>
+          Delete Conversation
+        </button>
       </div>
     </div>
   </div>

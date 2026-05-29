@@ -27,8 +27,10 @@ export class ChatApp {
   // ─── List Page ─────────────────────────────────────────────────────────────
 
   initConversationsList() {
+    this.conversationsPath = window.CHAT_DATA?.conversationsPath || "/conversations";
     this._setupNewMessageModal();
     this._setupConversationSearch();
+    this._setupConvLongPress();
   }
 
   // ─── Conversation View Page ────────────────────────────────────────────────
@@ -58,6 +60,7 @@ export class ChatApp {
     this._markActiveConversation();
     this._scrollToBottom();
     this._checkLoadMore();
+    this._setupConvLongPress();
 
     // Seed seen IDs from already-rendered messages
     document.querySelectorAll(".message-wrapper[data-message-id]").forEach(el => {
@@ -220,6 +223,32 @@ export class ChatApp {
     .then(r => r.json())
     .then(data => { if (!data.success) console.error("Delete failed:", data.error); })
     .catch(err => console.error("Delete error:", err));
+  }
+
+  // ─── Delete Conversation ───────────────────────────────────────────────────
+
+  deleteConversation() {
+    if (!confirm("Delete this entire conversation? This cannot be undone.")) return;
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+    const url = `${this.conversationsPath}/${this.conversationId}`;
+
+    fetch(url, {
+      method: "DELETE",
+      headers: {
+        "X-CSRF-Token": csrfToken,
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      }
+    })
+    .then(r => {
+      // Rails redirect responds with 302 or JSON — either way go to conversations list
+      window.location.href = this.conversationsPath;
+    })
+    .catch(err => {
+      console.error("Delete conversation error:", err);
+      this._showToast("Could not delete conversation.", "error");
+    });
   }
 
   // ─── Load More ─────────────────────────────────────────────────────────────
@@ -448,6 +477,164 @@ export class ChatApp {
         item.style.display = name?.includes(q) ? "flex" : "none";
       });
     });
+  }
+
+  // ─── Long-press context menu on conversation items ─────────────────────────
+
+  _setupConvLongPress() {
+    const LONG_PRESS_MS = 600;
+
+    document.querySelectorAll(".messenger-conversation-item-wrapper").forEach(wrapper => {
+      let timer      = null;
+      let didLong    = false;   // did we fire the long-press?
+      let startX     = 0;
+      let startY     = 0;
+
+      // ── helpers ──────────────────────────────────────────────────────────
+      const open = () => {
+        didLong = true;
+        wrapper.classList.remove("pressing");
+        this._openConvContextMenu(wrapper);
+      };
+
+      const cancel = () => {
+        clearTimeout(timer);
+        timer = null;
+        wrapper.classList.remove("pressing");
+      };
+
+      // ── mouse ─────────────────────────────────────────────────────────────
+      wrapper.addEventListener("mousedown", (e) => {
+        if (e.button !== 0) return;          // left-click only
+        didLong = false;
+        startX  = e.clientX;
+        startY  = e.clientY;
+        wrapper.classList.add("pressing");
+        timer = setTimeout(open, LONG_PRESS_MS);
+      });
+
+      wrapper.addEventListener("mouseup", () => cancel());
+      wrapper.addEventListener("mouseleave", () => cancel());
+
+      wrapper.addEventListener("mousemove", (e) => {
+        // cancel if moved more than 5px
+        if (Math.abs(e.clientX - startX) > 5 || Math.abs(e.clientY - startY) > 5) cancel();
+      });
+
+      // Block the click that fires right after a long-press
+      wrapper.addEventListener("click", (e) => {
+        if (didLong) {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          didLong = false;
+        }
+      }, true);   // capture phase — runs before link's click
+
+      // ── touch ─────────────────────────────────────────────────────────────
+      wrapper.addEventListener("touchstart", (e) => {
+        didLong = false;
+        startX  = e.touches[0].clientX;
+        startY  = e.touches[0].clientY;
+        wrapper.classList.add("pressing");
+        timer = setTimeout(open, LONG_PRESS_MS);
+      }, { passive: true });
+
+      wrapper.addEventListener("touchend",    () => cancel());
+      wrapper.addEventListener("touchcancel", () => cancel());
+
+      wrapper.addEventListener("touchmove", (e) => {
+        const t = e.touches[0];
+        if (Math.abs(t.clientX - startX) > 8 || Math.abs(t.clientY - startY) > 8) cancel();
+      }, { passive: true });
+    });
+  }
+
+  _openConvContextMenu(wrapper) {
+    this._closeConvContextMenu();
+
+    const deleteUrl = wrapper.dataset.convUrl;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+    if (!deleteUrl) return;
+
+    // ── backdrop (behind menu, closes on click) ───────────────────────────
+    const backdrop = document.createElement("div");
+    backdrop.className = "conv-context-backdrop";
+    backdrop.id        = "convContextBackdrop";
+    backdrop.addEventListener("click", () => this._closeConvContextMenu());
+    document.body.appendChild(backdrop);
+
+    // ── menu ──────────────────────────────────────────────────────────────
+    const menu = document.createElement("div");
+    menu.className = "conv-context-menu";
+    menu.id        = "convContextMenu";
+    menu.innerHTML = `
+      <button class="conv-context-menu-item danger" id="convMenuDelete">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M6.5 1.5h3a.5.5 0 010 1h-3a.5.5 0 010-1zM2 3.5h12l-.9 9.5a1 1 0 01-1 .9H3.9a1 1 0 01-1-.9L2 3.5zm3 2v5.5h1V5.5H5zm3 0v5.5h1V5.5H8zm3 0v5.5h1V5.5h-1z"/>
+        </svg>
+        Delete Conversation
+      </button>`;
+
+    // Position relative to wrapper
+    const rect = wrapper.getBoundingClientRect();
+    menu.style.position = "fixed";
+    menu.style.top      = `${rect.top + rect.height / 2}px`;
+    menu.style.left     = `${rect.left + 60}px`;
+    menu.style.transform = "translateY(-50%) scale(0.85)";
+    document.body.appendChild(menu);
+
+    requestAnimationFrame(() => {
+      menu.style.transition = "opacity 0.15s ease, transform 0.15s ease";
+      menu.style.opacity    = "1";
+      menu.style.transform  = "translateY(-50%) scale(1)";
+    });
+
+    // ── delete handler ────────────────────────────────────────────────────
+    menu.querySelector("#convMenuDelete").addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._closeConvContextMenu();
+
+      if (!confirm("Delete this conversation? This cannot be undone.")) return;
+
+      fetch(deleteUrl, {
+        method: "DELETE",
+        headers: {
+          "X-CSRF-Token": csrfToken,
+          "Accept":       "application/json",
+          "Content-Type": "application/json"
+        }
+      })
+      .then(res => {
+        if (res.ok) {
+          // Remove the wrapper from DOM immediately for instant feedback
+          wrapper.remove();
+          // If we're currently viewing this conversation, go back to list
+          const convId = wrapper.dataset.convId;
+          if (this.conversationId && String(this.conversationId) === String(convId)) {
+            window.location.href = this.conversationsPath || "/conversations";
+          }
+        } else {
+          res.text().then(t => console.error("Delete failed:", res.status, t));
+          this._showToast("Could not delete conversation.", "error");
+        }
+      })
+      .catch(err => {
+        console.error("Delete error:", err);
+        this._showToast("Network error.", "error");
+      });
+    });
+  }
+
+  _closeConvContextMenu() {
+    const menu     = document.getElementById("convContextMenu");
+    const backdrop = document.getElementById("convContextBackdrop");
+    if (menu) {
+      menu.style.opacity   = "0";
+      menu.style.transform = "translateY(-50%) scale(0.85)";
+      setTimeout(() => menu.remove(), 150);
+    }
+    backdrop?.remove();
   }
 
   _loadFriendsList() {
