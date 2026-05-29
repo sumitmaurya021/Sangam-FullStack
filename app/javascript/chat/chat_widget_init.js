@@ -1,24 +1,21 @@
 import { ChatWidget } from "chat/chat_widget";
 
-let _widgetBooted = false;
+let _widget = null;
 
 function bootWidget() {
   const data = window.WIDGET_DATA;
-  if (!data) return;
-  if (_widgetBooted && window.chatWidget) return;
-  _widgetBooted = true;
-  window.chatWidget = new ChatWidget(data);
+  if (!data || _widget) return;
+  _widget = new ChatWidget(data);
+  window.chatWidget = _widget;
 }
 
 document.addEventListener("turbo:before-visit", () => {
-  _widgetBooted = false;
-  // Don't null chatWidget — keep mini windows open across navigation
+  // Keep widget alive across navigation — just reset flag if on conversations page
+  if (window.location.pathname.startsWith("/conversations")) {
+    _widget = null;
+    window.chatWidget = null;
+  }
 });
 
 document.addEventListener("turbo:load", bootWidget);
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", bootWidget);
-} else {
-  setTimeout(bootWidget, 0);
-}
+document.addEventListener("DOMContentLoaded", bootWidget);
