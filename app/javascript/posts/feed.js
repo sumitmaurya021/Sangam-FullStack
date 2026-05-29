@@ -190,56 +190,95 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ─── Infinite Scroll ───────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function () {
-  const feed      = document.getElementById('posts-feed');
-  const sentinel  = document.getElementById('infinite-scroll-sentinel');
-  const spinner   = document.getElementById('posts-loading-spinner');
+(function () {
+  let scrollObserver = null;
 
-  if (!feed || !sentinel) return;
+  function initInfiniteScroll() {
+    const feed     = document.getElementById('posts-feed');
+    const sentinel = document.getElementById('infinite-scroll-sentinel');
+    const spinner  = document.getElementById('posts-loading-spinner');
 
-  const observer = new IntersectionObserver(function (entries) {
-    entries.forEach(function (entry) {
-      if (!entry.isIntersecting) return;
+    // Not on the feed page — nothing to do
+    if (!feed || !sentinel) return;
 
-      const nextPage   = feed.dataset.nextPage;
-      const isLoading  = feed.dataset.loading === 'true';
+    // Tear down any previous observer (Turbo re-uses the same JS context
+    // across navigations, so we must clean up before re-initialising)
+    if (scrollObserver) {
+      scrollObserver.disconnect();
+      scrollObserver = null;
+    }
 
-      // No more pages or already fetching
+    // Reset loading flag on every page visit
+    feed.dataset.loading = 'false';
+
+    function loadNextPage() {
+      const nextPage  = feed.dataset.nextPage;
+      const isLoading = feed.dataset.loading === 'true';
+
       if (!nextPage || isLoading) return;
 
-      feed.dataset.loading = 'true';
+      feed.dataset.loading  = 'true';
       spinner.style.display = 'block';
 
-      fetch(`/posts?page=${nextPage}`, {
+      fetch('/posts?page=' + nextPage, {
         headers: {
           'Accept': 'application/json',
           'X-Requested-With': 'XMLHttpRequest'
         }
       })
-        .then(function (res) { return res.json(); })
+        .then(function (res) {
+          if (!res.ok) throw new Error('Network response was not ok');
+          return res.json();
+        })
         .then(function (data) {
-          // Append new posts HTML
           feed.insertAdjacentHTML('beforeend', data.posts_html);
 
-          // Update pagination state
-          feed.dataset.nextPage  = data.next_page || '';
-          feed.dataset.loading   = 'false';
-          spinner.style.display  = 'none';
+          feed.dataset.nextPage = data.next_page || '';
+          feed.dataset.loading  = 'false';
+          spinner.style.display = 'none';
 
-          // Hide spinner permanently when all pages loaded
           if (!data.next_page) {
-            observer.disconnect();
-            spinner.style.display = 'none';
+            // All pages loaded — stop observing
+            scrollObserver.disconnect();
+            scrollObserver = null;
           }
         })
         .catch(function () {
           feed.dataset.loading  = 'false';
           spinner.style.display = 'none';
         });
-    });
-  }, {
-    rootMargin: '200px'   // start loading 200px before sentinel is visible
-  });
+    }
 
-  observer.observe(sentinel);
-});
+    scrollObserver = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) loadNextPage();
+        });
+      },
+      {
+        // Fire 400px before the sentinel reaches the viewport so the next
+        // batch is ready before the user actually hits the bottom.
+        // Works correctly at every viewport width because rootMargin is
+        // applied relative to the viewport, not the layout columns.
+        rootMargin: '0px 0px 400px 0px',
+        threshold: 0
+      }
+    );
+
+    scrollObserver.observe(sentinel);
+  }
+
+  // turbo:load fires on first load AND after every Turbo navigation.
+  // This replaces DOMContentLoaded so infinite scroll works after
+  // navigating back to the feed without a full page reload.
+  document.addEventListener('turbo:load', initInfiniteScroll);
+
+  // Fallback for pages served without Turbo Drive (e.g. direct navigation
+  // when Turbo is disabled on a link).
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initInfiniteScroll);
+  } else {
+    // Document already parsed — run immediately
+    initInfiniteScroll();
+  }
+}());

@@ -2,7 +2,6 @@
 import "@hotwired/turbo-rails"
 import "controllers"
 import "shared/header"
-import "posts/feed"
 import "posts_interactions"
 import "@rails/actioncable"
 import "chat/init"
