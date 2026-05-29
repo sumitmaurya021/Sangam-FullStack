@@ -73,12 +73,6 @@ export class ChatApp {
 
     if (!body && !this.pendingAttachment) return;
 
-    // Optimistic UI — show message immediately for sender
-    const tempId = "temp_" + Date.now();
-    if (body && !this.pendingAttachment) {
-      this._appendOptimisticMessage(tempId, body);
-    }
-
     const formData = new FormData();
     if (this.pendingAttachment) {
       formData.append("message[attachment]", this.pendingAttachment);
@@ -89,7 +83,7 @@ export class ChatApp {
       formData.append("message[message_type]", "text");
     }
 
-    // Clear input immediately
+    // Clear input immediately for better UX
     if (input) { input.value = ""; input.style.height = "auto"; }
     this._clearAttachment();
     this._stopTyping();
@@ -104,47 +98,19 @@ export class ChatApp {
     })
     .then(r => r.json())
     .then(data => {
-      if (data.success) {
-        // Remove optimistic message — real one will come via Action Cable
-        const tempEl = document.getElementById(tempId);
-        if (tempEl) tempEl.remove();
-      } else {
+      if (!data.success) {
         // Restore input on failure
-        const tempEl = document.getElementById(tempId);
-        if (tempEl) tempEl.remove();
         if (input) input.value = body;
         console.error("Send failed:", data.errors);
         this._showToast("Failed to send message", "error");
       }
+      // SUCCESS: message will appear via Action Cable broadcast — no DOM manipulation here
     })
     .catch(err => {
-      const tempEl = document.getElementById(tempId);
-      if (tempEl) tempEl.remove();
       if (input) input.value = body;
       console.error("Send error:", err);
       this._showToast("Network error — message not sent", "error");
     });
-  }
-
-  _appendOptimisticMessage(tempId, body) {
-    const list = document.getElementById("messagesList");
-    if (!list) return;
-
-    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    const html = `
-      <div class="message-wrapper mine" id="${tempId}">
-        <div class="message-content-wrapper">
-          <div class="message-bubble">
-            <p class="message-text">${this._escapeHtml(body)}</p>
-          </div>
-          <div class="message-meta">
-            <span class="message-time">${time}</span>
-            <span class="sending-indicator" style="font-size:11px;color:#8a8d91;">Sending...</span>
-          </div>
-        </div>
-      </div>`;
-    list.insertAdjacentHTML("beforeend", html);
-    this._scrollToBottom();
   }
 
   // ─── Incoming Message (from Action Cable) ─────────────────────────────────
