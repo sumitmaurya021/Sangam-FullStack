@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_22_064152) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_29_071535) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -47,11 +47,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_22_064152) do
     t.datetime "created_at", null: false
     t.bigint "parent_id"
     t.bigint "post_id", null: false
+    t.bigint "replied_to_user_id"
     t.integer "replies_count", default: 0, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["parent_id"], name: "index_comments_on_parent_id"
     t.index ["post_id"], name: "index_comments_on_post_id"
+    t.index ["replied_to_user_id"], name: "index_comments_on_replied_to_user_id"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
@@ -263,6 +265,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_22_064152) do
   add_foreign_key "comments", "comments", column: "parent_id"
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"
+  add_foreign_key "comments", "users", column: "replied_to_user_id"
   add_foreign_key "friendships", "users"
   add_foreign_key "friendships", "users", column: "friend_id"
   add_foreign_key "likes", "posts"

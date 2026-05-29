@@ -60,13 +60,15 @@ async function reactToPost(postId, reactionType) {
 }
 
 // Reply to Comment
-function replyToComment(postId, commentId, userName) {
+function replyToComment(postId, commentId, userName, userId) {
   const parentIdField = document.getElementById(`parent-id-${postId}`);
+  const repliedToUserIdField = document.getElementById(`replied-to-user-id-${postId}`);
   const replyIndicator = document.getElementById(`reply-indicator-${postId}`);
   const replyToName = document.getElementById(`reply-to-name-${postId}`);
   const commentInput = document.querySelector(`#comment-form-${postId} .comment-input`);
-  
+
   parentIdField.value = commentId;
+  if (repliedToUserIdField) repliedToUserIdField.value = userId;
   replyToName.textContent = userName;
   replyIndicator.style.display = 'flex';
   commentInput.focus();
@@ -76,10 +78,12 @@ function replyToComment(postId, commentId, userName) {
 // Cancel Reply
 function cancelReply(postId) {
   const parentIdField = document.getElementById(`parent-id-${postId}`);
+  const repliedToUserIdField = document.getElementById(`replied-to-user-id-${postId}`);
   const replyIndicator = document.getElementById(`reply-indicator-${postId}`);
   const commentInput = document.querySelector(`#comment-form-${postId} .comment-input`);
-  
+
   parentIdField.value = '';
+  if (repliedToUserIdField) repliedToUserIdField.value = '';
   replyIndicator.style.display = 'none';
   commentInput.placeholder = 'Write a comment...';
 }
@@ -88,14 +92,17 @@ function cancelReply(postId) {
 function toggleReplies(commentId) {
   const repliesContainer = document.getElementById(`replies-${commentId}`);
   const repliesText = document.getElementById(`replies-text-${commentId}`);
-  
+  const icon = document.getElementById(`toggle-replies-icon-${commentId}`);
+
   if (repliesContainer.style.display === 'none' || repliesContainer.style.display === '') {
     repliesContainer.style.display = 'block';
     repliesText.textContent = 'Hide replies';
+    if (icon) icon.style.transform = 'rotate(0deg)';
   } else {
     repliesContainer.style.display = 'none';
-    const replyCount = repliesContainer.querySelectorAll('.comment-item').length;
-    repliesText.textContent = `${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`;
+    const replyCount = repliesContainer.querySelectorAll('.reply-item').length;
+    repliesText.textContent = `View ${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`;
+    if (icon) icon.style.transform = 'rotate(-90deg)';
   }
 }
 

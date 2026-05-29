@@ -1,4 +1,4 @@
-<div class="comment-item <%= 'nested-comment' if comment.reply? %>" id="comment-<%= comment.id %>">
+<div class="comment-item" id="comment-<%= comment.id %>">
   <div class="comment-avatar">
     <% if comment.user.avatar.attached? %>
       <%= image_tag comment.user.avatar, alt: "#{comment.user.name} avatar" %>
@@ -9,32 +9,67 @@
   <div class="comment-content">
     <div class="comment-bubble">
       <div class="comment-author"><%= comment.user.name || comment.user.email %></div>
-      <p><%= comment.content %></p>
+      <p>
+        <% if comment.reply? && comment.replied_to_user.present? %>
+          <span class="reply-mention">@<%= comment.replied_to_user.name || comment.replied_to_user.email %></span>
+        <% end %>
+        <%= comment.content %>
+      </p>
     </div>
     <div class="comment-meta">
       <span class="comment-time"><%= time_ago_in_words(comment.created_at) %> ago</span>
-      <button class="comment-action-btn" onclick="replyToComment(<%= post.id %>, <%= comment.id %>, '<%= comment.user.name %>')">
+      <button class="comment-action-btn reply-btn"
+              onclick="replyToComment(<%= post.id %>, <%= comment.id %>, '<%= j(comment.user.name || comment.user.email) %>', <%= comment.user.id %>)">
         Reply
       </button>
       <% if comment.user == current_user %>
         <%= button_to 'Delete', post_comment_path(post, comment), method: :delete, class: 'comment-delete', data: { confirm: 'Delete this comment?' } %>
       <% end %>
-      <% if comment.replies_count > 0 %>
-        <button class="comment-action-btn" onclick="toggleReplies(<%= comment.id %>)">
-          <span id="replies-text-<%= comment.id %>">
-            <%= pluralize(comment.replies_count, 'reply') %>
-          </span>
-        </button>
-      <% end %>
     </div>
-    
-    <!-- Nested Replies -->
-    <% if comment.replies.any? %>
+
+    <% if comment.top_level? && comment.replies.any? %>
+      <!-- Flat replies under this comment (Instagram-style) -->
       <div class="replies-container" id="replies-<%= comment.id %>" style="display: none;">
-        <% comment.replies.recent.each do |reply| %>
-          <%= render 'comments/comment', comment: reply, post: post %>
+        <% comment.replies.order(created_at: :asc).each do |reply| %>
+          <div class="comment-item reply-item" id="comment-<%= reply.id %>">
+            <div class="comment-avatar comment-avatar-sm">
+              <% if reply.user.avatar.attached? %>
+                <%= image_tag reply.user.avatar, alt: "#{reply.user.name} avatar" %>
+              <% else %>
+                <%= reply.user.name&.first&.upcase || 'U' %>
+              <% end %>
+            </div>
+            <div class="comment-content">
+              <div class="comment-bubble">
+                <div class="comment-author"><%= reply.user.name || reply.user.email %></div>
+                <p>
+                  <% if reply.replied_to_user.present? %>
+                    <span class="reply-mention">@<%= reply.replied_to_user.name || reply.replied_to_user.email %></span>
+                  <% end %>
+                  <%= reply.content %>
+                </p>
+              </div>
+              <div class="comment-meta">
+                <span class="comment-time"><%= time_ago_in_words(reply.created_at) %> ago</span>
+                <button class="comment-action-btn reply-btn"
+                        onclick="replyToComment(<%= post.id %>, <%= comment.id %>, '<%= j(reply.user.name || reply.user.email) %>', <%= reply.user.id %>)">
+                  Reply
+                </button>
+                <% if reply.user == current_user %>
+                  <%= button_to 'Delete', post_comment_path(post, reply), method: :delete, class: 'comment-delete', data: { confirm: 'Delete this reply?' } %>
+                <% end %>
+              </div>
+            </div>
+          </div>
         <% end %>
       </div>
+
+      <button class="view-replies-btn" onclick="toggleReplies(<%= comment.id %>)" id="toggle-replies-btn-<%= comment.id %>">
+        <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor" id="toggle-replies-icon-<%= comment.id %>" style="transform: rotate(-90deg); transition: transform 0.2s;">
+          <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+        </svg>
+        <span id="replies-text-<%= comment.id %>">View <%= pluralize(comment.replies_count, 'reply') %></span>
+      </button>
     <% end %>
   </div>
 </div>
