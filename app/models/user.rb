@@ -10,6 +10,9 @@ class User < ApplicationRecord
 
   # Associations
   has_many :posts, dependent: :destroy
+  has_many :reels, dependent: :destroy
+  has_many :reel_likes, dependent: :destroy
+  has_many :reel_comments, dependent: :destroy
 
   # Chat associations
   has_many :sent_conversations, class_name: 'Conversation', foreign_key: 'sender_id', dependent: :destroy

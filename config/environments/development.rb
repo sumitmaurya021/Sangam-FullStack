@@ -2,6 +2,9 @@ require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
   config.hosts << /[\w-]+\.ngrok-free\.app/
+
+  # Disable rack-timeout in development (prevents 503 on slow external API calls)
+  config.middleware.delete Rack::Timeout if defined?(Rack::Timeout)
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Make code changes take effect immediately without server restart.
