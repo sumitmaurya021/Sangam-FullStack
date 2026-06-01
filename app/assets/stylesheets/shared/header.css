@@ -615,168 +615,253 @@
 
 @media (max-width: 767px) {
   .fb-header {
-    height: auto;
+    height: 56px;
     background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
   }
   
   .fb-header-content {
-    flex-wrap: wrap;
-    padding: 0;
-    height: auto;
+    flex-wrap: nowrap;
+    padding: 0 8px;
+    height: 56px;
+    gap: 4px;
+    justify-content: space-between;
   }
   
-  /* Top Row: Logo, Search Icon, Hamburger */
+  /* Left Section: Logo only */
   .fb-header-left {
-    flex: 1;
+    flex: 0 0 auto;
     order: 1;
-    padding: 10px 12px;
-    gap: 10px;
+    padding: 0;
+    gap: 0;
+    min-width: 40px;
+    width: 40px;
   }
   
   .fb-logo {
-    width: 38px;
-    height: 38px;
+    width: 32px;
+    height: 32px;
+  }
+  
+  .fb-logo-link {
+    padding: 4px;
   }
   
   .fb-search {
     display: none;
   }
   
-  .fb-header-right {
-    flex: 0 0 auto;
-    order: 2;
-    gap: 8px;
-    padding: 10px 12px 10px 0;
-  }
-  
-  /* Show search icon button on mobile */
-  .fb-search-icon-btn {
-    display: flex;
-    width: 40px;
-    height: 40px;
-    border-radius: 14px;
-  }
-  
-  .fb-search-icon-btn svg {
-    width: 18px;
-    height: 18px;
-  }
-  
-  /* Show hamburger button on mobile */
-  .fb-hamburger-btn {
-    display: flex;
-    width: 40px;
-    height: 40px;
-    border-radius: 14px;
-  }
-  
-  .fb-hamburger-btn svg {
-    width: 18px;
-    height: 18px;
-  }
-  
-  /* Hide desktop icons and profile on mobile top row */
-  .fb-desktop-only,
-  .fb-profile-btn {
-    display: none !important;
-  }
-  
-  /* Bottom Row: Navigation Icons */
+  /* Center Section: Navigation Icons in single row */
   .fb-header-center {
-    order: 3;
-    width: 100%;
+    order: 2;
+    flex: 0 1 auto;
     display: flex;
-    flex: 1 1 100%;
-    max-width: 100%;
+    max-width: calc(100% - 180px);
     gap: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    border-top: 1px solid rgba(102, 126, 234, 0.1);
-    height: 52px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.5), transparent);
-  }
-  
-  .fb-header-center::-webkit-scrollbar {
-    display: none;
+    overflow: visible;
+    height: 56px;
+    border-top: none;
+    background: transparent;
+    justify-content: center;
+    margin: 0 4px;
   }
   
   .fb-nav-item {
-    min-width: 70px;
-    padding: 0 10px;
+    min-width: 50px;
+    max-width: 50px;
+    padding: 0 4px;
     flex-shrink: 0;
-    height: 52px;
+    height: 56px;
   }
   
   .fb-nav-item svg {
-    width: 26px;
-    height: 26px;
+    width: 22px;
+    height: 22px;
   }
   
   .fb-nav-item::before {
     height: 3px;
   }
   
-  .fb-user-dropdown,
-  .fb-nav-dropdown {
-    right: 12px;
-    top: 64px;
-    min-width: 300px;
-    max-width: calc(100vw - 24px);
-  }
-}
-
-/* Extra small screens */
-@media (max-width: 480px) {
-  .fb-header-left {
-    padding: 8px 10px;
-    gap: 8px;
-  }
-  
-  .fb-logo {
-    width: 34px;
-    height: 34px;
-  }
-  
+  /* Right Section: Icons */
   .fb-header-right {
-    gap: 6px;
-    padding: 8px 10px 8px 0;
+    flex: 0 0 auto;
+    order: 3;
+    gap: 4px;
+    padding: 0;
+    justify-content: flex-end;
+    min-width: 80px;
+    width: 80px;
   }
   
-  .fb-search-icon-btn,
-  .fb-hamburger-btn {
+  /* Show search icon button on mobile */
+  .fb-search-icon-btn {
+    display: flex;
     width: 36px;
     height: 36px;
     border-radius: 12px;
+    flex-shrink: 0;
   }
   
-  .fb-search-icon-btn svg,
+  .fb-search-icon-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  /* Show hamburger button on mobile */
+  .fb-hamburger-btn {
+    display: flex;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    flex-shrink: 0;
+  }
+  
   .fb-hamburger-btn svg {
     width: 16px;
     height: 16px;
   }
   
-  .fb-header-center {
-    height: 48px;
-  }
-  
-  .fb-nav-item {
-    min-width: 60px;
-    padding: 0 8px;
-    height: 48px;
-  }
-  
-  .fb-nav-item svg {
-    width: 24px;
-    height: 24px;
+  /* Hide desktop icons and profile on mobile */
+  .fb-desktop-only,
+  .fb-profile-btn {
+    display: none !important;
   }
   
   .fb-user-dropdown,
   .fb-nav-dropdown {
-    right: 10px;
+    right: 8px;
+    top: 60px;
+    min-width: 300px;
+    max-width: calc(100vw - 16px);
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  .fb-header {
+    height: 52px;
+  }
+  
+  .fb-header-content {
+    padding: 0 6px;
+    height: 52px;
+    gap: 3px;
+  }
+  
+  .fb-header-left {
+    padding: 0;
+    gap: 0;
+    min-width: 36px;
+    width: 36px;
+  }
+  
+  .fb-logo {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .fb-logo-link {
+    padding: 3px;
+  }
+  
+  .fb-header-center {
+    max-width: calc(100% - 150px);
+    height: 52px;
+    margin: 0 3px;
+    overflow: visible;
+  }
+  
+  .fb-nav-item {
+    min-width: 44px;
+    max-width: 44px;
+    padding: 0 3px;
+    height: 52px;
+  }
+  
+  .fb-nav-item svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .fb-header-right {
+    gap: 3px;
+    padding: 0;
+    min-width: 70px;
+    width: 70px;
+  }
+  
+  .fb-search-icon-btn,
+  .fb-hamburger-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+  }
+  
+  .fb-search-icon-btn svg,
+  .fb-hamburger-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .fb-user-dropdown,
+  .fb-nav-dropdown {
+    right: 6px;
+    top: 56px;
     min-width: 280px;
     border-radius: 16px;
+  }
+}
+
+/* Very small screens - show only 3 nav items */
+@media (max-width: 360px) {
+  .fb-header-content {
+    padding: 0 4px;
+    gap: 2px;
+  }
+  
+  .fb-header-left {
+    min-width: 32px;
+    width: 32px;
+  }
+  
+  .fb-logo {
+    width: 26px;
+    height: 26px;
+  }
+  
+  .fb-header-center {
+    max-width: calc(100% - 130px);
+    margin: 0 2px;
+    overflow: visible;
+  }
+  
+  .fb-nav-item {
+    min-width: 40px;
+    max-width: 40px;
+    padding: 0 2px;
+  }
+  
+  .fb-nav-item svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  /* Hide last 2 nav items on very small screens */
+  .fb-nav-item:nth-child(4),
+  .fb-nav-item:nth-child(5) {
+    display: none;
+  }
+  
+  .fb-header-right {
+    min-width: 65px;
+    width: 65px;
+    gap: 2px;
+  }
+  
+  .fb-search-icon-btn,
+  .fb-hamburger-btn {
+    width: 30px;
+    height: 30px;
   }
 }
 
