@@ -41,6 +41,17 @@ Rails.application.routes.draw do
     resources :messages, only: [:create, :destroy]
   end
 
+  # Notifications
+  resources :notifications, only: [:index, :destroy] do
+    collection do
+      get  :dropdown
+      patch :mark_all_read
+    end
+    member do
+      patch :mark_read
+    end
+  end
+
   # Action Cable mount
   mount ActionCable.server => '/cable'
 

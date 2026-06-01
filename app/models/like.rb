@@ -14,8 +14,27 @@ class Like < ApplicationRecord
     'sad' => '😢',
     'angry' => '😠'
   }.freeze
-  
+
+  after_create :create_notification
+
   def reaction_emoji
     REACTIONS[reaction_type]
+  end
+
+  private
+
+  def create_notification
+    return if user_id == post.user_id
+
+    notification = Notification.create!(
+      recipient: post.user,
+      actor: user,
+      notifiable: post,
+      notification_type: 'like',
+      message: "#{user.name} reacted #{reaction_emoji} to your post"
+    )
+    notification.broadcast_to_recipient
+  rescue => e
+    Rails.logger.error "Notification creation failed for like #{id}: #{e.message}"
   end
 end

@@ -1,0 +1,263 @@
+<% content_for :title, "Notifications — Sangam" %>
+
+<div class="notifications-page">
+  <div class="notifications-container">
+
+    <!-- Header -->
+    <div class="notifications-header">
+      <div class="notifications-header-left">
+        <div class="notifications-header-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="notifications-title">Notifications</h1>
+          <% if @unread_count > 0 %>
+            <p class="notifications-subtitle"><%= @unread_count %> unread notification<%= @unread_count > 1 ? 's' : '' %></p>
+          <% else %>
+            <p class="notifications-subtitle">You're all caught up!</p>
+          <% end %>
+        </div>
+      </div>
+      <% if @unread_count > 0 %>
+        <button class="notif-mark-all-btn" id="markAllReadBtn" onclick="markAllNotificationsRead()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M18 7l-1.41-1.41-6.34 6.34 1.41 1.41L18 7zm4.24-1.41L11.66 16.17 7.48 12l-1.41 1.41L11.66 19l12-12-1.42-1.41zM.41 13.41L6 19l1.41-1.41L1.83 12 .41 13.41z"/>
+          </svg>
+          Mark all as read
+        </button>
+      <% end %>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="notif-filter-tabs" id="notifFilterTabs">
+      <button class="notif-filter-tab active" data-filter="all" onclick="filterNotifications('all', this)">
+        All
+      </button>
+      <button class="notif-filter-tab" data-filter="unread" onclick="filterNotifications('unread', this)">
+        Unread
+        <% if @unread_count > 0 %>
+          <span class="notif-filter-badge"><%= @unread_count > 9 ? '9+' : @unread_count %></span>
+        <% end %>
+      </button>
+      <button class="notif-filter-tab" data-filter="like" onclick="filterNotifications('like', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        Reactions
+      </button>
+      <button class="notif-filter-tab" data-filter="comment" onclick="filterNotifications('comment', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/>
+        </svg>
+        Comments
+      </button>
+      <button class="notif-filter-tab" data-filter="friend" onclick="filterNotifications('friend', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+        Friends
+      </button>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="notifications-list" id="notificationsPageList">
+      <% if @notifications.any? %>
+        <% @notifications.each do |notification| %>
+          <%= render 'notification_item', notification: notification %>
+        <% end %>
+
+        <!-- Pagination -->
+        <% if @notifications.respond_to?(:total_pages) && @notifications.total_pages > 1 %>
+          <div class="notifications-pagination">
+            <%= paginate @notifications %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="notifications-empty">
+          <div class="notifications-empty-icon">
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+            </svg>
+          </div>
+          <h3>No notifications yet</h3>
+          <p>When someone likes, comments, or interacts with you, you'll see it here.</p>
+          <%= link_to posts_path, class: 'notif-empty-cta' do %>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+            Explore Feed
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Mark All Read ─────────────────────────────────────────────────────────
+function markAllNotificationsRead() {
+  const btn = document.getElementById('markAllReadBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="notif-spinner-sm"></span> Marking...';
+  }
+
+  fetch('/notifications/mark_all_read', {
+    method: 'PATCH',
+    headers: {
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+      'Accept': 'application/json'
+    }
+  })
+  .then(r => r.json())
+  .then(() => {
+    document.querySelectorAll('.notif-item.unread').forEach(el => el.classList.remove('unread'));
+    document.querySelectorAll('.notif-unread-dot').forEach(el => el.remove());
+    document.querySelectorAll('.notif-read-btn').forEach(el => el.remove());
+    if (btn) btn.remove();
+    document.querySelector('.notifications-subtitle').textContent = "You're all caught up!";
+    updateNotificationBadge(0);
+    // Update filter badge
+    const unreadBadge = document.querySelector('[data-filter="unread"] .notif-filter-badge');
+    if (unreadBadge) unreadBadge.remove();
+  });
+}
+
+// ── Delete Notification ───────────────────────────────────────────────────
+function deleteNotification(id, el) {
+  const item = el.closest('.notif-item');
+  item.style.animation = 'notifSlideOut 0.3s ease forwards';
+  setTimeout(() => {
+    fetch(`/notifications/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      item.remove();
+      updateNotificationBadge(data.unread_count);
+      checkEmptyState();
+    });
+  }, 280);
+}
+
+// ── Mark Single Read ──────────────────────────────────────────────────────
+function markSingleRead(id, el) {
+  const item = el.closest('.notif-item');
+  if (!item || !item.classList.contains('unread')) return;
+
+  fetch(`/notifications/${id}/mark_read`, {
+    method: 'PATCH',
+    headers: {
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+      'Accept': 'application/json'
+    }
+  })
+  .then(r => r.json())
+  .then(data => {
+    item.classList.remove('unread');
+    item.querySelector('.notif-unread-dot')?.remove();
+    item.querySelector('.notif-read-btn')?.remove();
+    updateNotificationBadge(data.unread_count);
+  });
+}
+
+// ── Friend Request Actions ────────────────────────────────────────────────
+function acceptFriendRequest(friendshipId, notifId, btn) {
+  btn.disabled = true;
+  btn.innerHTML = '<span class="notif-spinner-sm"></span>';
+
+  fetch(`/friendships/${friendshipId}/accept`, {
+    method: 'PATCH',
+    headers: {
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+      'Accept': 'application/json'
+    }
+  })
+  .then(r => r.json())
+  .then(() => {
+    const actionsDiv = document.getElementById(`notif-friend-actions-${notifId}`);
+    if (actionsDiv) {
+      actionsDiv.innerHTML = `
+        <span class="notif-btn-accepted">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+          </svg>
+          Friends now!
+        </span>`;
+    }
+    markSingleRead(notifId, document.getElementById(`notif-${notifId}`));
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.innerHTML = 'Confirm';
+  });
+}
+
+function declineFriendRequest(friendshipId, notifId, btn) {
+  const item = document.getElementById(`notif-${notifId}`);
+  if (item) item.style.animation = 'notifSlideOut 0.3s ease forwards';
+
+  setTimeout(() => {
+    fetch(`/friendships/${friendshipId}`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      }
+    })
+    .then(() => {
+      if (item) item.remove();
+      checkEmptyState();
+    });
+  }, 280);
+}
+
+// ── Filter Tabs ───────────────────────────────────────────────────────────
+function filterNotifications(filter, tabEl) {
+  // Update active tab
+  document.querySelectorAll('.notif-filter-tab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+
+  const items = document.querySelectorAll('.notif-item');
+  items.forEach(item => {
+    if (filter === 'all') {
+      item.style.display = '';
+    } else if (filter === 'unread') {
+      item.style.display = item.classList.contains('unread') ? '' : 'none';
+    } else if (filter === 'friend') {
+      const type = item.querySelector('.notif-type-badge')?.className || '';
+      item.style.display = (type.includes('notif-type-friend')) ? '' : 'none';
+    } else {
+      const type = item.querySelector('.notif-type-badge')?.className || '';
+      item.style.display = type.includes(`notif-type-${filter}`) ? '' : 'none';
+    }
+  });
+}
+
+// ── Check Empty State ─────────────────────────────────────────────────────
+function checkEmptyState() {
+  const list = document.getElementById('notificationsPageList');
+  if (!list) return;
+  const remaining = list.querySelectorAll('.notif-item');
+  if (remaining.length === 0) {
+    list.innerHTML = `
+      <div class="notifications-empty">
+        <div class="notifications-empty-icon">
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+          </svg>
+        </div>
+        <h3>No notifications yet</h3>
+        <p>When someone likes, comments, or interacts with you, you'll see it here.</p>
+        <a href="/posts" class="notif-empty-cta">Explore Feed</a>
+      </div>`;
+  }
+}
+</script>

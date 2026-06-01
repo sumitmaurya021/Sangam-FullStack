@@ -107,14 +107,43 @@
         <% end %>
       <% end %>
       
-      <button class="fb-icon-btn fb-notification-btn fb-desktop-only" title="Notifications">
+      <button class="fb-icon-btn fb-notification-btn fb-desktop-only" title="Notifications" onclick="toggleNotifDropdown()">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
           <path d="M10 2.5c-.828 0-1.5.672-1.5 1.5v.586C6.348 5.207 5 7.13 5 9.5v3.75l-1.25 1.25v.75h12.5v-.75L15 13.25V9.5c0-2.37-1.348-4.293-3.5-4.914V4c0-.828-.672-1.5-1.5-1.5zm-2.5 15c0 1.379 1.121 2.5 2.5 2.5s2.5-1.121 2.5-2.5h-5z"/>
         </svg>
-        <% if current_user.pending_friend_requests.any? %>
-          <span class="fb-notification-badge"><%= current_user.pending_friend_requests.count %></span>
+        <% unread_notif = current_user.unread_notifications_count %>
+        <% if unread_notif > 0 %>
+          <span class="fb-notification-badge" id="notifBadge"><%= unread_notif > 99 ? '99+' : unread_notif %></span>
+        <% else %>
+          <span class="fb-notification-badge" id="notifBadge" style="display:none;"></span>
         <% end %>
       </button>
+
+      <!-- Notification Dropdown Panel -->
+      <div class="notif-dropdown" id="notifDropdown">
+        <div class="notif-dropdown-header">
+          <h3 class="notif-dropdown-title">Notifications</h3>
+          <div class="notif-dropdown-actions">
+            <button class="notif-mark-all-btn" id="notifMarkAllBtn"
+                    onclick="markAllDropdownRead()"
+                    style="<%= current_user.unread_notifications_count == 0 ? 'display:none' : '' %>">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+              </svg>
+              Mark all read
+            </button>
+            <%= link_to notifications_path, class: 'notif-see-all-btn' do %>
+              See all
+            <% end %>
+          </div>
+        </div>
+        <div class="notif-dropdown-list" id="notifDropdownList">
+          <div class="notif-dropdown-loading">
+            <div class="notif-spinner"></div>
+            <span>Loading...</span>
+          </div>
+        </div>
+      </div>
       
       <!-- Navigation Dropdown (Mobile Only) -->
       <div class="fb-nav-dropdown" id="navDropdown">
@@ -190,16 +219,19 @@
           <% end %>
         <% end %>
         
-        <button class="fb-nav-dropdown-item fb-notification-btn" title="Notifications">
+        <button class="fb-nav-dropdown-item fb-notification-btn" title="Notifications" onclick="toggleNotifDropdown(); toggleNavMenu();">
           <div class="fb-nav-dropdown-icon">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
               <path d="M10 2.5c-.828 0-1.5.672-1.5 1.5v.586C6.348 5.207 5 7.13 5 9.5v3.75l-1.25 1.25v.75h12.5v-.75L15 13.25V9.5c0-2.37-1.348-4.293-3.5-4.914V4c0-.828-.672-1.5-1.5-1.5zm-2.5 15c0 1.379 1.121 2.5 2.5 2.5s2.5-1.121 2.5-2.5h-5z"/>
             </svg>
-            <% if current_user.pending_friend_requests.any? %>
-              <span class="fb-notification-badge"><%= current_user.pending_friend_requests.count %></span>
-            <% end %>
           </div>
           <span>Notifications</span>
+          <% unread_notif_count = current_user.unread_notifications_count %>
+          <% if unread_notif_count > 0 %>
+            <span class="fb-notification-badge" id="notifBadgeMobile" style="position:static;margin-left:auto;"><%= unread_notif_count > 99 ? '99+' : unread_notif_count %></span>
+          <% else %>
+            <span class="fb-notification-badge" id="notifBadgeMobile" style="position:static;margin-left:auto;display:none;"></span>
+          <% end %>
         </button>
       </div>
       
