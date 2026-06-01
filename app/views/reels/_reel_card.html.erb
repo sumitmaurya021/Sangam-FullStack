@@ -1,0 +1,159 @@
+<div class="reel-card" id="reel-<%= reel.id %>" data-reel-id="<%= reel.id %>"
+     data-music-url="<%= reel.music_preview_url.to_s %>"
+     data-music-title="<%= j reel.music_title.to_s %>">
+
+  <!-- Video -->
+  <div class="reel-video-wrap" onclick="togglePlay(<%= reel.id %>)">
+    <% if reel.video.attached? %>
+      <video class="reel-video" id="reel-video-<%= reel.id %>"
+             loop playsinline preload="none"
+             muted
+             poster="<%= reel.thumbnail.attached? ? url_for(reel.thumbnail) : '' %>"
+             data-reel-id="<%= reel.id %>">
+        <source src="<%= url_for(reel.video) %>" type="<%= reel.video.content_type %>">
+      </video>
+    <% else %>
+      <div class="reel-video-placeholder">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="rgba(255,255,255,0.3)">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+        </svg>
+      </div>
+    <% end %>
+
+    <!-- Play icon -->
+    <div class="reel-play-icon" id="play-icon-<%= reel.id %>">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="reel-progress-bar">
+      <div class="reel-progress-fill" id="progress-<%= reel.id %>"></div>
+    </div>
+  </div>
+
+  <!-- Top bar: back + title + mute -->
+  <div class="reel-top-bar">
+    <%= link_to posts_path, class: 'reel-back-btn', title: 'Back to Feed' do %>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+        <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+      </svg>
+    <% end %>
+    <span class="reel-top-title">Reels</span>
+    <button class="reel-mute-btn" id="mute-btn-<%= reel.id %>" onclick="toggleMute(<%= reel.id %>)">
+      <svg id="mute-icon-<%= reel.id %>" width="18" height="18" viewBox="0 0 24 24" fill="white">
+        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Right action buttons -->
+  <div class="reel-actions">
+
+    <!-- Like -->
+    <div class="reel-action-item">
+      <button class="reel-action-btn <%= reel.liked_by?(current_user) ? 'liked' : '' %>"
+              id="like-btn-<%= reel.id %>"
+              onclick="toggleLike(<%= reel.id %>)">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+        </svg>
+      </button>
+      <span class="reel-action-count" id="likes-count-<%= reel.id %>"><%= number_with_delimiter(reel.likes_count) %></span>
+    </div>
+
+    <!-- Comment -->
+    <div class="reel-action-item">
+      <button class="reel-action-btn" onclick="openCommentsPanel(<%= reel.id %>)">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/>
+        </svg>
+      </button>
+      <span class="reel-action-count" id="comments-count-<%= reel.id %>"><%= number_with_delimiter(reel.comments_count) %></span>
+    </div>
+
+    <!-- Share -->
+    <div class="reel-action-item">
+      <button class="reel-action-btn" onclick="shareReel(<%= reel.id %>)">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+        </svg>
+      </button>
+      <span class="reel-action-count">Share</span>
+    </div>
+
+    <!-- More (owner only) -->
+    <% if reel.user == current_user %>
+    <div class="reel-action-item" style="position:relative">
+      <button class="reel-action-btn" onclick="toggleReelMenu(<%= reel.id %>)">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+        </svg>
+      </button>
+      <div class="reel-menu" id="reel-menu-<%= reel.id %>">
+        <%= button_to reel_path(reel), method: :delete,
+            class: 'reel-menu-item reel-menu-delete',
+            data: { turbo_confirm: 'Delete this reel?' } do %>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          Delete
+        <% end %>
+      </div>
+    </div>
+    <% end %>
+
+  </div>
+
+  <!-- Bottom overlay: user info + caption + music + hashtags -->
+  <div class="reel-overlay">
+
+    <!-- User row -->
+    <div class="reel-user-row">
+      <a href="<%= profile_path(reel.user) %>" class="reel-avatar-link">
+        <% if reel.user.avatar.attached? %>
+          <%= image_tag url_for(reel.user.avatar), class: 'reel-avatar', alt: reel.user.name %>
+        <% else %>
+          <div class="reel-avatar reel-avatar-placeholder"><%= reel.user.name&.first&.upcase %></div>
+        <% end %>
+      </a>
+      <a href="<%= profile_path(reel.user) %>" class="reel-username"><%= reel.user.name %></a>
+      <% unless reel.user == current_user %>
+        <button class="reel-follow-btn">Follow</button>
+      <% end %>
+    </div>
+
+    <!-- Caption -->
+    <% if reel.caption.present? %>
+      <div class="reel-caption">
+        <span class="reel-caption-text" id="caption-text-<%= reel.id %>">
+          <%= truncate(reel.caption, length: 80, omission: '') %>
+        </span>
+        <% if reel.caption.length > 80 %>
+          <button class="reel-more-btn" id="caption-more-<%= reel.id %>"
+                  onclick="toggleCaption(<%= reel.id %>, '<%= j reel.caption %>')">...more</button>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Hashtags -->
+    <% if reel.hashtag_list.any? %>
+      <div class="reel-hashtags">
+        <% reel.hashtag_list.first(5).each do |tag| %>
+          <span class="reel-hashtag">#<%= tag %></span>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Music ticker -->
+    <% if reel.music_title.present? %>
+      <div class="reel-music-ticker">
+        <div class="reel-music-disc" id="music-disc-<%= reel.id %>">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+        <div class="reel-music-scroll">
+          <span><%= reel.music_title %> · <%= reel.music_artist %></span>
+        </div>
+      </div>
+    <% end %>
+
+  </div>
+
+</div>

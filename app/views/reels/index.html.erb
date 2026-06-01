@@ -1,0 +1,211 @@
+<% content_for :title, "Reels – Sangam" %>
+<% content_for :head do %>
+  <%= stylesheet_link_tag 'reels/reels', 'data-turbo-track': 'reload' %>
+<% end %>
+
+<div class="reels-page">
+  <%= render 'shared/header' %>
+
+  <!-- Create Reel FAB -->
+  <button class="reels-fab" onclick="openUploadModal()" title="Create Reel">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+    </svg>
+  </button>
+
+  <!-- Reels Feed -->
+  <div class="reels-feed" id="reelsFeed">
+    <% if @reels.any? %>
+      <% @reels.each do |reel| %>
+        <%= render 'reels/reel_card', reel: reel %>
+      <% end %>
+      <% if @reels.next_page %>
+        <div class="reels-sentinel" id="reelsSentinel" data-next-page="<%= @reels.next_page %>"></div>
+      <% end %>
+    <% else %>
+      <div class="reels-empty">
+        <div class="reels-empty-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+          </svg>
+        </div>
+        <h3>No Reels Yet</h3>
+        <p>Be the first to share a reel!</p>
+        <button class="reels-empty-btn" onclick="openUploadModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+          Create Reel
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- ── Upload Modal ─────────────────────────────────────────────────────── -->
+<div class="reel-modal-overlay" id="uploadModalOverlay">
+  <div class="reel-modal" id="uploadModal">
+
+    <!-- Step 1: Pick video -->
+    <div class="reel-modal-step" id="stepPick">
+      <div class="reel-modal-header">
+        <h3>Create Reel</h3>
+        <button class="reel-modal-close" onclick="closeUploadModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+      <div class="reel-dropzone" id="reelDropzone" onclick="document.getElementById('reelVideoInput').click()">
+        <div class="reel-dropzone-icon">
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+          </svg>
+        </div>
+        <p class="reel-dropzone-title">Select video to upload</p>
+        <p class="reel-dropzone-sub">or drag and drop</p>
+        <p class="reel-dropzone-hint">MP4, WebM, MOV · Max 200MB</p>
+        <button type="button" class="reel-select-btn" onclick="event.stopPropagation(); document.getElementById('reelVideoInput').click()">
+          Select from device
+        </button>
+      </div>
+      <input type="file" id="reelVideoInput" accept="video/*" style="display:none" onchange="handleVideoSelect(this)">
+    </div>
+
+    <!-- Step 2: Details -->
+    <div class="reel-modal-step" id="stepDetails" style="display:none">
+      <div class="reel-modal-header">
+        <button class="reel-modal-back" onclick="goBackToPick()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+        </button>
+        <h3>Add Details</h3>
+        <button class="reel-modal-close" onclick="closeUploadModal()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+
+      <div class="reel-details-body">
+        <!-- Preview -->
+        <div class="reel-preview-wrap">
+          <video id="previewVideo" class="reel-preview-video" muted loop playsinline></video>
+          <div class="reel-preview-label" id="previewLabel"></div>
+        </div>
+
+        <!-- Form -->
+        <div class="reel-details-form">
+          <%= form_with url: reels_path, method: :post, multipart: true,
+              id: 'reelUploadForm', class: 'reel-form' do |f| %>
+
+            <!-- Caption -->
+            <div class="reel-field">
+              <label class="reel-field-label">Caption</label>
+              <%= f.text_area :caption, placeholder: 'Write a caption...',
+                  class: 'reel-textarea', maxlength: 2200, rows: 3,
+                  oninput: 'updateCaptionCount(this)' %>
+              <span class="reel-char-count" id="captionCount">0 / 2200</span>
+            </div>
+
+            <!-- Hashtags -->
+            <div class="reel-field">
+              <label class="reel-field-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z"/></svg>
+                Hashtags
+              </label>
+              <div class="reel-hashtag-input-wrap">
+                <span class="reel-hashtag-prefix">#</span>
+                <input type="text" id="hashtagInput" class="reel-hashtag-input"
+                       placeholder="Add hashtag and press Enter"
+                       onkeydown="handleHashtagKey(event)">
+              </div>
+              <div class="reel-hashtag-chips" id="hashtagChips"></div>
+              <input type="hidden" name="hashtags" id="hashtagsHidden">
+            </div>
+
+            <!-- Music -->
+            <div class="reel-field">
+              <label class="reel-field-label">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                Add Music
+              </label>
+              <div class="reel-music-search-wrap">
+                <input type="text" id="musicSearchInput" class="reel-music-search"
+                       placeholder="Search songs, artists... (e.g. Arijit Singh, Taylor Swift)"
+                       autocomplete="off">
+                <div class="reel-music-spinner" id="musicSpinner" style="display:none">
+                  <div class="reel-spinner-sm"></div>
+                </div>
+              </div>
+
+              <!-- Selected music display -->
+              <div class="reel-music-selected" id="musicSelected" style="display:none">
+                <div class="reel-music-selected-info">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                  <div>
+                    <div class="reel-music-selected-title" id="selectedMusicTitle"></div>
+                    <div class="reel-music-selected-artist" id="selectedMusicArtist"></div>
+                  </div>
+                </div>
+                <button type="button" class="reel-music-remove" onclick="removeMusic()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+              </div>
+
+              <!-- Music results -->
+              <div class="reel-music-results" id="musicResults"></div>
+
+              <!-- Hidden fields for music -->
+              <input type="hidden" name="music_title"       id="musicTitleHidden">
+              <input type="hidden" name="music_artist"      id="musicArtistHidden">
+              <input type="hidden" name="music_preview_url" id="musicPreviewHidden">
+            </div>
+
+            <!-- Hidden video field (set by JS) -->
+            <input type="file" name="video" id="videoHiddenInput" style="display:none" accept="video/*">
+
+            <!-- Progress -->
+            <div class="reel-upload-progress" id="uploadProgress" style="display:none">
+              <div class="reel-progress-track">
+                <div class="reel-progress-fill" id="progressFill"></div>
+              </div>
+              <span class="reel-progress-text" id="progressText">Uploading...</span>
+            </div>
+
+            <!-- Footer -->
+            <div class="reel-form-footer">
+              <button type="button" class="reel-cancel-btn" onclick="closeUploadModal()">Cancel</button>
+              <button type="submit" class="reel-submit-btn" id="reelSubmitBtn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                Share Reel
+              </button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── Comments Panel ───────────────────────────────────────────────────── -->
+<div class="reel-comments-overlay" id="commentsOverlay" onclick="closeCommentsPanel()"></div>
+<div class="reel-comments-panel" id="commentsPanel">
+  <div class="reel-comments-header">
+    <span id="commentsPanelCount">Comments</span>
+    <button onclick="closeCommentsPanel()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+  </div>
+  <div class="reel-comments-list" id="commentsList"></div>
+  <div class="reel-comment-composer">
+    <div class="reel-composer-avatar"><%= current_user.name&.first&.upcase || 'U' %></div>
+    <input type="text" id="commentInput" class="reel-composer-input"
+           placeholder="Add a comment..."
+           oninput="document.getElementById('commentSendBtn').disabled = !this.value.trim()"
+           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitComment()}">
+    <button id="commentSendBtn" class="reel-composer-send" onclick="submitComment()" disabled>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+  window.currentUserId  = <%= current_user.id %>;
+  window.currentUserName = "<%= j current_user.name %>";
+  window.csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+</script>

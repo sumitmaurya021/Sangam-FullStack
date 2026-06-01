@@ -1,0 +1,108 @@
+<%
+  target_url = begin
+    notification.target_url(Rails.application.routes.url_helpers)
+  rescue
+    posts_path
+  end
+
+  # Find friendship for friend_request type
+  friendship = nil
+  if notification.notification_type == 'friend_request' && notification.notifiable.is_a?(Friendship)
+    friendship = notification.notifiable
+  end
+%>
+
+<div class="notif-item <%= 'unread' unless notification.read? %>"
+     id="notif-<%= notification.id %>"
+     data-notification-id="<%= notification.id %>">
+
+  <!-- Actor Avatar -->
+  <div class="notif-avatar-wrap">
+    <% if notification.actor.avatar.attached? %>
+      <%= image_tag rails_blob_path(notification.actor.avatar, only_path: true),
+                    class: 'notif-avatar',
+                    alt: notification.actor.name %>
+    <% else %>
+      <div class="notif-avatar notif-avatar-placeholder">
+        <%= notification.actor.name&.first&.upcase || 'U' %>
+      </div>
+    <% end %>
+
+    <!-- Type Icon Badge -->
+    <div class="notif-type-badge notif-type-<%= notification.notification_icon %>">
+      <%= render "notifications/icons/#{notification.notification_icon}" %>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="notif-content-wrap" style="flex:1;min-width:0;">
+    <a href="<%= target_url %>"
+       class="notif-content"
+       onclick="markSingleRead(<%= notification.id %>, this)">
+      <p class="notif-message">
+        <strong><%= notification.actor.name %></strong>
+        <%= notification.notification_message.sub(notification.actor.name, '').strip %>
+      </p>
+      <span class="notif-time">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/>
+        </svg>
+        <%= time_ago_in_words(notification.created_at) %> ago
+      </span>
+    </a>
+
+    <!-- Friend Request Actions -->
+    <% if notification.notification_type == 'friend_request' && friendship&.status == 'pending' %>
+      <div class="notif-friend-actions" id="notif-friend-actions-<%= notification.id %>">
+        <button class="notif-btn-accept"
+                onclick="acceptFriendRequest(<%= friendship.id %>, <%= notification.id %>, this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+          </svg>
+          Confirm
+        </button>
+        <button class="notif-btn-decline"
+                onclick="declineFriendRequest(<%= friendship.id %>, <%= notification.id %>, this)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+          </svg>
+          Delete
+        </button>
+      </div>
+    <% elsif notification.notification_type == 'friend_accepted' %>
+      <div class="notif-friend-actions">
+        <%= link_to profile_path(notification.actor), class: 'notif-btn-accepted' do %>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+          </svg>
+          View Profile
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Actions -->
+  <div class="notif-actions">
+    <% unless notification.read? %>
+      <button class="notif-action-btn notif-read-btn"
+              title="Mark as read"
+              onclick="markSingleRead(<%= notification.id %>, this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="12" r="5"/>
+        </svg>
+      </button>
+    <% end %>
+    <button class="notif-action-btn notif-delete-btn"
+            title="Remove"
+            onclick="deleteNotification(<%= notification.id %>, this)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Unread dot -->
+  <% unless notification.read? %>
+    <span class="notif-unread-dot"></span>
+  <% end %>
+</div>

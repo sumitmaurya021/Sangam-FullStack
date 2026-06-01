@@ -19,6 +19,16 @@ Rails.application.routes.draw do
     resources :comments, only: [:create, :destroy]
   end
   
+  # Reels
+  resources :reels, only: [:index, :create, :destroy] do
+    member do
+      post 'like',   to: 'reels#like'
+      delete 'unlike', to: 'reels#unlike'
+      post 'view',   to: 'reels#view'
+    end
+    resources :reel_comments, only: [:index, :create, :destroy]
+  end
+
   # Profiles
   get 'profiles/friends_list', to: 'profiles#friends_list', as: 'friends_list'
   get 'profiles/search',       to: 'profiles#search',       as: 'search_profiles'
@@ -41,6 +51,17 @@ Rails.application.routes.draw do
     resources :messages, only: [:create, :destroy]
   end
 
+  # Notifications
+  resources :notifications, only: [:index, :destroy] do
+    collection do
+      get  :dropdown
+      patch :mark_all_read
+    end
+    member do
+      patch :mark_read
+    end
+  end
+
   # Action Cable mount
   mount ActionCable.server => '/cable'
 
@@ -52,6 +73,9 @@ Rails.application.routes.draw do
     get 'user/:id', to: 'dashboard#user_details', as: 'user_details'
   end
   
+  # Music search (proxies Deezer API to avoid CORS)
+  get 'music/search', to: 'music_search#search', as: 'music_search'
+
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 end

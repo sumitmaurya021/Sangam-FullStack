@@ -10,6 +10,9 @@ class User < ApplicationRecord
 
   # Associations
   has_many :posts, dependent: :destroy
+  has_many :reels, dependent: :destroy
+  has_many :reel_likes, dependent: :destroy
+  has_many :reel_comments, dependent: :destroy
 
   # Chat associations
   has_many :sent_conversations, class_name: 'Conversation', foreign_key: 'sender_id', dependent: :destroy
@@ -19,6 +22,10 @@ class User < ApplicationRecord
   has_many :liked_posts, through: :likes, source: :post
   has_many :comments, dependent: :destroy
   has_many :shares, dependent: :destroy
+
+  # Notifications
+  has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
+  has_many :sent_notifications, class_name: 'Notification', foreign_key: :actor_id, dependent: :destroy
   
   # Friendships
   has_many :friendships, dependent: :destroy
@@ -58,6 +65,10 @@ class User < ApplicationRecord
 
   def conversations
     Conversation.involving(self).recent
+  end
+
+  def unread_notifications_count
+    notifications.unread.count
   end
 
   def total_unread_messages

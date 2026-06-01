@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_29_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_01_085856) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -108,6 +108,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_150000) do
     t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
+  create_table "notifications", force: :cascade do |t|
+    t.bigint "actor_id", null: false
+    t.datetime "created_at", null: false
+    t.text "message"
+    t.bigint "notifiable_id"
+    t.string "notifiable_type"
+    t.string "notification_type", null: false
+    t.datetime "read_at"
+    t.bigint "recipient_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "index_notifications_on_actor_id"
+    t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable"
+    t.index ["notification_type"], name: "index_notifications_on_notification_type"
+    t.index ["recipient_id", "created_at"], name: "index_notifications_on_recipient_id_and_created_at"
+    t.index ["recipient_id", "read_at"], name: "index_notifications_on_recipient_id_and_read_at"
+    t.index ["recipient_id"], name: "index_notifications_on_recipient_id"
+  end
+
   create_table "posts", force: :cascade do |t|
     t.integer "comments_count", default: 0
     t.text "content"
@@ -119,6 +137,49 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_150000) do
     t.bigint "user_id", null: false
     t.index ["created_at"], name: "index_posts_on_created_at"
     t.index ["user_id"], name: "index_posts_on_user_id"
+  end
+
+  create_table "reel_comments", force: :cascade do |t|
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.bigint "parent_id"
+    t.bigint "reel_id", null: false
+    t.integer "replies_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["parent_id"], name: "index_reel_comments_on_parent_id"
+    t.index ["reel_id"], name: "index_reel_comments_on_reel_id"
+    t.index ["user_id"], name: "index_reel_comments_on_user_id"
+  end
+
+  create_table "reel_likes", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "reaction_type", default: "like", null: false
+    t.bigint "reel_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["reaction_type"], name: "index_reel_likes_on_reaction_type"
+    t.index ["reel_id", "user_id"], name: "index_reel_likes_on_reel_id_and_user_id", unique: true
+    t.index ["reel_id"], name: "index_reel_likes_on_reel_id"
+    t.index ["user_id"], name: "index_reel_likes_on_user_id"
+  end
+
+  create_table "reels", force: :cascade do |t|
+    t.text "caption"
+    t.integer "comments_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.integer "duration"
+    t.text "hashtags"
+    t.integer "likes_count", default: 0, null: false
+    t.string "music"
+    t.string "music_artist"
+    t.string "music_preview_url"
+    t.string "music_title"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.integer "views_count", default: 0, null: false
+    t.index ["created_at"], name: "index_reels_on_created_at"
+    t.index ["user_id"], name: "index_reels_on_user_id"
   end
 
   create_table "shares", force: :cascade do |t|
@@ -308,7 +369,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_29_150000) do
   add_foreign_key "likes", "users"
   add_foreign_key "messages", "conversations"
   add_foreign_key "messages", "users"
+  add_foreign_key "notifications", "users", column: "actor_id"
+  add_foreign_key "notifications", "users", column: "recipient_id"
   add_foreign_key "posts", "users"
+  add_foreign_key "reel_comments", "reel_comments", column: "parent_id"
+  add_foreign_key "reel_comments", "reels"
+  add_foreign_key "reel_comments", "users"
+  add_foreign_key "reel_likes", "reels"
+  add_foreign_key "reel_likes", "users"
+  add_foreign_key "reels", "users"
   add_foreign_key "shares", "posts"
   add_foreign_key "shares", "users"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
