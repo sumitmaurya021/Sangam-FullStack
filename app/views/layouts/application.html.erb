@@ -13,6 +13,9 @@
     <meta name="turn-server-url" content="<%= ENV['TURN_SERVER_URL'].to_s %>">
     <meta name="turn-server-username" content="<%= ENV['TURN_SERVER_USERNAME'].to_s %>">
     <meta name="turn-server-credential" content="<%= ENV['TURN_SERVER_CREDENTIAL'].to_s %>">
+    <% if user_signed_in? %>
+      <meta name="current-user-id" content="<%= current_user.id %>">
+    <% end %>
 
     <%= yield :head %>
 
@@ -22,12 +25,17 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.svg">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%# Core stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag 'shared/header', 'data-turbo-track': 'reload' %>
-    <%= stylesheet_link_tag 'chat/messenger', 'data-turbo-track': 'reload' %>
-    <%= stylesheet_link_tag 'chat/chat_widget', 'data-turbo-track': 'reload' %>
-    <%= stylesheet_link_tag 'notifications/notifications', 'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'shared/header',                  'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'chat/messenger',                 'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'chat/chat_widget',               'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'notifications/notifications',    'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'stories/stories',                'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'groups/groups',                  'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'events/events',                  'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'search/search',                  'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'bookmarks/bookmarks',            'data-turbo-track': 'reload' %>
     <%= yield :head %>
     <%= javascript_importmap_tags %>
   </head>

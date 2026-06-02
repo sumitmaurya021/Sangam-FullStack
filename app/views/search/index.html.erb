@@ -1,0 +1,135 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <main class="feed-main">
+      <!-- Search Header -->
+      <div class="search-header">
+        <h1>Search results for "<strong><%= @query %></strong>"</h1>
+
+        <!-- Filter tabs -->
+        <div class="search-tabs">
+          <% [['all','All'], ['people','People'], ['posts','Posts'], ['hashtags','Hashtags'], ['groups','Groups'], ['events','Events']].each do |type, label| %>
+            <%= link_to search_path(q: @query, type: type),
+                class: "search-tab #{'active' if @type == type}" do %>
+              <%= label %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <% if @query.length < 2 %>
+        <div class="empty-state-card">
+          <div class="empty-state-icon">🔍</div>
+          <h3>Start typing to search</h3>
+          <p>Search for people, posts, hashtags, groups, and events.</p>
+        </div>
+      <% else %>
+
+        <!-- People Results -->
+        <% if @users&.any? %>
+          <div class="search-section">
+            <h2 class="search-section-title">People</h2>
+            <div class="search-people-list">
+              <% @users.each do |user| %>
+                <div class="search-person-card">
+                  <%= link_to profile_path(user), class: 'search-person-link' do %>
+                    <div class="search-person-avatar">
+                      <% if user.avatar.attached? %>
+                        <%= image_tag user.avatar, alt: user.name, class: 'search-avatar-img' %>
+                      <% else %>
+                        <span><%= user.name&.first&.upcase || 'U' %></span>
+                      <% end %>
+                      <% if user.online %>
+                        <span class="online-dot"></span>
+                      <% end %>
+                    </div>
+                    <div class="search-person-info">
+                      <div class="search-person-name"><%= user.name %></div>
+                      <div class="search-person-meta">
+                        <%= (current_user.all_friends & user.all_friends).count %> mutual friends
+                      </div>
+                    </div>
+                  <% end %>
+                  <div class="search-person-action">
+                    <% if current_user.friends_with?(user) %>
+                      <span class="badge-friends">Friends</span>
+                    <% elsif current_user.sent_friend_requests.exists?(friend_id: user.id) %>
+                      <button class="btn-pending-sm" disabled>Pending</button>
+                    <% else %>
+                      <%= button_to 'Add Friend', friendships_path(friend_id: user.id),
+                            method: :post, class: 'btn-add-sm' %>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Posts Results -->
+        <% if @posts&.any? %>
+          <div class="search-section">
+            <h2 class="search-section-title">Posts</h2>
+            <div class="posts-feed">
+              <%= render partial: 'posts/post_card', collection: @posts, as: :post %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Hashtags Results -->
+        <% if @hashtags&.any? %>
+          <div class="search-section">
+            <h2 class="search-section-title">Hashtags</h2>
+            <div class="hashtags-list">
+              <% @hashtags.each do |hashtag| %>
+                <%= link_to hashtag_path(hashtag.name), class: 'hashtag-card' do %>
+                  <div class="hashtag-icon">#</div>
+                  <div>
+                    <div class="hashtag-name">#<%= hashtag.name %></div>
+                    <div class="hashtag-meta"><%= hashtag.posts_count %> posts</div>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Groups Results -->
+        <% if @groups&.any? %>
+          <div class="search-section">
+            <h2 class="search-section-title">Groups</h2>
+            <div class="groups-grid">
+              <% @groups.each do |group| %>
+                <%= render 'groups/group_card', group: group, show_join: true %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Events Results -->
+        <% if @events&.any? %>
+          <div class="search-section">
+            <h2 class="search-section-title">Events</h2>
+            <div class="events-grid">
+              <% @events.each do |event| %>
+                <%= render 'events/event_card', event: event %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- No results at all -->
+        <% if [@users, @posts, @hashtags, @groups, @events].all? { |r| r.nil? || r.empty? } %>
+          <div class="empty-state-card">
+            <div class="empty-state-icon">🔍</div>
+            <h3>No results for "<%= @query %>"</h3>
+            <p>Try different keywords or check your spelling.</p>
+          </div>
+        <% end %>
+
+      <% end %>
+    </main>
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'posts/post_card', 'data-turbo-track': 'reload' %>

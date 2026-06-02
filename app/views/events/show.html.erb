@@ -1,0 +1,108 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <main class="feed-main" style="max-width: 720px; margin: 0 auto;">
+      <div class="event-detail-card">
+        <!-- Cover -->
+        <% if @event.cover_photo.attached? %>
+          <%= image_tag @event.cover_photo, class: 'event-detail-cover', alt: @event.title %>
+        <% else %>
+          <div class="event-detail-cover event-cover-placeholder">
+            <span style="font-size:48px;">📅</span>
+          </div>
+        <% end %>
+
+        <div class="event-detail-body">
+          <h1 class="event-detail-title"><%= @event.title %></h1>
+
+          <div class="event-detail-meta">
+            <div class="event-meta-item">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="#1877f2"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+              <div>
+                <strong><%= @event.starts_at.strftime('%A, %B %d, %Y') %></strong>
+                <span><%= @event.starts_at.strftime('%I:%M %p') %><% if @event.ends_at %> – <%= @event.ends_at.strftime('%I:%M %p') %><% end %></span>
+              </div>
+            </div>
+
+            <% if @event.location.present? %>
+              <div class="event-meta-item">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="#1877f2"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                <div>
+                  <strong>Location</strong>
+                  <span><%= @event.location %></span>
+                </div>
+              </div>
+            <% end %>
+
+            <div class="event-meta-item">
+              <%= link_to profile_path(@event.organizer), class: 'event-organizer-link' do %>
+                <div class="event-organizer-avatar"><%= @event.organizer.name&.first&.upcase %></div>
+                <div>
+                  <strong>Organized by</strong>
+                  <span><%= @event.organizer.name %></span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- RSVP Actions -->
+          <div class="event-rsvp-section">
+            <div class="event-rsvp-stats">
+              <span><strong><%= @event.going_count %></strong> going</span>
+              <span>·</span>
+              <span><strong><%= @event.interested_count %></strong> interested</span>
+            </div>
+            <div class="event-rsvp-actions">
+              <button class="event-rsvp-btn <%= @user_response == 'going' ? 'active' : '' %>"
+                      id="rsvp-going"
+                      onclick="rsvpEvent(<%= @event.id %>, 'going', this)">
+                ✅ Going
+              </button>
+              <button class="event-rsvp-btn-secondary <%= @user_response == 'interested' ? 'active' : '' %>"
+                      id="rsvp-interested"
+                      onclick="rsvpEvent(<%= @event.id %>, 'interested', this)">
+                ⭐ Interested
+              </button>
+              <button class="event-rsvp-btn-decline <%= @user_response == 'not_going' ? 'active' : '' %>"
+                      id="rsvp-not-going"
+                      onclick="rsvpEvent(<%= @event.id %>, 'not_going', this)">
+                ✕ Can't Go
+              </button>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <% if @event.description.present? %>
+            <div class="event-description">
+              <h3>About this event</h3>
+              <%= simple_format(@event.description) %>
+            </div>
+          <% end %>
+
+          <!-- Going / Interested users -->
+          <% if @going_users.any? %>
+            <div class="event-attendees">
+              <h3>Going (<%= @event.going_count %>)</h3>
+              <div class="attendees-avatars">
+                <% @going_users.each do |user| %>
+                  <%= link_to profile_path(user), title: user.name do %>
+                    <div class="attendee-avatar"><%= user.name&.first&.upcase %></div>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Admin actions -->
+          <% if @event.organizer == current_user %>
+            <div class="event-admin-actions">
+              <%= link_to 'Edit Event', edit_event_path(@event), class: 'btn-secondary' %>
+              <%= button_to 'Delete Event', event_path(@event), method: :delete,
+                    class: 'btn-danger', data: { confirm: 'Delete this event?' } %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

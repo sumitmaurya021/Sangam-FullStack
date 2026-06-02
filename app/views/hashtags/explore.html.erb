@@ -1,0 +1,45 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <main class="feed-main">
+      <div class="page-header-card">
+        <h1 class="page-title">🔥 Explore</h1>
+        <p class="page-subtitle">Discover what's trending on Sangam</p>
+      </div>
+
+      <!-- Trending Hashtags -->
+      <div class="explore-section">
+        <h2 class="section-title">Trending Hashtags</h2>
+        <div class="hashtags-grid">
+          <% @trending_hashtags.each_with_index do |hashtag, index| %>
+            <%= link_to hashtag_path(hashtag.name), class: 'hashtag-explore-card' do %>
+              <div class="hashtag-rank">#<%= index + 1 %></div>
+              <div class="hashtag-explore-name">#<%= hashtag.name %></div>
+              <div class="hashtag-explore-count"><%= hashtag.posts_count %> posts</div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Recent Posts -->
+      <div class="explore-section">
+        <h2 class="section-title">Recent Posts</h2>
+        <div class="posts-feed">
+          <%= render partial: 'posts/post_card', collection: @recent_posts, as: :post %>
+        </div>
+      </div>
+    </main>
+
+    <aside class="feed-right-sidebar">
+      <div class="sidebar-section">
+        <h3>Search</h3>
+        <%= form_with url: search_path, method: :get, class: 'explore-search-form' do |f| %>
+          <%= f.text_field :q, placeholder: 'Search everything...', class: 'explore-search-input' %>
+          <%= f.submit 'Search', class: 'btn-primary btn-sm' %>
+        <% end %>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'posts/post_card', 'data-turbo-track': 'reload' %>

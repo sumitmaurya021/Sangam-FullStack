@@ -1,0 +1,46 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <main class="feed-main">
+      <div class="hashtag-header-card">
+        <div class="hashtag-header-icon">#</div>
+        <div>
+          <h1 class="hashtag-title">#<%= @hashtag.name %></h1>
+          <p class="hashtag-meta"><%= @hashtag.posts_count %> post<%= @hashtag.posts_count == 1 ? '' : 's' %></p>
+        </div>
+      </div>
+
+      <% if @posts.empty? %>
+        <div class="empty-state-card">
+          <div class="empty-state-icon">📭</div>
+          <h3>No posts yet for #<%= @hashtag.name %></h3>
+          <p>Be the first to use this hashtag!</p>
+        </div>
+      <% else %>
+        <div class="posts-feed">
+          <%= render partial: 'posts/post_card', collection: @posts, as: :post %>
+        </div>
+        <% if @posts.next_page %>
+          <div class="pagination-wrapper">
+            <%= link_to 'Load More', hashtag_path(@hashtag.name, page: @posts.next_page), class: 'btn-load-more' %>
+          </div>
+        <% end %>
+      <% end %>
+    </main>
+
+    <!-- Trending Hashtags Sidebar -->
+    <aside class="feed-right-sidebar">
+      <div class="sidebar-section">
+        <h3>Trending Hashtags</h3>
+        <% Hashtag.trending.limit(15).each do |tag| %>
+          <%= link_to hashtag_path(tag.name), class: "hashtag-trending-item #{'active' if tag == @hashtag}" do %>
+            <span class="hashtag-trending-name">#<%= tag.name %></span>
+            <span class="hashtag-trending-count"><%= tag.posts_count %></span>
+          <% end %>
+        <% end %>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'posts/post_card', 'data-turbo-track': 'reload' %>

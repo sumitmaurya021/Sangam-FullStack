@@ -1,30 +1,45 @@
 Rails.application.routes.draw do
   devise_for :users, controllers: {
-    sessions: 'users/sessions',
+    sessions:      'users/sessions',
     registrations: 'users/registrations',
-    passwords: 'users/passwords',
+    passwords:     'users/passwords',
     confirmations: 'users/confirmations',
-    unlocks: 'users/unlocks'
+    unlocks:       'users/unlocks'
   }
   
   root to: "posts#index"
   
-  # Posts
-  resources :posts, only: [:index, :create, :destroy] do
+  # Posts — with edit/update + bookmark
+  resources :posts, only: [:index, :show, :create, :edit, :update, :destroy] do
     member do
-      post 'like', to: 'likes#create'
-      delete 'unlike', to: 'likes#destroy'
-      post 'share', to: 'shares#create'
+      post   'like',      to: 'likes#create'
+      delete 'unlike',    to: 'likes#destroy'
+      post   'share',     to: 'shares#create'
+      post   'bookmark',  to: 'bookmarks#create'
+      delete 'unbookmark', to: 'bookmarks#destroy'
     end
     resources :comments, only: [:create, :destroy]
   end
-  
+
+  # Bookmarks — saved posts page
+  resources :bookmarks, only: [:index]
+
+  # Stories (Instagram-style)
+  resources :stories, only: [:create, :show, :destroy] do
+    member do
+      post :view
+    end
+    collection do
+      get :active  # JSON feed for stories bar
+    end
+  end
+
   # Reels
   resources :reels, only: [:index, :create, :destroy] do
     member do
-      post 'like',   to: 'reels#like'
+      post   'like',   to: 'reels#like'
       delete 'unlike', to: 'reels#unlike'
-      post 'view',   to: 'reels#view'
+      post   'view',   to: 'reels#view'
     end
     resources :reel_comments, only: [:index, :create, :destroy]
   end
@@ -43,6 +58,30 @@ Rails.application.routes.draw do
     end
   end
 
+  # Groups (Facebook-style)
+  resources :groups do
+    member do
+      post   :join
+      delete :leave
+      post   'approve_member', to: 'groups#approve_member'
+      delete 'remove_member',  to: 'groups#remove_member'
+    end
+  end
+
+  # Events (Facebook-style)
+  resources :events do
+    member do
+      post :respond_to_event
+    end
+  end
+
+  # Global Search
+  get '/search', to: 'search#index', as: 'search'
+
+  # Hashtag explore page
+  get '/hashtag/:name', to: 'hashtags#show', as: 'hashtag'
+  get '/explore',       to: 'hashtags#explore', as: 'explore'
+
   # Chat / Conversations
   resources :conversations, only: [:index, :show, :create, :destroy] do
     member do
@@ -54,7 +93,7 @@ Rails.application.routes.draw do
   # Notifications
   resources :notifications, only: [:index, :destroy] do
     collection do
-      get  :dropdown
+      get   :dropdown
       patch :mark_all_read
     end
     member do
@@ -67,10 +106,10 @@ Rails.application.routes.draw do
 
   # Super Admin Dashboard
   namespace :admin do
-    get 'dashboard', to: 'dashboard#index', as: 'dashboard'
-    get 'users', to: 'dashboard#users', as: 'users'
-    get 'posts', to: 'dashboard#posts', as: 'posts'
-    get 'user/:id', to: 'dashboard#user_details', as: 'user_details'
+    get 'dashboard',  to: 'dashboard#index',        as: 'dashboard'
+    get 'users',      to: 'dashboard#users',         as: 'users'
+    get 'posts',      to: 'dashboard#posts',         as: 'posts'
+    get 'user/:id',   to: 'dashboard#user_details',  as: 'user_details'
   end
   
   # Music search (proxies Deezer API to avoid CORS)

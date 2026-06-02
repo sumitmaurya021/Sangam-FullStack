@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+    .header { background: linear-gradient(135deg, #1877f2, #42b883); padding: 24px; text-align: center; }
+    .header h1 { color: #fff; margin: 0; font-size: 28px; letter-spacing: -0.5px; }
+    .body { padding: 32px 40px; }
+    .avatar { width: 48px; height: 48px; border-radius: 50%; background: #1877f2; color: #fff; font-size: 20px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-right: 12px; vertical-align: middle; }
+    .message { font-size: 18px; color: #1c1e21; font-weight: 600; margin: 16px 0; }
+    .cta { display: inline-block; background: #1877f2; color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 700; font-size: 15px; margin: 16px 0; }
+    .footer { background: #f0f2f5; padding: 20px 40px; color: #65676b; font-size: 13px; text-align: center; }
+    .footer a { color: #1877f2; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Sangam</h1>
+    </div>
+    <div class="body">
+      <p>Hi <%= @recipient.name %>,</p>
+      <p class="message"><%= @message %></p>
+      <p>
+        <%= link_to 'View on Sangam', @action_url, class: 'cta' %>
+      </p>
+    </div>
+    <div class="footer">
+      <p>You're receiving this because you have notifications enabled on Sangam.</p>
+      <p><a href="<%= root_url %>">Visit Sangam</a></p>
+    </div>
+  </div>
+</body>
+</html>

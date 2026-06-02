@@ -1,0 +1,49 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <main class="feed-main" style="max-width: 600px; margin: 0 auto;">
+      <div class="create-post-card">
+        <h2 style="margin: 0 0 20px; font-size: 22px; font-weight: 700;">Edit Group</h2>
+
+        <%= form_with model: @group, url: group_path(@group), method: :patch, multipart: true, class: 'group-form' do |f| %>
+          <% if @group.errors.any? %>
+            <div class="form-errors">
+              <% @group.errors.full_messages.each do |msg| %><p><%= msg %></p><% end %>
+            </div>
+          <% end %>
+
+          <div class="form-field">
+            <%= f.label :name, 'Group Name *' %>
+            <%= f.text_field :name, class: 'form-input', maxlength: 100 %>
+          </div>
+
+          <div class="form-field">
+            <%= f.label :description, 'Description' %>
+            <%= f.text_area :description, class: 'form-input', rows: 3, maxlength: 500 %>
+          </div>
+
+          <div class="form-field">
+            <%= f.label :privacy, 'Privacy' %>
+            <%= f.select :privacy,
+                [['🌐 Public', 'public'], ['🔒 Private', 'private'], ['🕵️ Secret', 'secret']],
+                {},
+                class: 'form-input' %>
+          </div>
+
+          <div class="form-field">
+            <%= f.label :cover_photo, 'Cover Photo' %>
+            <% if @group.cover_photo.attached? %>
+              <%= image_tag @group.cover_photo, style: 'width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-bottom:8px;' %>
+            <% end %>
+            <%= f.file_field :cover_photo, accept: 'image/*', class: 'form-input' %>
+          </div>
+
+          <div class="form-actions">
+            <%= link_to 'Cancel', group_path(@group), class: 'btn-cancel' %>
+            <%= f.submit 'Save Changes', class: 'btn-primary' %>
+          </div>
+        <% end %>
+      </div>
+    </main>
+  </div>
+</div>

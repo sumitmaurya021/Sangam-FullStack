@@ -2,7 +2,8 @@ class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+         :recoverable, :rememberable, :validatable,
+         :lockable
 
   # Active Storage Attachments
   has_one_attached :avatar
@@ -13,6 +14,13 @@ class User < ApplicationRecord
   has_many :reels, dependent: :destroy
   has_many :reel_likes, dependent: :destroy
   has_many :reel_comments, dependent: :destroy
+  has_many :stories, dependent: :destroy
+  has_many :bookmarks, dependent: :destroy
+  has_many :bookmarked_posts, through: :bookmarks, source: :post
+  has_many :events, foreign_key: :organizer_id, dependent: :destroy, class_name: 'Event'
+  has_many :event_responses, dependent: :destroy
+  has_many :group_memberships, dependent: :destroy
+  has_many :groups, through: :group_memberships
 
   # Chat associations
   has_many :sent_conversations, class_name: 'Conversation', foreign_key: 'sender_id', dependent: :destroy

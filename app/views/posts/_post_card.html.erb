@@ -12,7 +12,17 @@
         </div>
         <div class="author-info">
           <div class="author-name"><%= post.user.name || post.user.email %></div>
-          <div class="post-time"><%= time_ago_in_words(post.created_at) %> ago</div>
+          <div class="post-time">
+            <%= time_ago_in_words(post.created_at) %> ago
+            <% if post.visibility == 'friends' %>
+              <span class="post-visibility-badge" title="Friends only">👥</span>
+            <% elsif post.visibility == 'private' %>
+              <span class="post-visibility-badge" title="Only me">🔒</span>
+            <% end %>
+            <% if post.edited? %>
+              <span class="post-edited-badge"> · Edited</span>
+            <% end %>
+          </div>
         </div>
       <% end %>
     </div>
@@ -26,7 +36,27 @@
           </svg>
         </button>
         <div class="post-dropdown" id="postMenu<%= post.id %>">
+          <%= link_to edit_post_path(post), class: 'dropdown-item', data: { turbo_frame: "modal" } do %>
+            ✏️ Edit Post
+          <% end %>
           <%= button_to 'Delete Post', post_path(post), method: :delete, class: 'dropdown-item-danger', data: { confirm: 'Are you sure?' } %>
+        </div>
+      </div>
+    <% else %>
+      <div class="post-menu">
+        <button class="post-menu-btn" onclick="togglePostMenu(<%= post.id %>)">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <circle cx="10" cy="4" r="1.5"/>
+            <circle cx="10" cy="10" r="1.5"/>
+            <circle cx="10" cy="16" r="1.5"/>
+          </svg>
+        </button>
+        <div class="post-dropdown" id="postMenu<%= post.id %>">
+          <button class="dropdown-item"
+                  onclick="toggleBookmark(<%= post.id %>, this)"
+                  data-bookmarked="<%= post.bookmarked_by?(current_user) %>">
+            <%= post.bookmarked_by?(current_user) ? '🔖 Saved' : '🔖 Save Post' %>
+          </button>
         </div>
       </div>
     <% end %>
@@ -122,6 +152,16 @@
       </svg>
       <span>Share</span>
     <% end %>
+
+    <button class="action-btn <%= post.bookmarked_by?(current_user) ? 'active' : '' %>"
+            id="bookmark-btn-<%= post.id %>"
+            onclick="toggleBookmark(<%= post.id %>, this)"
+            data-bookmarked="<%= post.bookmarked_by?(current_user) %>">
+      <svg class="action-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+        <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
+      </svg>
+      <span id="bookmark-text-<%= post.id %>"><%= post.bookmarked_by?(current_user) ? 'Saved' : 'Save' %></span>
+    </button>
   </div>
 
   <!-- Comments Section -->

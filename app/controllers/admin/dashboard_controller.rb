@@ -7,12 +7,16 @@ module Admin
 
     def index
       # Overall Statistics
-      @total_users = User.count
-      @total_posts = Post.count
-      @total_likes = Like.count
-      @total_comments = Comment.count
-      @total_shares = Share.count
+      @total_users       = User.count
+      @total_posts       = Post.count
+      @total_likes       = Like.count
+      @total_comments    = Comment.count
+      @total_shares      = Share.count
       @total_friendships = Friendship.where(status: 'accepted').count
+      @total_reels       = Reel.count
+      @total_stories     = Story.count
+      @total_groups      = Group.count
+      @total_events      = Event.count
 
       # Recent Activity
       @recent_users = User.order(created_at: :desc).limit(8)

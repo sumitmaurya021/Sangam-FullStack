@@ -1,0 +1,57 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <aside class="feed-sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-header">
+          <h3>Events</h3>
+          <%= link_to new_event_path, class: 'btn-sidebar-action' do %>
+            + Create Event
+          <% end %>
+        </div>
+        <div class="sidebar-nav">
+          <a href="#upcoming" class="sidebar-nav-item active">📅 Upcoming</a>
+          <a href="#my-events" class="sidebar-nav-item">✅ Going</a>
+        </div>
+      </div>
+    </aside>
+
+    <main class="feed-main">
+      <!-- My Events (Going) -->
+      <% if @my_events.any? %>
+        <div id="my-events" style="margin-bottom: 24px;">
+          <h2 class="section-title">Events You're Going To</h2>
+          <div class="events-grid">
+            <% @my_events.each do |event| %>
+              <%= render 'events/event_card', event: event %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Upcoming Events -->
+      <div id="upcoming">
+        <h2 class="section-title">Upcoming Events</h2>
+        <% if @upcoming_events.empty? %>
+          <div class="empty-state-card">
+            <div class="empty-state-icon">📅</div>
+            <h3>No upcoming events</h3>
+            <p>Create one and invite your friends!</p>
+            <%= link_to 'Create Event', new_event_path, class: 'btn-primary' %>
+          </div>
+        <% else %>
+          <div class="events-grid">
+            <% @upcoming_events.each do |event| %>
+              <%= render 'events/event_card', event: event %>
+            <% end %>
+          </div>
+          <% if @upcoming_events.next_page %>
+            <div class="pagination-wrapper">
+              <%= link_to 'Load More', events_path(page: @upcoming_events.next_page), class: 'btn-load-more' %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    </main>
+  </div>
+</div>

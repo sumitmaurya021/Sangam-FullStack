@@ -1,0 +1,43 @@
+<% show_join ||= false %>
+<div class="group-card" id="group-<%= group.id %>">
+  <div class="group-card-cover">
+    <% if group.cover_photo.attached? %>
+      <%= image_tag group.cover_photo, alt: group.name, class: 'group-cover-img' %>
+    <% else %>
+      <div class="group-cover-placeholder" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+        <span><%= group.name.first.upcase %></span>
+      </div>
+    <% end %>
+    <span class="group-privacy-badge">
+      <%= group.privacy == 'public' ? '🌐 Public' : '🔒 Private' %>
+    </span>
+  </div>
+
+  <div class="group-card-body">
+    <%= link_to group_path(group), class: 'group-name-link' do %>
+      <h3 class="group-name"><%= group.name %></h3>
+    <% end %>
+    <p class="group-meta">
+      <span><%= group.members_count %> members</span>
+      <span>·</span>
+      <span><%= group.posts_count %> posts</span>
+    </p>
+    <% if group.description.present? %>
+      <p class="group-description"><%= group.description.truncate(80) %></p>
+    <% end %>
+  </div>
+
+  <div class="group-card-footer">
+    <% if current_user.groups.include?(group) %>
+      <%= link_to 'View Group', group_path(group), class: 'btn-view-group' %>
+    <% elsif current_user.group_memberships.pending.exists?(group: group) %>
+      <button class="btn-pending-group" disabled>Request Sent</button>
+    <% elsif show_join %>
+      <button class="btn-join-group"
+              onclick="joinGroup(<%= group.id %>, this)"
+              data-group-id="<%= group.id %>">
+        Join Group
+      </button>
+    <% end %>
+  </div>
+</div>

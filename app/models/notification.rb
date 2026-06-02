@@ -11,6 +11,11 @@ class Notification < ApplicationRecord
     friend_accepted
     share
     mention
+    reel_like
+    reel_comment
+    group_invite
+    event_invite
+    story_view
   ].freeze
 
   validates :notification_type, inclusion: { in: TYPES }
@@ -54,7 +59,17 @@ class Notification < ApplicationRecord
     when 'share'
       "#{actor_name} shared your post"
     when 'mention'
-      "#{actor_name} mentioned you in a comment"
+      "#{actor_name} mentioned you in a post"
+    when 'reel_like'
+      "#{actor_name} liked your reel"
+    when 'reel_comment'
+      "#{actor_name} commented on your reel"
+    when 'group_invite'
+      "#{actor_name} invited you to a group"
+    when 'event_invite'
+      "#{actor_name} invited you to an event"
+    when 'story_view'
+      "#{actor_name} viewed your story"
     else
       "#{actor_name} interacted with you"
     end
@@ -69,6 +84,10 @@ class Notification < ApplicationRecord
     when 'friend_request', 'friend_accepted' then 'friend'
     when 'share'   then 'share'
     when 'mention' then 'mention'
+    when 'reel_like', 'reel_comment' then 'reel'
+    when 'group_invite' then 'group'
+    when 'event_invite' then 'event'
+    when 'story_view'   then 'story'
     else 'bell'
     end
   end
@@ -97,6 +116,12 @@ class Notification < ApplicationRecord
         notification: as_json_payload
       }
     )
+    # Send email notification asynchronously (skip for some high-frequency types)
+    unless %w[story_view].include?(notification_type)
+      NotificationMailer.notification_email(self).deliver_later
+    end
+  rescue => e
+    Rails.logger.error "Notification broadcast failed: #{e.message}"
   end
 
   def as_json_payload

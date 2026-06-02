@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.1); }
+    .header { background: linear-gradient(135deg, #1877f2, #42b883); padding: 32px; text-align: center; }
+    .header h1 { color: #fff; margin: 0; font-size: 32px; }
+    .header p { color: rgba(255,255,255,.85); margin: 8px 0 0; font-size: 16px; }
+    .body { padding: 40px; }
+    .body h2 { color: #1c1e21; }
+    .feature { display: flex; align-items: flex-start; margin: 16px 0; }
+    .feature-icon { font-size: 28px; margin-right: 16px; flex-shrink: 0; }
+    .feature-text h4 { margin: 0 0 4px; color: #1c1e21; }
+    .feature-text p { margin: 0; color: #65676b; font-size: 14px; }
+    .cta { display: inline-block; background: #1877f2; color: #fff; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-weight: 700; font-size: 16px; margin: 24px 0; }
+    .footer { background: #f0f2f5; padding: 20px 40px; color: #65676b; font-size: 13px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Welcome to Sangam 🎉</h1>
+      <p>Your social world, all in one place</p>
+    </div>
+    <div class="body">
+      <h2>Hey <%= @user.name %>!</h2>
+      <p>We're excited to have you on Sangam. Here's what you can do:</p>
+
+      <div class="feature">
+        <div class="feature-icon">📸</div>
+        <div class="feature-text">
+          <h4>Share Moments</h4>
+          <p>Post photos, videos, and Stories that disappear in 24 hours.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🎬</div>
+        <div class="feature-text">
+          <h4>Create Reels</h4>
+          <p>Short videos with music and hashtags — Instagram-style.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">💬</div>
+        <div class="feature-text">
+          <h4>Chat with Friends</h4>
+          <p>Real-time messaging with video and voice calling.</p>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">👥</div>
+        <div class="feature-text">
+          <h4>Join Groups & Events</h4>
+          <p>Find communities and discover events near you.</p>
+        </div>
+      </div>
+
+      <p><%= link_to 'Get Started on Sangam', root_url, class: 'cta' %></p>
+    </div>
+    <div class="footer">
+      <p>© Sangam — Connecting people everywhere</p>
+    </div>
+  </div>
+</body>
+</html>

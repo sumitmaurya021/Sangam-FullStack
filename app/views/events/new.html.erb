@@ -1,0 +1,62 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <main class="feed-main" style="max-width: 600px; margin: 0 auto;">
+      <div class="create-post-card">
+        <h2 style="margin: 0 0 20px; font-size: 22px; font-weight: 700;">Create Event</h2>
+
+        <%= form_with model: @event, url: events_path, method: :post, multipart: true, class: 'event-form' do |f| %>
+          <% if @event.errors.any? %>
+            <div class="form-errors">
+              <% @event.errors.full_messages.each do |msg| %><p><%= msg %></p><% end %>
+            </div>
+          <% end %>
+
+          <div class="form-field">
+            <%= f.label :title, 'Event Name *' %>
+            <%= f.text_field :title, placeholder: 'What is the event called?', class: 'form-input', maxlength: 200 %>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <%= f.label :starts_at, 'Start Date & Time *' %>
+              <%= f.datetime_local_field :starts_at, class: 'form-input' %>
+            </div>
+            <div class="form-field">
+              <%= f.label :ends_at, 'End Date & Time' %>
+              <%= f.datetime_local_field :ends_at, class: 'form-input' %>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <%= f.label :location, 'Location' %>
+            <%= f.text_field :location, placeholder: 'Where is it happening?', class: 'form-input' %>
+          </div>
+
+          <div class="form-field">
+            <%= f.label :description, 'Description' %>
+            <%= f.text_area :description, placeholder: 'Tell people about the event...', class: 'form-input', rows: 4 %>
+          </div>
+
+          <div class="form-field">
+            <%= f.label :privacy, 'Privacy' %>
+            <%= f.select :privacy,
+                [['🌐 Public', 'public'], ['👥 Friends Only', 'friends'], ['🔒 Private', 'private']],
+                {},
+                class: 'form-input' %>
+          </div>
+
+          <div class="form-field">
+            <%= f.label :cover_photo, 'Cover Photo' %>
+            <%= f.file_field :cover_photo, accept: 'image/*', class: 'form-input' %>
+          </div>
+
+          <div class="form-actions">
+            <%= link_to 'Cancel', events_path, class: 'btn-cancel' %>
+            <%= f.submit 'Create Event', class: 'btn-primary' %>
+          </div>
+        <% end %>
+      </div>
+    </main>
+  </div>
+</div>

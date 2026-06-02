@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_01_085856) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_02_000009) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,6 +42,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_085856) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "bookmarks", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "post_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["post_id"], name: "index_bookmarks_on_post_id"
+    t.index ["user_id", "post_id"], name: "index_bookmarks_on_user_id_and_post_id", unique: true
+    t.index ["user_id"], name: "index_bookmarks_on_user_id"
+  end
+
   create_table "comments", force: :cascade do |t|
     t.text "content"
     t.datetime "created_at", null: false
@@ -69,6 +79,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_085856) do
     t.index ["sender_id"], name: "index_conversations_on_sender_id"
   end
 
+  create_table "event_responses", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "event_id", null: false
+    t.string "response", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["event_id", "user_id"], name: "index_event_responses_on_event_id_and_user_id", unique: true
+    t.index ["event_id"], name: "index_event_responses_on_event_id"
+    t.index ["user_id"], name: "index_event_responses_on_user_id"
+  end
+
+  create_table "events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.datetime "ends_at"
+    t.integer "going_count", default: 0, null: false
+    t.integer "interested_count", default: 0, null: false
+    t.string "location"
+    t.bigint "organizer_id", null: false
+    t.string "privacy", default: "public", null: false
+    t.datetime "starts_at", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organizer_id"], name: "index_events_on_organizer_id"
+    t.index ["starts_at"], name: "index_events_on_starts_at"
+  end
+
   create_table "friendships", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "friend_id", null: false
@@ -79,6 +116,40 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_085856) do
     t.index ["status"], name: "index_friendships_on_status"
     t.index ["user_id", "friend_id"], name: "index_friendships_on_user_id_and_friend_id", unique: true
     t.index ["user_id"], name: "index_friendships_on_user_id"
+  end
+
+  create_table "group_memberships", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "group_id", null: false
+    t.string "role", default: "member", null: false
+    t.string "status", default: "active", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["group_id", "user_id"], name: "index_group_memberships_on_group_id_and_user_id", unique: true
+    t.index ["group_id"], name: "index_group_memberships_on_group_id"
+    t.index ["user_id"], name: "index_group_memberships_on_user_id"
+  end
+
+  create_table "groups", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.integer "members_count", default: 0, null: false
+    t.string "name", null: false
+    t.bigint "owner_id", null: false
+    t.integer "posts_count", default: 0, null: false
+    t.string "privacy", default: "public", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_groups_on_name"
+    t.index ["owner_id"], name: "index_groups_on_owner_id"
+  end
+
+  create_table "hashtags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.integer "posts_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_hashtags_on_name", unique: true
+    t.index ["posts_count"], name: "index_hashtags_on_posts_count"
   end
 
   create_table "likes", force: :cascade do |t|
@@ -121,22 +192,51 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_085856) do
     t.index ["actor_id"], name: "index_notifications_on_actor_id"
     t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable"
     t.index ["notification_type"], name: "index_notifications_on_notification_type"
+    t.index ["notification_type"], name: "index_notifications_on_type_extended"
     t.index ["recipient_id", "created_at"], name: "index_notifications_on_recipient_id_and_created_at"
     t.index ["recipient_id", "read_at"], name: "index_notifications_on_recipient_id_and_read_at"
     t.index ["recipient_id"], name: "index_notifications_on_recipient_id"
+  end
+
+  create_table "post_hashtags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "hashtag_id", null: false
+    t.bigint "post_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["hashtag_id"], name: "index_post_hashtags_on_hashtag_id"
+    t.index ["post_id", "hashtag_id"], name: "index_post_hashtags_on_post_id_and_hashtag_id", unique: true
+    t.index ["post_id"], name: "index_post_hashtags_on_post_id"
+  end
+
+  create_table "post_mentions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "mentionable_id"
+    t.string "mentionable_type"
+    t.bigint "post_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["mentionable_type", "mentionable_id"], name: "index_post_mentions_on_mentionable_type_and_mentionable_id"
+    t.index ["post_id", "user_id"], name: "index_post_mentions_on_post_id_and_user_id", unique: true
+    t.index ["post_id"], name: "index_post_mentions_on_post_id"
+    t.index ["user_id"], name: "index_post_mentions_on_user_id"
   end
 
   create_table "posts", force: :cascade do |t|
     t.integer "comments_count", default: 0
     t.text "content"
     t.datetime "created_at", null: false
+    t.datetime "edited_at"
+    t.bigint "group_id"
     t.string "image"
     t.integer "likes_count", default: 0
     t.integer "shares_count", default: 0
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "visibility", default: "public", null: false
     t.index ["created_at"], name: "index_posts_on_created_at"
+    t.index ["group_id"], name: "index_posts_on_group_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
+    t.index ["visibility"], name: "index_posts_on_visibility"
   end
 
   create_table "reel_comments", force: :cascade do |t|
@@ -333,44 +433,97 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_085856) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "stories", force: :cascade do |t|
+    t.string "background_color", default: "#1a1a2e"
+    t.text "caption"
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.string "story_type", default: "image", null: false
+    t.string "text_color", default: "#ffffff"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.integer "views_count", default: 0, null: false
+    t.index ["expires_at"], name: "index_stories_on_expires_at"
+    t.index ["user_id", "created_at"], name: "index_stories_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_stories_on_user_id"
+  end
+
+  create_table "story_views", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "story_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["story_id", "user_id"], name: "index_story_views_on_story_id_and_user_id", unique: true
+    t.index ["story_id"], name: "index_story_views_on_story_id"
+    t.index ["user_id"], name: "index_story_views_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "avatar"
     t.text "bio"
+    t.datetime "confirmation_sent_at"
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
     t.string "cover_photo"
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
+    t.integer "failed_attempts", default: 0, null: false
     t.datetime "last_seen_at"
+    t.datetime "locked_at"
     t.string "name"
     t.boolean "online", default: false, null: false
+    t.text "otp_backup_codes"
+    t.boolean "otp_enabled", default: false, null: false
+    t.string "otp_secret"
+    t.string "provider"
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
     t.boolean "super_admin", default: false, null: false
+    t.string "uid"
+    t.string "unconfirmed_email"
+    t.string "unlock_token"
     t.datetime "updated_at", null: false
+    t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["last_seen_at"], name: "index_users_on_last_seen_at"
     t.index ["online"], name: "index_users_on_online"
+    t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["super_admin"], name: "index_users_on_super_admin"
+    t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "bookmarks", "posts"
+  add_foreign_key "bookmarks", "users"
   add_foreign_key "comments", "comments", column: "parent_id"
   add_foreign_key "comments", "posts"
   add_foreign_key "comments", "users"
   add_foreign_key "comments", "users", column: "replied_to_user_id"
   add_foreign_key "conversations", "users", column: "recipient_id"
   add_foreign_key "conversations", "users", column: "sender_id"
+  add_foreign_key "event_responses", "events"
+  add_foreign_key "event_responses", "users"
+  add_foreign_key "events", "users", column: "organizer_id"
   add_foreign_key "friendships", "users"
   add_foreign_key "friendships", "users", column: "friend_id"
+  add_foreign_key "group_memberships", "groups"
+  add_foreign_key "group_memberships", "users"
+  add_foreign_key "groups", "users", column: "owner_id"
   add_foreign_key "likes", "posts"
   add_foreign_key "likes", "users"
   add_foreign_key "messages", "conversations"
   add_foreign_key "messages", "users"
   add_foreign_key "notifications", "users", column: "actor_id"
   add_foreign_key "notifications", "users", column: "recipient_id"
+  add_foreign_key "post_hashtags", "hashtags"
+  add_foreign_key "post_hashtags", "posts"
+  add_foreign_key "post_mentions", "posts"
+  add_foreign_key "post_mentions", "users"
+  add_foreign_key "posts", "groups"
   add_foreign_key "posts", "users"
   add_foreign_key "reel_comments", "reel_comments", column: "parent_id"
   add_foreign_key "reel_comments", "reels"
@@ -386,4 +539,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_01_085856) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "stories", "users"
+  add_foreign_key "story_views", "stories"
+  add_foreign_key "story_views", "users"
 end

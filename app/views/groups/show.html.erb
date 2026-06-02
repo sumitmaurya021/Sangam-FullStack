@@ -1,0 +1,137 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+
+  <!-- Group Cover -->
+  <div class="group-cover-section">
+    <% if @group.cover_photo.attached? %>
+      <%= image_tag @group.cover_photo, class: 'group-cover-hero', alt: @group.name %>
+    <% else %>
+      <div class="group-cover-hero group-cover-hero-placeholder" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+    <% end %>
+
+    <div class="group-hero-info">
+      <h1 class="group-title"><%= @group.name %></h1>
+      <div class="group-meta-row">
+        <span><%= @group.privacy == 'public' ? '🌐 Public' : '🔒 Private' %> Group</span>
+        <span>·</span>
+        <span><%= @group.members_count %> members</span>
+      </div>
+
+      <div class="group-hero-actions">
+        <% if @is_admin %>
+          <%= link_to 'Edit Group', edit_group_path(@group), class: 'btn-primary' %>
+        <% elsif @is_member %>
+          <button class="btn-secondary" onclick="leaveGroup(<%= @group.id %>, this)">Leave Group</button>
+        <% elsif current_user.group_memberships.pending.exists?(group: @group) %>
+          <button class="btn-pending-group" disabled>Request Sent</button>
+        <% else %>
+          <button class="btn-primary" onclick="joinGroup(<%= @group.id %>, this)">Join Group</button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <div class="feed-layout">
+    <!-- Left: About + Members -->
+    <aside class="feed-sidebar">
+      <div class="sidebar-section">
+        <h3>About</h3>
+        <% if @group.description.present? %>
+          <p class="group-about-text"><%= @group.description %></p>
+        <% else %>
+          <p class="empty-state-text">No description provided.</p>
+        <% end %>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Members (<%= @group.members_count %>)</h3>
+        <% @members.each do |membership| %>
+          <%= link_to profile_path(membership.user), class: 'friend-item' do %>
+            <div class="friend-avatar-small">
+              <%= membership.user.name&.first&.upcase || 'U' %>
+            </div>
+            <div>
+              <div style="font-size:13px;font-weight:600;"><%= membership.user.name %></div>
+              <% if membership.role == 'admin' || membership.role == 'owner' %>
+                <div style="font-size:11px;color:#1877f2;">Admin</div>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+
+      <!-- Pending requests (admins only) -->
+      <% if @is_admin && @pending_members&.any? %>
+        <div class="sidebar-section">
+          <h3>Pending Requests (<%= @pending_members.count %>)</h3>
+          <% @pending_members.each do |membership| %>
+            <div class="friend-request-item">
+              <div class="friend-info">
+                <div class="friend-avatar"><%= membership.user.name&.first&.upcase || 'U' %></div>
+                <span><%= membership.user.name %></span>
+              </div>
+              <div class="friend-actions">
+                <button class="btn-accept" onclick="approveMember(<%= @group.id %>, <%= membership.user_id %>, this)">✓</button>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </aside>
+
+    <!-- Main: Posts -->
+    <main class="feed-main">
+      <!-- Create post in group (members only) -->
+      <% if @is_member %>
+        <div class="create-post-card">
+          <%= form_with model: @new_post, url: posts_path, class: 'create-post-form' do |f| %>
+            <%= f.hidden_field :group_id, value: @group.id %>
+            <div class="post-input-wrapper">
+              <div class="user-avatar-small">
+                <% if current_user.avatar.attached? %>
+                  <%= image_tag current_user.avatar, alt: "Your avatar" %>
+                <% else %>
+                  <%= current_user.name&.first&.upcase || 'U' %>
+                <% end %>
+              </div>
+              <%= f.text_area :content, placeholder: "Write something in #{@group.name}...", class: 'post-input', rows: 3 %>
+            </div>
+            <div class="post-actions">
+              <div class="post-options">
+                <label class="post-option">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#45bd62">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/>
+                  </svg>
+                  <span>Photos</span>
+                  <%= f.file_field :images, class: 'file-input', accept: 'image/*', multiple: true %>
+                </label>
+              </div>
+              <%= f.submit 'Post', class: 'btn-post' %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <!-- Group Posts -->
+      <% if @posts.empty? %>
+        <div class="empty-state-card">
+          <div class="empty-state-icon">📝</div>
+          <h3>No posts yet</h3>
+          <p>Be the first to post in this group!</p>
+        </div>
+      <% else %>
+        <div class="posts-feed">
+          <%= render partial: 'posts/post_card', collection: @posts, as: :post %>
+        </div>
+        <% if @posts.next_page %>
+          <div class="pagination-wrapper">
+            <%= link_to 'Load More', group_path(@group, page: @posts.next_page), class: 'btn-load-more' %>
+          </div>
+        <% end %>
+      <% end %>
+    </main>
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'posts/post_card', 'data-turbo-track': 'reload' %>
+<%= stylesheet_link_tag 'posts/feed', 'data-turbo-track': 'reload' %>

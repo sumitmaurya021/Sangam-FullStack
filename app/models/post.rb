@@ -1,18 +1,64 @@
 class Post < ApplicationRecord
   belongs_to :user
+  belongs_to :group, optional: true
   has_one_attached :image
   has_many_attached :images  # Multiple images support
   has_many :likes, dependent: :destroy
   has_many :likers, through: :likes, source: :user
   has_many :comments, dependent: :destroy
   has_many :shares, dependent: :destroy
+  has_many :bookmarks, dependent: :destroy
+  has_many :bookmarked_by, through: :bookmarks, source: :user
+  has_many :post_hashtags, dependent: :destroy
+  has_many :hashtags, through: :post_hashtags
+  has_many :post_mentions, dependent: :destroy
+  has_many :mentioned_users, through: :post_mentions, source: :user
+
+  VISIBILITY_OPTIONS = %w[public friends private].freeze
 
   validates :content, presence: true, length: { maximum: 5000 }
   validates :user, presence: true
+  validates :visibility, inclusion: { in: VISIBILITY_OPTIONS }
   validate :acceptable_images
 
   scope :recent, -> { order(created_at: :desc) }
-  scope :with_associations, -> { includes(:user, :likes, :comments, :shares) }
+  scope :public_posts,   -> { where(visibility: 'public') }
+  scope :friends_posts,  -> { where(visibility: %w[public friends]) }
+  scope :visible_to, ->(user) {
+    friend_ids = user.all_friends.pluck(:id)
+    if friend_ids.any?
+      where(
+        "posts.visibility = 'public' OR posts.user_id = ? OR (posts.visibility = 'friends' AND posts.user_id IN (?))",
+        user.id,
+        friend_ids
+      )
+    else
+      where("posts.visibility = 'public' OR posts.user_id = ?", user.id)
+    end
+  }
+  scope :with_associations, -> { includes(:user, :likes, :comments, :shares, :hashtags) }
+
+  # Feed algorithm: friends-first, then recency, with engagement boost
+  # Returns posts ordered by a composite score (friends content = +100 boost)
+  scope :ranked_feed, ->(user) {
+    friend_ids     = user.all_friends.pluck(:id)
+    all_ids        = (friend_ids + [user.id]).uniq
+    friend_ids_sql = all_ids.any? ? all_ids.join(',') : '0'
+    visible_to(user)
+      .includes(:user, :likes, :comments, :shares, :hashtags)
+      .order(
+        Arel.sql(
+          "(CASE WHEN posts.user_id IN (#{friend_ids_sql}) THEN 100 ELSE 0 END " \
+          "+ EXTRACT(EPOCH FROM posts.created_at) / 86400.0 " \
+          "+ posts.likes_count * 2 " \
+          "+ posts.comments_count * 3) DESC, posts.created_at DESC"
+        )
+      )
+  }
+  scope :search, ->(q) { where("content ILIKE ?", "%#{q}%") }
+
+  after_save :process_hashtags
+  after_save :process_mentions
 
   def liked_by?(user)
     likes.exists?(user_id: user.id)
@@ -38,7 +84,39 @@ class Post < ApplicationRecord
     [total_images_count - 5, 0].max
   end
 
+  def bookmarked_by?(user)
+    bookmarks.exists?(user_id: user.id)
+  end
+
+  def edited?
+    edited_at.present?
+  end
+
   private
+
+  def process_hashtags
+    return unless saved_change_to_content?
+    tags = Hashtag.find_or_create_from_text!(content)
+    post_hashtags.destroy_all
+    tags.each { |tag| post_hashtags.create!(hashtag: tag) }
+  rescue => e
+    Rails.logger.error "Hashtag processing failed for post #{id}: #{e.message}"
+  end
+
+  def process_mentions
+    return unless saved_change_to_content?
+    mentions = content.scan(/@(\w+)/).flatten.uniq
+    return if mentions.empty?
+
+    post_mentions.destroy_all
+    mentions.each do |username|
+      mentioned_user = User.find_by("name ILIKE ?", username)
+      next unless mentioned_user && mentioned_user != user
+      post_mentions.create!(user: mentioned_user, mentionable: self)
+    end
+  rescue => e
+    Rails.logger.error "Mention processing failed for post #{id}: #{e.message}"
+  end
 
   def acceptable_images
     return unless images.attached?

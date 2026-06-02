@@ -51,6 +51,9 @@
 
     <!-- Main Feed -->
     <main class="feed-main">
+      <!-- Stories Bar (Instagram/Facebook style) -->
+      <%= render 'stories/stories_bar' %>
+
       <!-- Create Post -->
       <div class="create-post-card">
         <%= form_with model: @post, url: posts_path, class: 'create-post-form' do |f| %>
@@ -74,6 +77,12 @@
                 <span>Photos</span>
                 <%= f.file_field :images, class: 'file-input', accept: 'image/*', multiple: true %>
               </label>
+            </div>
+            <div class="post-visibility-wrapper">
+              <%= f.select :visibility,
+                           [['🌐 Public', 'public'], ['👥 Friends', 'friends'], ['🔒 Only Me', 'private']],
+                           {},
+                           class: 'visibility-select', id: "post-visibility" %>
             </div>
             <%= f.submit 'Post', class: 'btn-post' %>
           </div>
@@ -113,6 +122,37 @@
             See All Friends
           <% end %>
         <% end %>
+      </div>
+
+      <!-- Groups -->
+      <div class="sidebar-section">
+        <h3>Groups</h3>
+        <% current_user.groups.limit(4).each do |group| %>
+          <%= link_to group, class: 'friend-item' do %>
+            <div class="friend-avatar-small" style="background: #e7f3ff; color: #1877f2;">
+              <%= group.name&.first&.upcase || 'G' %>
+            </div>
+            <span><%= group.name %></span>
+          <% end %>
+        <% end %>
+        <%= link_to 'See All Groups', groups_path, class: 'see-all-link' %>
+      </div>
+
+      <!-- Upcoming Events -->
+      <div class="sidebar-section">
+        <h3>Upcoming Events</h3>
+        <% Event.upcoming.where(privacy: 'public').limit(3).each do |event| %>
+          <%= link_to event, class: 'friend-item' do %>
+            <div class="friend-avatar-small" style="background: #fff3e6; color: #e67e22;">
+              <%= event.starts_at.strftime('%d') %>
+            </div>
+            <div>
+              <div style="font-size: 13px; font-weight: 600;"><%= event.title.truncate(25) %></div>
+              <div style="font-size: 12px; color: #65676b;"><%= event.starts_at.strftime('%b %d') %></div>
+            </div>
+          <% end %>
+        <% end %>
+        <%= link_to 'See All Events', events_path, class: 'see-all-link' %>
       </div>
     </aside>
   </div>

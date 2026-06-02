@@ -1,0 +1,48 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <main class="feed-main" style="max-width: 600px; margin: 0 auto;">
+      <div class="create-post-card">
+        <h2 style="margin: 0 0 20px; font-size: 22px; font-weight: 700;">Create Group</h2>
+
+        <%= form_with model: @group, url: groups_path, method: :post, multipart: true, class: 'group-form' do |f| %>
+          <% if @group.errors.any? %>
+            <div class="form-errors">
+              <% @group.errors.full_messages.each do |msg| %><p><%= msg %></p><% end %>
+            </div>
+          <% end %>
+
+          <div class="form-field">
+            <%= f.label :name, 'Group Name *' %>
+            <%= f.text_field :name, placeholder: 'Enter group name', class: 'form-input', maxlength: 100 %>
+          </div>
+
+          <div class="form-field">
+            <%= f.label :description, 'Description' %>
+            <%= f.text_area :description, placeholder: 'What is this group about?', class: 'form-input', rows: 3, maxlength: 500 %>
+          </div>
+
+          <div class="form-field">
+            <%= f.label :privacy, 'Privacy' %>
+            <%= f.select :privacy,
+                [['🌐 Public — Anyone can find and join', 'public'],
+                 ['🔒 Private — Members must be approved', 'private'],
+                 ['🕵️ Secret — Not discoverable', 'secret']],
+                {},
+                class: 'form-input' %>
+          </div>
+
+          <div class="form-field">
+            <%= f.label :cover_photo, 'Cover Photo' %>
+            <%= f.file_field :cover_photo, accept: 'image/*', class: 'form-input' %>
+          </div>
+
+          <div class="form-actions">
+            <%= link_to 'Cancel', groups_path, class: 'btn-cancel' %>
+            <%= f.submit 'Create Group', class: 'btn-primary' %>
+          </div>
+        <% end %>
+      </div>
+    </main>
+  </div>
+</div>

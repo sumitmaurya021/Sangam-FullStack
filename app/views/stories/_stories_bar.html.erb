@@ -1,0 +1,147 @@
+<%# Stories Bar — loaded via JS after page load for performance %>
+<div class="stories-bar" id="stories-bar">
+  <!-- Add Your Story -->
+  <div class="story-item story-add" id="add-story-btn" onclick="openCreateStoryModal()">
+    <div class="story-avatar-ring story-add-ring">
+      <div class="story-avatar">
+        <% if current_user.avatar.attached? %>
+          <%= image_tag current_user.avatar, alt: current_user.name %>
+        <% else %>
+          <span><%= current_user.name&.first&.upcase || 'U' %></span>
+        <% end %>
+        <div class="story-add-icon">+</div>
+      </div>
+    </div>
+    <span class="story-name">Add Story</span>
+  </div>
+
+  <!-- Stories loaded via JS -->
+  <div id="stories-list" class="stories-list-inner">
+    <%# JS will inject story items here %>
+  </div>
+</div>
+
+<!-- Story Viewer Modal -->
+<div class="story-viewer-overlay" id="storyViewerOverlay" style="display:none;" onclick="closeStoryViewer(event)">
+  <div class="story-viewer" id="storyViewer" onclick="event.stopPropagation()">
+    <!-- Progress bars -->
+    <div class="story-progress-bars" id="storyProgressBars"></div>
+
+    <!-- Header -->
+    <div class="story-viewer-header">
+      <div class="story-viewer-user">
+        <div class="story-viewer-avatar" id="storyViewerAvatar"></div>
+        <div>
+          <div class="story-viewer-name" id="storyViewerName"></div>
+          <div class="story-viewer-time" id="storyViewerTime"></div>
+        </div>
+      </div>
+      <div class="story-viewer-actions">
+        <% # Delete button shown via JS if own story %>
+        <button id="storyDeleteBtn" style="display:none;" onclick="deleteCurrentStory()" class="story-action-btn story-delete-btn" title="Delete story">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+        <button onclick="closeStoryViewer()" class="story-action-btn" title="Close">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Media area -->
+    <div class="story-viewer-media" id="storyViewerMedia">
+      <img id="storyViewerImg"  src="" alt="Story" style="display:none;">
+      <video id="storyViewerVid" src="" style="display:none;" playsinline muted autoplay></video>
+      <div id="storyViewerText" class="story-text-content" style="display:none;"></div>
+    </div>
+
+    <!-- Caption -->
+    <div class="story-viewer-caption" id="storyViewerCaption"></div>
+
+    <!-- Nav arrows -->
+    <button class="story-nav story-nav-prev" onclick="prevStory()" id="storyNavPrev">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+        <path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6z"/>
+      </svg>
+    </button>
+    <button class="story-nav story-nav-next" onclick="nextStory()" id="storyNavNext">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="white">
+        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- Create Story Modal -->
+<div class="create-story-overlay" id="createStoryOverlay" style="display:none;" onclick="closeCreateStoryModal(event)">
+  <div class="create-story-modal" onclick="event.stopPropagation()">
+    <div class="create-story-header">
+      <h3>Create Story</h3>
+      <button onclick="closeCreateStoryModal()" class="story-action-btn">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Story Type Tabs -->
+    <div class="story-type-tabs">
+      <button class="story-tab active" onclick="switchStoryTab('image', this)">📷 Photo</button>
+      <button class="story-tab" onclick="switchStoryTab('video', this)">🎥 Video</button>
+      <button class="story-tab" onclick="switchStoryTab('text', this)">✏️ Text</button>
+    </div>
+
+    <%= form_with url: stories_path, method: :post, multipart: true, id: 'create-story-form', class: 'create-story-form' do |f| %>
+      <%= f.hidden_field :story_type, value: 'image', id: 'story-type-input' %>
+
+      <!-- Photo/Video upload area -->
+      <div id="story-media-section">
+        <div class="story-upload-area" onclick="document.getElementById('story-media-input').click()">
+          <div class="story-upload-preview" id="storyUploadPreview">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="#65676b">
+              <path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
+            </svg>
+            <p>Click to upload photo or video</p>
+            <p class="story-upload-hint">JPG, PNG, GIF, MP4 · Max 50MB</p>
+          </div>
+          <img id="storyImagePreviewImg" src="" alt="Preview" style="display:none; max-height:300px; border-radius:8px; object-fit:contain;">
+          <video id="storyVideoPreviewVid" src="" style="display:none; max-height:300px; border-radius:8px;" controls></video>
+        </div>
+        <%= f.file_field :media, id: 'story-media-input', accept: 'image/*,video/*', class: 'hidden-file-input', onchange: 'previewStoryMedia(this)' %>
+      </div>
+
+      <!-- Text story section -->
+      <div id="story-text-section" style="display:none;">
+        <div class="story-text-preview" id="storyTextPreview" style="background: #1a1a2e;">
+          <textarea id="storyTextContent" placeholder="Type something..." maxlength="200"
+                    oninput="updateStoryTextPreview(this.value)"
+                    class="story-text-input"></textarea>
+        </div>
+        <div class="story-bg-colors">
+          <span class="story-bg-label">Background:</span>
+          <% [['#1a1a2e','Dark'], ['#1877f2','Blue'], ['#e74c3c','Red'], ['#27ae60','Green'], ['#f39c12','Orange'], ['#9b59b6','Purple'], ['#2c3e50','Navy']].each do |color, name| %>
+            <button type="button" class="story-color-btn" style="background:<%= color %>;"
+                    onclick="setStoryBg('<%= color %>')" title="<%= name %>"></button>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Caption (for photo/video) -->
+      <div id="story-caption-section">
+        <%= f.text_field :caption, placeholder: 'Add a caption...', class: 'story-caption-input', maxlength: 200 %>
+      </div>
+
+      <!-- Hidden fields for text story -->
+      <%= f.hidden_field :background_color, value: '#1a1a2e', id: 'story-bg-color' %>
+      <%= f.hidden_field :text_color, value: '#ffffff', id: 'story-text-color' %>
+
+      <div class="story-form-actions">
+        <button type="button" class="btn-secondary" onclick="closeCreateStoryModal()">Cancel</button>
+        <%= f.submit 'Share to Story', class: 'btn-primary', id: 'story-submit-btn' %>
+      </div>
+    <% end %>
+  </div>
+</div>

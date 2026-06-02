@@ -1,0 +1,38 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <main class="feed-main">
+      <div class="page-header-card">
+        <h1 class="page-title">
+          <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor" style="vertical-align:middle;margin-right:8px;">
+            <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
+          </svg>
+          Saved Posts
+        </h1>
+        <p class="page-subtitle"><%= @bookmarks.total_count %> saved post<%= @bookmarks.total_count == 1 ? '' : 's' %></p>
+      </div>
+
+      <% if @posts.empty? %>
+        <div class="empty-state-card">
+          <div class="empty-state-icon">🔖</div>
+          <h3>No saved posts yet</h3>
+          <p>When you save a post, it'll appear here so you can easily find it later.</p>
+          <%= link_to 'Browse Feed', posts_path, class: 'btn-primary' %>
+        </div>
+      <% else %>
+        <div class="posts-feed">
+          <%= render partial: 'posts/post_card', collection: @posts, as: :post %>
+        </div>
+
+        <% if @bookmarks.next_page %>
+          <div class="pagination-wrapper">
+            <%= link_to 'Load More', bookmarks_path(page: @bookmarks.next_page), class: 'btn-load-more' %>
+          </div>
+        <% end %>
+      <% end %>
+    </main>
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'posts/post_card', 'data-turbo-track': 'reload' %>
+<%= stylesheet_link_tag 'posts/feed', 'data-turbo-track': 'reload' %>
