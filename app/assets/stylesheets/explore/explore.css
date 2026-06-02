@@ -1,0 +1,341 @@
+/* ═══════════════════════════════════════════════════
+   EXPLORE PAGE — Instagram Style Grid
+═══════════════════════════════════════════════════ */
+
+/* Main explore container */
+.explore-page {
+  min-height: 100vh;
+  background: #fafafa;
+}
+
+/* Explore layout - centered, no sidebars */
+.explore-layout {
+  max-width: 975px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+/* Page header section */
+.explore-header {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.explore-header h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #262626;
+  margin: 0 0 0.5rem;
+}
+
+.explore-header p {
+  font-size: 0.875rem;
+  color: #8e8e8e;
+  margin: 0;
+}
+
+/* Search section */
+.explore-search-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+  border: 1px solid #dbdbdb;
+}
+
+.explore-search-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.explore-search-input {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  border: 1px solid #dbdbdb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: #fafafa;
+  transition: all 0.2s ease;
+}
+
+.explore-search-input:focus {
+  outline: none;
+  background: white;
+  border-color: #a8a8a8;
+}
+
+.explore-search-btn {
+  padding: 0.625rem 1.5rem;
+  background: #0095f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.explore-search-btn:hover {
+  background: #1877f2;
+}
+
+/* Trending hashtags section */
+.trending-hashtags-section {
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.trending-hashtags-scroll {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.trending-hashtags-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.trending-hashtag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 1px solid #dbdbdb;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #262626;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.trending-hashtag-chip:hover {
+  background: #fafafa;
+  border-color: #a8a8a8;
+  transform: translateY(-1px);
+}
+
+.hashtag-chip-rank {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+}
+
+.hashtag-chip-count {
+  color: #8e8e8e;
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+/* Instagram-style grid layout */
+.explore-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.explore-grid-item {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  background: #000;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.explore-grid-item:hover {
+  opacity: 0.9;
+}
+
+.explore-grid-item img,
+.explore-grid-item video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Overlay for hover effect */
+.explore-grid-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.explore-grid-item:hover .explore-grid-overlay {
+  opacity: 1;
+}
+
+.explore-grid-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.explore-grid-stat svg {
+  width: 20px;
+  height: 20px;
+  fill: white;
+}
+
+/* Multiple images indicator */
+.multiple-images-icon {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  color: white;
+  font-size: 1.25rem;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+}
+
+/* Video indicator */
+.video-icon {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  color: white;
+  font-size: 1.25rem;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+}
+
+/* Reel indicator */
+.reel-icon {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  color: white;
+  font-size: 1.25rem;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.5));
+}
+
+/* Load more button */
+.load-more-section {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.load-more-btn {
+  padding: 0.75rem 2rem;
+  background: white;
+  border: 1px solid #dbdbdb;
+  border-radius: 8px;
+  color: #262626;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.load-more-btn:hover {
+  background: #fafafa;
+  border-color: #a8a8a8;
+}
+
+/* Empty state */
+.explore-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #8e8e8e;
+}
+
+.explore-empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.explore-empty h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #262626;
+  margin: 0 0 0.5rem;
+}
+
+.explore-empty p {
+  font-size: 0.875rem;
+  color: #8e8e8e;
+  margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .explore-layout {
+    padding: 20px 0;
+  }
+  
+  .explore-header {
+    padding: 0 16px;
+    margin-bottom: 20px;
+  }
+  
+  .explore-search-card {
+    margin: 0 16px 1.5rem;
+  }
+  
+  .trending-hashtags-section {
+    padding: 0 16px;
+  }
+  
+  .explore-grid {
+    gap: 2px;
+  }
+  
+  .explore-grid-overlay {
+    gap: 1rem;
+  }
+  
+  .explore-grid-stat {
+    font-size: 0.875rem;
+  }
+  
+  .multiple-images-icon,
+  .video-icon,
+  .reel-icon {
+    font-size: 1rem;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .explore-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .explore-search-form {
+    flex-direction: column;
+  }
+  
+  .explore-search-btn {
+    width: 100%;
+  }
+  
+  .trending-hashtag-chip {
+    font-size: 0.8125rem;
+    padding: 0.4375rem 0.875rem;
+  }
+}

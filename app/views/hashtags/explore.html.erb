@@ -1,45 +1,100 @@
-<div class="feed-container">
+<div class="explore-page">
   <%= render 'shared/header' %>
-  <div class="feed-layout">
-    <main class="feed-main">
-      <div class="page-header-card">
-        <h1 class="page-title">🔥 Explore</h1>
-        <p class="page-subtitle">Discover what's trending on Sangam</p>
-      </div>
+  
+  <div class="explore-layout">
+    <!-- Page Header -->
+    <div class="explore-header">
+      <h1>Explore</h1>
+      <p>Discover trending posts and hashtags</p>
+    </div>
 
-      <!-- Trending Hashtags -->
-      <div class="explore-section">
-        <h2 class="section-title">Trending Hashtags</h2>
-        <div class="hashtags-grid">
-          <% @trending_hashtags.each_with_index do |hashtag, index| %>
-            <%= link_to hashtag_path(hashtag.name), class: 'hashtag-explore-card' do %>
-              <div class="hashtag-rank">#<%= index + 1 %></div>
-              <div class="hashtag-explore-name">#<%= hashtag.name %></div>
-              <div class="hashtag-explore-count"><%= hashtag.posts_count %> posts</div>
+    <!-- Search Section -->
+    <div class="explore-search-card">
+      <%= form_with url: search_path, method: :get, class: 'explore-search-form' do |f| %>
+        <%= f.text_field :q, placeholder: 'Search...', class: 'explore-search-input' %>
+        <%= f.submit 'Search', class: 'explore-search-btn' %>
+      <% end %>
+    </div>
+
+    <!-- Trending Hashtags Chips -->
+    <% if @trending_hashtags.present? %>
+      <div class="trending-hashtags-section">
+        <div class="trending-hashtags-scroll">
+          <% @trending_hashtags.first(10).each_with_index do |hashtag, index| %>
+            <%= link_to hashtag_path(hashtag.name), class: 'trending-hashtag-chip' do %>
+              <span class="hashtag-chip-rank">#<%= index + 1 %></span>
+              <span>#<%= hashtag.name %></span>
+              <span class="hashtag-chip-count"><%= hashtag.posts_count %></span>
             <% end %>
           <% end %>
         </div>
       </div>
+    <% end %>
 
-      <!-- Recent Posts -->
-      <div class="explore-section">
-        <h2 class="section-title">Recent Posts</h2>
-        <div class="posts-feed">
-          <%= render partial: 'posts/post_card', collection: @recent_posts, as: :post %>
-        </div>
-      </div>
-    </main>
-
-    <aside class="feed-right-sidebar">
-      <div class="sidebar-section">
-        <h3>Search</h3>
-        <%= form_with url: search_path, method: :get, class: 'explore-search-form' do |f| %>
-          <%= f.text_field :q, placeholder: 'Search everything...', class: 'explore-search-input' %>
-          <%= f.submit 'Search', class: 'btn-primary btn-sm' %>
+    <!-- Instagram-style Grid -->
+    <% if @recent_posts.present? %>
+      <div class="explore-grid">
+        <% @recent_posts.each do |post| %>
+          <%= link_to post_path(post), class: 'explore-grid-item' do %>
+            <% if post.images.attached? && post.images.count > 0 %>
+              <%= image_tag post.images.first, alt: 'Post image' %>
+              
+              <% if post.images.count > 1 %>
+                <div class="multiple-images-icon">📷</div>
+              <% end %>
+              
+              <div class="explore-grid-overlay">
+                <div class="explore-grid-stat">
+                  <span>❤️</span>
+                  <span><%= post.likes_count || 0 %></span>
+                </div>
+                <div class="explore-grid-stat">
+                  <span>💬</span>
+                  <span><%= post.comments_count || 0 %></span>
+                </div>
+              </div>
+            <% elsif post.video.attached? %>
+              <%= video_tag post.video, alt: 'Post video', muted: true, autoplay: false %>
+              <div class="video-icon">▶️</div>
+              
+              <div class="explore-grid-overlay">
+                <div class="explore-grid-stat">
+                  <span>❤️</span>
+                  <span><%= post.likes_count || 0 %></span>
+                </div>
+                <div class="explore-grid-stat">
+                  <span>💬</span>
+                  <span><%= post.comments_count || 0 %></span>
+                </div>
+              </div>
+            <% else %>
+              <!-- Placeholder for text-only posts -->
+              <div style="background: linear-gradient(45deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: bold; padding: 2rem; text-align: center;">
+                <%= truncate(post.content, length: 50) %>
+              </div>
+              
+              <div class="explore-grid-overlay">
+                <div class="explore-grid-stat">
+                  <span>❤️</span>
+                  <span><%= post.likes_count || 0 %></span>
+                </div>
+                <div class="explore-grid-stat">
+                  <span>💬</span>
+                  <span><%= post.comments_count || 0 %></span>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
         <% end %>
       </div>
-    </aside>
+    <% else %>
+      <div class="explore-empty">
+        <div class="explore-empty-icon">🔍</div>
+        <h3>No posts yet</h3>
+        <p>Be the first to share something amazing!</p>
+      </div>
+    <% end %>
   </div>
 </div>
 
-<%= stylesheet_link_tag 'posts/post_card', 'data-turbo-track': 'reload' %>
+<%= stylesheet_link_tag 'explore/explore', 'data-turbo-track': 'reload' %>
