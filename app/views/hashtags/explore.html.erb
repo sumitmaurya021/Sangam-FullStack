@@ -2,20 +2,6 @@
   <%= render 'shared/header' %>
   
   <div class="explore-layout">
-    <!-- Page Header -->
-    <div class="explore-header">
-      <h1>Explore</h1>
-      <p>Discover trending posts and hashtags</p>
-    </div>
-
-    <!-- Search Section -->
-    <div class="explore-search-card">
-      <%= form_with url: search_path, method: :get, class: 'explore-search-form' do |f| %>
-        <%= f.text_field :q, placeholder: 'Search...', class: 'explore-search-input' %>
-        <%= f.submit 'Search', class: 'explore-search-btn' %>
-      <% end %>
-    </div>
-
     <!-- Trending Hashtags Chips -->
     <% if @trending_hashtags.present? %>
       <div class="trending-hashtags-section">
