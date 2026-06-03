@@ -4,10 +4,17 @@ function toggleUserMenu() {
   dropdown.classList.toggle('show');
 }
 
-// Toggle Post Menu
-function togglePostMenu(postId) {
-  const dropdown = document.getElementById(`postMenu${postId}`);
-  dropdown.classList.toggle('show');
+// Toggle Post Menu — handled globally by posts_interactions.js
+// (kept as a no-op stub so any inline onclick="togglePostMenu(...)" calls still work
+//  even if posts_interactions loads after feed.js on some pages)
+if (typeof window.togglePostMenu === 'undefined') {
+  window.togglePostMenu = function(postId) {
+    const menu = document.getElementById('postMenu' + postId);
+    if (!menu) return;
+    const isVisible = menu.style.display === 'block';
+    document.querySelectorAll('.post-dropdown').forEach(m => { m.style.display = 'none'; });
+    if (!isVisible) menu.style.display = 'block';
+  };
 }
 
 // Toggle Comments Section
@@ -115,78 +122,53 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
-// Image preview for post creation
-document.addEventListener('DOMContentLoaded', function() {
-  const fileInput = document.querySelector('.file-input');
-  
-  if (fileInput) {
-    fileInput.addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file && file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-          // Remove existing preview if any
-          const existingPreview = document.querySelector('.image-preview');
-          if (existingPreview) {
-            existingPreview.remove();
-          }
-          
-          // Create preview
-          const preview = document.createElement('div');
-          preview.className = 'image-preview';
-          preview.style.cssText = `
-            margin-top: 1rem;
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            max-width: 300px;
-          `;
-          
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          img.style.cssText = `
-            width: 100%;
-            height: auto;
-            display: block;
-          `;
-          
-          const removeBtn = document.createElement('button');
-          removeBtn.innerHTML = '✕';
-          removeBtn.type = 'button';
-          removeBtn.style.cssText = `
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 1.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          `;
-          
-          removeBtn.addEventListener('click', function() {
-            preview.remove();
-            fileInput.value = '';
-          });
-          
-          preview.appendChild(img);
-          preview.appendChild(removeBtn);
-          
-          const postInput = document.querySelector('.post-input-wrapper');
-          postInput.parentNode.insertBefore(preview, postInput.nextSibling);
-        };
-        
-        reader.readAsDataURL(file);
-      }
-    });
-  }
+// Image preview for post creation — uses event delegation so it works
+// after Turbo Stream replaces the create-post-form-wrapper
+document.addEventListener('change', function(e) {
+  if (!e.target.matches('#new-post-form .file-input')) return;
+
+  const fileInput = e.target;
+  const files = Array.from(fileInput.files).filter(f => f.type.startsWith('image/'));
+  if (!files.length) return;
+
+  // Find preview area inside the same form
+  const form = fileInput.closest('form');
+  if (!form) return;
+  const previewArea = form.querySelector('#post-image-preview-area');
+  if (!previewArea) return;
+
+  previewArea.innerHTML = '';
+
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;margin:0.75rem 0;';
+
+  files.forEach((file, idx) => {
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      const item = document.createElement('div');
+      item.style.cssText = 'position:relative;border-radius:8px;overflow:hidden;';
+
+      const img = document.createElement('img');
+      img.src = ev.target.result;
+      img.style.cssText = 'width:80px;height:80px;object-fit:cover;display:block;border-radius:8px;border:2px solid #e4e6ea;';
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.innerHTML = '✕';
+      removeBtn.style.cssText = 'position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.65);color:white;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;';
+      removeBtn.addEventListener('click', () => {
+        previewArea.innerHTML = '';
+        fileInput.value = '';
+      });
+
+      item.appendChild(img);
+      item.appendChild(removeBtn);
+      wrapper.appendChild(item);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  previewArea.appendChild(wrapper);
 });
 
 // ─── Infinite Scroll ───────────────────────────────────────────────────────────

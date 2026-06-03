@@ -116,8 +116,8 @@ class Notification < ApplicationRecord
         notification: as_json_payload
       }
     )
-    # Send email notification asynchronously (skip for some high-frequency types)
-    unless %w[story_view].include?(notification_type)
+    # Send email notification asynchronously (only in production, skip high-frequency types)
+    if Rails.env.production? && !%w[story_view like reel_like].include?(notification_type)
       NotificationMailer.notification_email(self).deliver_later
     end
   rescue => e

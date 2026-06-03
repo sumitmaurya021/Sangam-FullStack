@@ -1,0 +1,71 @@
+<article class="post-card post-card--editing" id="post-<%= post.id %>"
+         data-controller="post-edit"
+         data-post-edit-post-id-value="<%= post.id %>">
+  <div class="post-edit-header">
+    <span class="post-edit-title">✏️ Edit Post</span>
+    <button class="post-edit-cancel-btn"
+            data-action="click->post-edit#cancel">
+      ✕ Cancel
+    </button>
+  </div>
+
+  <%= form_with model: post,
+               url: post_path(post),
+               method: :patch,
+               class: 'post-inline-edit-form',
+               id: "edit-post-form-#{post.id}" do |f| %>
+
+    <% if post.errors.any? %>
+      <div class="post-edit-errors">
+        <% post.errors.full_messages.each do |msg| %>
+          <p>• <%= msg %></p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="post-input-wrapper">
+      <div class="user-avatar-small">
+        <% if current_user.avatar.attached? %>
+          <%= image_tag current_user.avatar, alt: "Your avatar" %>
+        <% else %>
+          <%= current_user.name&.first&.upcase || 'U' %>
+        <% end %>
+      </div>
+      <%= f.text_area :content,
+            placeholder: "What's on your mind?",
+            class: 'post-input',
+            rows: 4,
+            autofocus: true %>
+    </div>
+
+    <% if post.images.attached? && post.images.any? %>
+      <div class="edit-existing-images">
+        <p class="edit-images-label">Current images (upload new ones to replace):</p>
+        <div class="edit-images-preview">
+          <% post.images.each do |img| %>
+            <%= image_tag img, style: "width:72px;height:72px;object-fit:cover;border-radius:8px;" %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="post-actions" style="margin-top:12px;">
+      <div class="post-options">
+        <label class="post-option">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="#45bd62">
+            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/>
+          </svg>
+          <span>Replace Photos</span>
+          <%= f.file_field :images, class: 'file-input', accept: 'image/*', multiple: true %>
+        </label>
+      </div>
+      <div class="post-visibility-wrapper">
+        <%= f.select :visibility,
+                     [['🌐 Public', 'public'], ['👥 Friends', 'friends'], ['🔒 Only Me', 'private']],
+                     { selected: post.visibility },
+                     class: 'visibility-select' %>
+      </div>
+      <%= f.submit 'Save Changes', class: 'btn-post' %>
+    </div>
+  <% end %>
+</article>

@@ -1,30 +1,117 @@
-// Reaction Picker Toggle
+// Reaction Picker Toggle (fallback for mobile/touch devices)
+// On desktop, hover handles it via CSS
 function toggleReactionPicker(postId) {
   const picker = document.getElementById(`reaction-picker-${postId}`);
   const allPickers = document.querySelectorAll('.reaction-picker');
   
+  if (!picker) return;
+
+  const isVisible = picker.style.display === 'flex';
+
   // Close all other pickers
   allPickers.forEach(p => {
     if (p.id !== `reaction-picker-${postId}`) {
       p.style.display = 'none';
+      p.style.opacity = '0';
+      p.style.pointerEvents = 'none';
     }
   });
   
-  // Toggle current picker
-  if (picker.style.display === 'none' || picker.style.display === '') {
+  // Toggle current picker (mobile only)
+  if (!isVisible) {
     picker.style.display = 'flex';
+    picker.style.opacity = '1';
+    picker.style.pointerEvents = 'all';
   } else {
     picker.style.display = 'none';
+    picker.style.opacity = '0';
+    picker.style.pointerEvents = 'none';
   }
 }
 
-// React to Post
+// Mobile touch support — tap on like button shows reactions
+document.addEventListener('DOMContentLoaded', function() {
+  // Detect touch device
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  
+  if (isTouchDevice) {
+    document.addEventListener('click', function(e) {
+      const likeBtn = e.target.closest('.action-btn-wrapper .action-btn');
+      
+      if (likeBtn) {
+        // Like button clicked on touch device — toggle picker
+        const wrapper = likeBtn.closest('.action-btn-wrapper');
+        const picker = wrapper?.querySelector('.reaction-picker');
+        if (picker) {
+          const postId = picker.id.replace('reaction-picker-', '');
+          toggleReactionPicker(postId);
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      } else if (!e.target.closest('.action-btn-wrapper') && !e.target.closest('.reaction-picker')) {
+        // Clicked outside — close all pickers
+        document.querySelectorAll('.reaction-picker').forEach(picker => {
+          picker.style.display = 'none';
+          picker.style.opacity = '0';
+          picker.style.pointerEvents = 'none';
+        });
+      }
+    });
+  }
+});
+
+// React to Post with Optimistic UI Update
 async function reactToPost(postId, reactionType) {
+  // Reaction emoji mapping
+  const reactionEmojis = {
+    'like': '👍',
+    'love': '❤️',
+    'haha': '😆',
+    'wow': '😮',
+    'sad': '😢',
+    'angry': '😠'
+  };
+  
+  // Get elements
+  const likeBtn = document.getElementById(`like-btn-${postId}`);
+  const likeText = document.getElementById(`like-text-${postId}`);
+  const likesCount = document.getElementById(`likes-count-${postId}`);
+  const reactionSummary = document.getElementById(`reaction-summary-${postId}`);
+  const picker = document.getElementById(`reaction-picker-${postId}`);
+  
+  // Store original state for rollback
+  const wasActive = likeBtn?.classList.contains('active');
+  const originalText = likeText?.innerHTML;
+  const originalCount = likesCount?.textContent;
+  const originalSummary = reactionSummary?.innerHTML;
+  
+  // ===== OPTIMISTIC UPDATE - Instant UI change =====
+  if (likeBtn && likeText) {
+    likeBtn.classList.add('active');
+    const emoji = reactionEmojis[reactionType] || '👍';
+    const label = reactionType.charAt(0).toUpperCase() + reactionType.slice(1);
+    likeText.innerHTML = `${emoji} ${label}`;
+  }
+  
+  if (likesCount) {
+    const currentCount = parseInt(likesCount.textContent) || 0;
+    likesCount.textContent = wasActive ? currentCount : currentCount + 1;
+  }
+  
+  // Hide picker immediately
+  if (picker) {
+    picker.style.opacity = '0';
+    picker.style.display = 'none';
+    picker.style.pointerEvents = 'none';
+  }
+  
+  // ===== Background server request =====
   try {
     const response = await fetch(`/posts/${postId}/like`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
         'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
       },
       body: JSON.stringify({ reaction_type: reactionType })
@@ -33,29 +120,58 @@ async function reactToPost(postId, reactionType) {
     if (response.ok) {
       const data = await response.json();
       
-      // Update button text and style
-      const likeBtn = document.getElementById(`like-btn-${postId}`);
-      const likeText = document.getElementById(`like-text-${postId}`);
-      const reactionEmojis = {
-        'like': '👍',
-        'love': '❤️',
-        'haha': '😆',
-        'wow': '😮',
-        'sad': '😢',
-        'angry': '😠'
-      };
+      // Sync with server response (correct any mismatch)
+      if (likesCount && data.likes_count !== undefined) {
+        likesCount.textContent = data.likes_count;
+      }
       
-      likeBtn.classList.add('active');
-      likeText.innerHTML = `${reactionEmojis[reactionType]} ${reactionType.charAt(0).toUpperCase() + reactionType.slice(1)}`;
-      
-      // Hide picker
-      document.getElementById(`reaction-picker-${postId}`).style.display = 'none';
-      
-      // Reload to update counts (or use Turbo Streams for real-time update)
-      setTimeout(() => location.reload(), 500);
+      // Update reaction summary icons with actual server data
+      if (reactionSummary && data.reaction_counts) {
+        reactionSummary.innerHTML = '';
+        const counts = Object.entries(data.reaction_counts).slice(0, 3);
+        counts.forEach(([type, count]) => {
+          const icon = document.createElement('span');
+          icon.className = `reaction-icon ${type}`;
+          icon.textContent = reactionEmojis[type] || '👍';
+          reactionSummary.appendChild(icon);
+        });
+        
+        if (counts.length === 0) {
+          const icon = document.createElement('span');
+          icon.className = 'reaction-icon like';
+          icon.textContent = '👍';
+          reactionSummary.appendChild(icon);
+        }
+      }
+    } else {
+      // Server error - rollback optimistic update
+      console.error('Failed to react to post');
+      if (likeBtn && originalText) {
+        if (wasActive) likeBtn.classList.add('active');
+        else likeBtn.classList.remove('active');
+        likeText.innerHTML = originalText;
+      }
+      if (likesCount && originalCount) {
+        likesCount.textContent = originalCount;
+      }
+      if (reactionSummary && originalSummary) {
+        reactionSummary.innerHTML = originalSummary;
+      }
     }
   } catch (error) {
+    // Network error - rollback optimistic update
     console.error('Error reacting to post:', error);
+    if (likeBtn && originalText) {
+      if (wasActive) likeBtn.classList.add('active');
+      else likeBtn.classList.remove('active');
+      likeText.innerHTML = originalText;
+    }
+    if (likesCount && originalCount) {
+      likesCount.textContent = originalCount;
+    }
+    if (reactionSummary && originalSummary) {
+      reactionSummary.innerHTML = originalSummary;
+    }
   }
 }
 
@@ -126,32 +242,38 @@ function toggleComments(postId) {
 // Toggle Post Menu
 function togglePostMenu(postId) {
   const menu = document.getElementById(`postMenu${postId}`);
-  const allMenus = document.querySelectorAll('.post-dropdown');
-  
-  // Close all other menus
-  allMenus.forEach(m => {
-    if (m.id !== `postMenu${postId}`) {
-      m.style.display = 'none';
-    }
+  if (!menu) return;
+
+  const isVisible = menu.style.display === 'block';
+
+  // Close all dropdowns first
+  document.querySelectorAll('.post-dropdown').forEach(m => {
+    m.style.display = 'none';
   });
-  
-  // Toggle current menu
-  if (menu.style.display === 'none' || menu.style.display === '') {
+
+  // Toggle current one
+  if (!isVisible) {
     menu.style.display = 'block';
-  } else {
-    menu.style.display = 'none';
   }
 }
 
-// Close pickers and menus when clicking outside
+// Close pickers and menus when clicking outside (mobile only)
 document.addEventListener('click', function(event) {
-  if (!event.target.closest('.action-btn-wrapper') && !event.target.closest('.reaction-picker')) {
-    document.querySelectorAll('.reaction-picker').forEach(picker => {
-      picker.style.display = 'none';
-    });
-  }
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   
-  if (!event.target.closest('.post-menu')) {
+  // On touch devices, manually close reaction pickers
+  if (isTouchDevice) {
+    if (!event.target.closest('.action-btn-wrapper') && !event.target.closest('.reaction-picker')) {
+      document.querySelectorAll('.reaction-picker').forEach(picker => {
+        picker.style.display = 'none';
+        picker.style.opacity = '0';
+        picker.style.pointerEvents = 'none';
+      });
+    }
+  }
+
+  // Close post menus only when clicking outside the post-menu container
+  if (!event.target.closest('.post-menu') && !event.target.closest('.post-dropdown')) {
     document.querySelectorAll('.post-dropdown').forEach(menu => {
       menu.style.display = 'none';
     });

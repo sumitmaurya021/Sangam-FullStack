@@ -27,8 +27,10 @@
       <% end %>
     </div>
     <% if post.user == current_user %>
-      <div class="post-menu">
-        <button class="post-menu-btn" onclick="togglePostMenu(<%= post.id %>)">
+      <div class="post-menu"
+           data-controller="post-edit"
+           data-post-edit-post-id-value="<%= post.id %>">
+        <button class="post-menu-btn" onclick="togglePostMenu(<%= post.id %>); event.stopPropagation();">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
             <circle cx="10" cy="4" r="1.5"/>
             <circle cx="10" cy="10" r="1.5"/>
@@ -36,15 +38,20 @@
           </svg>
         </button>
         <div class="post-dropdown" id="postMenu<%= post.id %>">
-          <%= link_to edit_post_path(post), class: 'dropdown-item', data: { turbo_frame: "modal" } do %>
+          <button class="dropdown-item"
+                  data-action="click->post-edit#edit">
             ✏️ Edit Post
-          <% end %>
-          <%= button_to 'Delete Post', post_path(post), method: :delete, class: 'dropdown-item-danger', data: { confirm: 'Are you sure?' } %>
+          </button>
+          <%= button_to 'Delete Post',
+                post_path(post),
+                method: :delete,
+                class: 'dropdown-item-danger',
+                form: { data: { turbo_confirm: 'Are you sure you want to delete this post?' } } %>
         </div>
       </div>
     <% else %>
       <div class="post-menu">
-        <button class="post-menu-btn" onclick="togglePostMenu(<%= post.id %>)">
+        <button class="post-menu-btn" onclick="togglePostMenu(<%= post.id %>); event.stopPropagation();">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
             <circle cx="10" cy="4" r="1.5"/>
             <circle cx="10" cy="10" r="1.5"/>
@@ -112,21 +119,20 @@
 
   <!-- Post Actions -->
   <div class="post-actions-bar">
-    <!-- Reaction Picker - position:absolute so it floats above, not in grid flow -->
-    <div class="reaction-picker" id="reaction-picker-<%= post.id %>" style="display: none;">
-      <% Like::REACTIONS.each do |reaction_type, emoji| %>
-        <button class="reaction-btn"
-                data-reaction="<%= reaction_type %>"
-                onclick="reactToPost(<%= post.id %>, '<%= reaction_type %>')">
-          <span class="reaction-emoji"><%= emoji %></span>
-        </button>
-      <% end %>
-    </div>
-
     <div class="action-btn-wrapper">
+      <!-- Reaction Picker - position:absolute so it floats above, shown on hover -->
+      <div class="reaction-picker" id="reaction-picker-<%= post.id %>">
+        <% Like::REACTIONS.each do |reaction_type, emoji| %>
+          <button class="reaction-btn"
+                  data-reaction="<%= reaction_type %>"
+                  onclick="reactToPost(<%= post.id %>, '<%= reaction_type %>')">
+            <span class="reaction-emoji"><%= emoji %></span>
+          </button>
+        <% end %>
+      </div>
+
       <button class="action-btn <%= current_user.liked?(post) ? 'active' : '' %>" 
-              id="like-btn-<%= post.id %>"
-              onclick="toggleReactionPicker(<%= post.id %>)">
+              id="like-btn-<%= post.id %>">
         <svg class="action-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
           <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
         </svg>
@@ -139,6 +145,7 @@
         </span>
       </button>
     </div>
+
     <button class="action-btn" onclick="toggleComments(<%= post.id %>)">
       <svg class="action-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/>
