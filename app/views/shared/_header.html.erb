@@ -1,659 +1,335 @@
-<!-- Facebook-style Header -->
-<header class="fb-header">
-  <div class="fb-header-content">
-    <!-- Left Section: Logo & Search -->
-    <div class="fb-header-left">
-      <%= link_to posts_path, class: 'fb-logo-link' do %>
-        <svg class="fb-logo" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
-              <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
-            </linearGradient>
-          </defs>
-          <circle cx="20" cy="20" r="20" fill="url(#logoGradient)"/>
-          <path d="M20 8C15.5 8 12 10.5 12 13.5C12 15.5 13.5 17 15.5 17.5C14 18 13 19.5 13 21C13 23.5 15.5 25.5 19 26.5V28C19 29.5 17.5 30.5 15.5 30.5C13.5 30.5 12 29.5 12 28H9C9 31.5 12.5 34 16.5 34C20.5 34 24 31.5 24 28C24 26 22.5 24.5 20.5 24C22 23.5 23 22 23 20.5C23 18 20.5 16 17 15V13C17 11.5 18.5 10.5 20.5 10.5C22.5 10.5 24 11.5 24 13H27C27 9.5 23.5 8 20 8Z" fill="white"/>
-          <circle cx="28" cy="12" r="2.5" fill="white" opacity="0.8"/>
-          <circle cx="32" cy="20" r="2" fill="white" opacity="0.6"/>
-          <circle cx="28" cy="28" r="2.5" fill="white" opacity="0.8"/>
-        </svg>
+<!-- Premium Modern Header 2026 -->
+<header class="premium-header" id="premiumHeader">
+  <div class="premium-header__container">
+    
+    <!-- Logo Section -->
+    <div class="premium-header__logo">
+      <%= link_to posts_path, class: 'premium-logo', title: 'Sangam' do %>
+        <div class="premium-logo__icon">
+          <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <circle cx="20" cy="20" r="20" fill="url(#logoGrad)"/>
+            <path d="M20 8C15.5 8 12 10.5 12 13.5C12 15.5 13.5 17 15.5 17.5C14 18 13 19.5 13 21C13 23.5 15.5 25.5 19 26.5V28C19 29.5 17.5 30.5 15.5 30.5C13.5 30.5 12 29.5 12 28H9C9 31.5 12.5 34 16.5 34C20.5 34 24 31.5 24 28C24 26 22.5 24.5 20.5 24C22 23.5 23 22 23 20.5C23 18 20.5 16 17 15V13C17 11.5 18.5 10.5 20.5 10.5C22.5 10.5 24 11.5 24 13H27C27 9.5 23.5 8 20 8Z" fill="white"/>
+          </svg>
+        </div>
+        <span class="premium-logo__text">Sangam</span>
       <% end %>
-      <div class="fb-search" id="headerSearchBox">
-        <svg class="fb-search-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M10.917 10.917a6.5 6.5 0 111.414-1.414l4.242 4.242a1 1 0 01-1.414 1.414l-4.242-4.242zM11.5 6.5a5 5 0 11-10 0 5 5 0 0110 0z"/>
-        </svg>
-        <input
-          type="text"
+    </div>
+
+    <!-- Desktop Search -->
+    <div class="premium-header__search" id="desktopSearch">
+      <div class="premium-search">
+        <button type="button" class="premium-search__icon" aria-label="Search">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <input 
+          type="text" 
+          class="premium-search__input" 
           id="headerSearchInput"
-          placeholder="Search Sangam"
-          class="fb-search-input"
+          placeholder="Search Sangam..."
           autocomplete="off"
-          aria-label="Search users"
-          aria-expanded="false"
-          aria-controls="searchDropdown"
-        >
-        <!-- Live search dropdown -->
-        <div class="fb-search-dropdown" id="searchDropdown" role="listbox" aria-label="Search results">
-          <div class="fb-search-dropdown-inner" id="searchDropdownInner"></div>
+          aria-label="Search"
+        />
+        <div class="premium-search__dropdown" id="searchDropdown">
+          <div id="searchResults"></div>
         </div>
       </div>
     </div>
 
-    <!-- Center Section: Navigation -->
-    <div class="fb-header-center">
-      <%= link_to posts_path, class: "fb-nav-item #{current_page?(posts_path) ? 'active' : ''}", title: 'Home' do %>
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor">
-          <path d="M25.825 12.29C25.824 12.289 25.823 12.288 25.821 12.286L15.027 2.937C14.752 2.675 14.392 2.527 13.989 2.521 13.608 2.527 13.248 2.675 13.001 2.912L2.175 12.29C1.756 12.658 1.629 13.245 1.868 13.759 2.079 14.215 2.567 14.479 3.069 14.479L5 14.479 5 23.729C5 24.695 5.784 25.479 6.75 25.479L11 25.479C11.552 25.479 12 25.031 12 24.479L12 18.309C12 18.126 12.148 17.979 12.33 17.979L15.67 17.979C15.852 17.979 16 18.126 16 18.309L16 24.479C16 25.031 16.448 25.479 17 25.479L21.25 25.479C22.216 25.479 23 24.695 23 23.729L23 14.479 24.931 14.479C25.433 14.479 25.921 14.215 26.132 13.759 26.371 13.245 26.244 12.658 25.825 12.29"/>
+    <!-- Navigation -->
+    <nav class="premium-header__nav">
+      <%= link_to posts_path, class: "premium-nav__item #{current_page?(posts_path) ? 'is-active' : ''}", title: 'Home' do %>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
+        <span class="premium-nav__label">Home</span>
       <% end %>
       
-      <%= link_to '#', class: 'fb-nav-item', title: 'Friends' do %>
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor">
-          <path d="M10.5 4.5c-2.272 0-2.75 1.768-2.75 3.25C7.75 9.542 8.983 11 10.5 11s2.75-1.458 2.75-3.25c0-1.482-.478-3.25-2.75-3.25zm0 8c-2.344 0-4.25-2.131-4.25-4.75C6.25 5.776 7.256 3 10.5 3s4.25 2.776 4.25 4.75c0 2.619-1.906 4.75-4.25 4.75zM4.25 23.25v-1.5c0-2.206 1.794-4 4-4h4.5c2.206 0 4 1.794 4 4v1.5h1.5v-1.5c0-3.033-2.467-5.5-5.5-5.5h-4.5c-3.033 0-5.5 2.467-5.5 5.5v1.5h1.5zm13.5-11.75c-1.828 0-2.75 1.768-2.75 3.25 0 1.792 1.233 3.25 2.75 3.25s2.75-1.458 2.75-3.25c0-1.482-.922-3.25-2.75-3.25zm0 8c-2.344 0-4.25-2.131-4.25-4.75 0-1.974 1.006-4.75 4.25-4.75s4.25 2.776 4.25 4.75c0 2.619-1.906 4.75-4.25 4.75zm4.5 3.5v-1.5c0-2.206 1.794-4 4-4h.5v-1.5h-.5c-3.033 0-5.5 2.467-5.5 5.5v1.5h1.5z"/>
+      <%= link_to reels_path, class: "premium-nav__item #{current_page?(reels_path) ? 'is-active' : ''}", title: 'Reels' do %>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <path d="M10 8l6 4-6 4V8z" fill="currentColor"/>
         </svg>
+        <span class="premium-nav__label">Reels</span>
       <% end %>
       
-      <%= link_to reels_path, class: "fb-nav-item #{current_page?(reels_path) ? 'active' : ''}", title: 'Reels' do %>
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+      <%= link_to groups_path, class: "premium-nav__item #{current_page?(groups_path) ? 'is-active' : ''}", title: 'Groups' do %>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
+        <span class="premium-nav__label">Groups</span>
       <% end %>
       
-      <%= link_to groups_path, class: "fb-nav-item #{current_page?(groups_path) ? 'active' : ''}", title: 'Groups' do %>
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor">
-          <path d="M10.5 4.5c-2.272 0-2.75 1.768-2.75 3.25C7.75 9.542 8.983 11 10.5 11s2.75-1.458 2.75-3.25c0-1.482-.478-3.25-2.75-3.25zm0 8c-2.344 0-4.25-2.131-4.25-4.75C6.25 5.776 7.256 3 10.5 3s4.25 2.776 4.25 4.75c0 2.619-1.906 4.75-4.25 4.75zM4.25 23.25v-1.5c0-2.206 1.794-4 4-4h4.5c2.206 0 4 1.794 4 4v1.5h1.5v-1.5c0-3.033-2.467-5.5-5.5-5.5h-4.5c-3.033 0-5.5 2.467-5.5 5.5v1.5h1.5zm13.5-11.75c-1.828 0-2.75 1.768-2.75 3.25 0 1.792 1.233 3.25 2.75 3.25s2.75-1.458 2.75-3.25c0-1.482-.922-3.25-2.75-3.25zm0 8c-2.344 0-4.25-2.131-4.25-4.75 0-1.974 1.006-4.75 4.25-4.75s4.25 2.776 4.25 4.75c0 2.619-1.906 4.75-4.25 4.75zm4.5 3.5v-1.5c0-2.206 1.794-4 4-4h.5v-1.5h-.5c-3.033 0-5.5 2.467-5.5 5.5v1.5h1.5z"/>
+      <%= link_to events_path, class: "premium-nav__item #{current_page?(events_path) ? 'is-active' : ''}", title: 'Events' do %>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+          <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
+        <span class="premium-nav__label">Events</span>
       <% end %>
-
-      <%= link_to events_path, class: "fb-nav-item #{current_page?(events_path) ? 'active' : ''}", title: 'Events' do %>
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor">
-          <path fill-rule="evenodd" d="M8 2a1 1 0 00-1 1v1H6a3 3 0 00-3 3v14a3 3 0 003 3h16a3 3 0 003-3V7a3 3 0 00-3-3h-1V3a1 1 0 10-2 0v1H9V3a1 1 0 00-1-1zm-2 6h16v1H6V8zm0 4h4v4H6v-4zm6 0h4v4h-4v-4zm6 0h4v4h-4v-4zM6 18h4v4H6v-4zm6 0h4v4h-4v-4z" clip-rule="evenodd"/>
+      
+      <%= link_to explore_path, class: "premium-nav__item #{current_page?(explore_path) ? 'is-active' : ''}", title: 'Explore' do %>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+          <path d="M8 14l9-5-5 9-1-4-3-0z" fill="currentColor"/>
         </svg>
+        <span class="premium-nav__label">Explore</span>
       <% end %>
+    </nav>
 
-      <%= link_to explore_path, class: "fb-nav-item #{current_page?(explore_path) ? 'active' : ''}", title: 'Explore' do %>
-        <svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor">
-          <path d="M14 2C7.373 2 2 7.373 2 14s5.373 12 12 12 12-5.373 12-12S20.627 2 14 2zm5.657 7.071l-4.95 9.9-9.9 4.95 4.95-9.9 9.9-4.95zM14 12.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/>
-        </svg>
-      <% end %>
-    </div>
-
-    <!-- Right Section: Icons & Profile -->
-    <div class="fb-header-right">
-      <!-- Search Icon Button (Mobile Only) -->
-      <button class="fb-search-icon-btn" title="Search" onclick="toggleMobileSearch()">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M8.5 3a5.5 5.5 0 014.227 9.02l4.127 4.126a.75.75 0 11-1.061 1.061l-4.126-4.127A5.5 5.5 0 118.5 3zm0 1.5a4 4 0 100 8 4 4 0 000-8z"/>
+    <!-- Actions -->
+    <div class="premium-header__actions">
+      
+      <!-- Mobile Search Toggle -->
+      <button class="premium-action-btn premium-action-btn--search" id="mobileSearchToggle" aria-label="Search">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </button>
-      
-      <!-- Hamburger Menu Button (Mobile Only) -->
-      <button class="fb-hamburger-btn" onclick="toggleNavMenu()" title="Menu">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M2.5 5.5a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm6-6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm6-6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z"/>
-        </svg>
-      </button>
-      
-      <!-- Desktop Icons (Hidden on Mobile) -->
-      <button class="fb-icon-btn fb-desktop-only" title="Menu">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M2.5 5.5a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm6-6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm6-6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z"/>
-        </svg>
-      </button>
-      
-      <%= link_to conversations_path, class: "fb-icon-btn fb-desktop-only", title: "Messenger", style: "position:relative;text-decoration:none;" do %>
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M10 2.5c-4.687 0-8.5 3.439-8.5 7.688 0 2.414 1.203 4.562 3.094 5.969V19.5l3.594-1.969c.938.25 1.938.406 2.969.406 4.687 0 8.5-3.438 8.5-7.688S14.687 2.5 10 2.5zm.906 10.344l-2.187-2.344-4.281 2.344 4.719-5L11.406 10l4.219-2.344-4.719 5z"/>
+
+      <!-- Messenger -->
+      <%= link_to conversations_path, class: 'premium-action-btn', title: 'Messages' do %>
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 2C5.313 2 1.5 5.438 1.5 9.688c0 2.414 1.203 4.562 3.094 5.969V19l3.594-1.969A9.458 9.458 0 0010 17.5c4.687 0 8.5-3.438 8.5-7.688S14.687 2 10 2z" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10.906 12.844l-2.187-2.344-4.281 2.344 4.719-5L11.406 10l4.219-2.344-4.719 5z" fill="currentColor"/>
         </svg>
         <% unread = current_user.total_unread_messages %>
         <% if unread > 0 %>
-          <span class="fb-notification-badge" id="chatUnreadBadge"><%= unread %></span>
-        <% else %>
-          <span class="fb-notification-badge" id="chatUnreadBadge" style="display:none;"></span>
+          <span class="premium-badge"><%= unread > 99 ? '99+' : unread %></span>
         <% end %>
       <% end %>
-      
-      <button class="fb-icon-btn fb-notification-btn fb-desktop-only" title="Notifications" onclick="toggleNotifDropdown()">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-          <path d="M10 2.5c-.828 0-1.5.672-1.5 1.5v.586C6.348 5.207 5 7.13 5 9.5v3.75l-1.25 1.25v.75h12.5v-.75L15 13.25V9.5c0-2.37-1.348-4.293-3.5-4.914V4c0-.828-.672-1.5-1.5-1.5zm-2.5 15c0 1.379 1.121 2.5 2.5 2.5s2.5-1.121 2.5-2.5h-5z"/>
+
+      <!-- Notifications -->
+      <button class="premium-action-btn" id="notificationsBtn" aria-label="Notifications" aria-expanded="false">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M15 7A5 5 0 105 7c0 2.76-.89 5.258-2 6.738V15h14v-1.262C15.89 12.258 15 9.76 15 7zM7.5 18a2.5 2.5 0 005 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
         <% unread_notif = current_user.unread_notifications_count %>
         <% if unread_notif > 0 %>
-          <span class="fb-notification-badge" id="notifBadge"><%= unread_notif > 99 ? '99+' : unread_notif %></span>
-        <% else %>
-          <span class="fb-notification-badge" id="notifBadge" style="display:none;"></span>
+          <span class="premium-badge" id="notifBadge"><%= unread_notif > 99 ? '99+' : unread_notif %></span>
         <% end %>
       </button>
 
-      <!-- Notification Dropdown Panel -->
-      <div class="notif-dropdown" id="notifDropdown">
-        <div class="notif-dropdown-header">
-          <h3 class="notif-dropdown-title">Notifications</h3>
-          <div class="notif-dropdown-actions">
-            <button class="notif-mark-all-btn" id="notifMarkAllBtn"
-                    onclick="markAllDropdownRead()"
-                    style="<%= current_user.unread_notifications_count == 0 ? 'display:none' : '' %>">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
-              </svg>
-              Mark all read
-            </button>
-            <%= link_to notifications_path, class: 'notif-see-all-btn' do %>
-              See all
-            <% end %>
-          </div>
+      <!-- Notifications Dropdown -->
+      <div class="premium-dropdown" id="notificationsDropdown">
+        <div class="premium-dropdown__header">
+          <h3 class="premium-dropdown__title">Notifications</h3>
+          <button class="premium-dropdown__action" id="markAllReadBtn">Mark all read</button>
         </div>
-        <div class="notif-dropdown-list" id="notifDropdownList">
-          <div class="notif-dropdown-loading">
-            <div class="notif-spinner"></div>
+        <div class="premium-dropdown__content" id="notificationsList">
+          <div class="premium-dropdown__loading">
+            <div class="premium-spinner"></div>
             <span>Loading...</span>
           </div>
         </div>
       </div>
-      
-      <!-- Navigation Dropdown (Mobile Only) -->
-      <div class="fb-nav-dropdown" id="navDropdown">
-        <div class="fb-nav-dropdown-header">Navigation</div>
-        
-        <%= link_to posts_path, class: "fb-nav-dropdown-item #{current_page?(posts_path) ? 'active' : ''}" do %>
-          <div class="fb-nav-dropdown-icon">
-            <svg width="20" height="20" viewBox="0 0 28 28" fill="currentColor">
-              <path d="M25.825 12.29C25.824 12.289 25.823 12.288 25.821 12.286L15.027 2.937C14.752 2.675 14.392 2.527 13.989 2.521 13.608 2.527 13.248 2.675 13.001 2.912L2.175 12.29C1.756 12.658 1.629 13.245 1.868 13.759 2.079 14.215 2.567 14.479 3.069 14.479L5 14.479 5 23.729C5 24.695 5.784 25.479 6.75 25.479L11 25.479C11.552 25.479 12 25.031 12 24.479L12 18.309C12 18.126 12.148 17.979 12.33 17.979L15.67 17.979C15.852 17.979 16 18.126 16 18.309L16 24.479C16 25.031 16.448 25.479 17 25.479L21.25 25.479C22.216 25.479 23 24.695 23 23.729L23 14.479 24.931 14.479C25.433 14.479 25.921 14.215 26.132 13.759 26.371 13.245 26.244 12.658 25.825 12.29"/>
-            </svg>
-          </div>
-          <span>Home</span>
-        <% end %>
-        
-        <%= link_to '#', class: 'fb-nav-dropdown-item' do %>
-          <div class="fb-nav-dropdown-icon">
-            <svg width="20" height="20" viewBox="0 0 28 28" fill="currentColor">
-              <path d="M10.5 4.5c-2.272 0-2.75 1.768-2.75 3.25C7.75 9.542 8.983 11 10.5 11s2.75-1.458 2.75-3.25c0-1.482-.478-3.25-2.75-3.25zm0 8c-2.344 0-4.25-2.131-4.25-4.75C6.25 5.776 7.256 3 10.5 3s4.25 2.776 4.25 4.75c0 2.619-1.906 4.75-4.25 4.75zM4.25 23.25v-1.5c0-2.206 1.794-4 4-4h4.5c2.206 0 4 1.794 4 4v1.5h1.5v-1.5c0-3.033-2.467-5.5-5.5-5.5h-4.5c-3.033 0-5.5 2.467-5.5 5.5v1.5h1.5zm13.5-11.75c-1.828 0-2.75 1.768-2.75 3.25 0 1.792 1.233 3.25 2.75 3.25s2.75-1.458 2.75-3.25c0-1.482-.922-3.25-2.75-3.25zm0 8c-2.344 0-4.25-2.131-4.25-4.75 0-1.974 1.006-4.75 4.25-4.75s4.25 2.776 4.25 4.75c0 2.619-1.906 4.75-4.25 4.75zm4.5 3.5v-1.5c0-2.206 1.794-4 4-4h.5v-1.5h-.5c-3.033 0-5.5 2.467-5.5 5.5v1.5h1.5z"/>
-            </svg>
-          </div>
-          <span>Friends</span>
-        <% end %>
-        
-        <%= link_to reels_path, class: "fb-nav-dropdown-item #{current_page?(reels_path) ? 'active' : ''}" do %>
-          <div class="fb-nav-dropdown-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-            </svg>
-          </div>
-          <span>Reels</span>
-        <% end %>
-        
-        <%= link_to '#', class: 'fb-nav-dropdown-item' do %>
-          <div class="fb-nav-dropdown-icon">
-            <svg width="20" height="20" viewBox="0 0 28 28" fill="currentColor">
-              <path d="M17.5 23.979 21.25 23.979C21.386 23.979 21.5 23.864 21.5 23.729L21.5 13.979C21.5 13.427 21.949 12.979 22.5 12.979L24.33 12.979 14.017 4.046 3.672 12.979 5.5 12.979C6.052 12.979 6.5 13.427 6.5 13.979L6.5 23.729C6.5 23.864 6.615 23.979 6.75 23.979L10.5 23.979 10.5 17.729C10.5 17.04 11.061 16.479 11.75 16.479L16.25 16.479C16.939 16.479 17.5 17.04 17.5 17.729L17.5 23.979ZM21.25 25.479 17 25.479C16.448 25.479 16 25.031 16 24.479L16 18.327C16 18.135 15.844 17.979 15.652 17.979L12.348 17.979C12.156 17.979 12 18.135 12 18.327L12 24.479C12 25.031 11.552 25.479 11 25.479L6.75 25.479C5.784 25.479 5 24.695 5 23.729L5 14.479 3.069 14.479C2.567 14.479 2.079 14.215 1.868 13.759 1.63 13.245 1.757 12.658 2.175 12.29L13.001 2.912C13.248 2.675 13.608 2.527 13.989 2.521 14.392 2.527 14.753 2.675 15.027 2.937L25.821 12.286C25.823 12.288 25.824 12.289 25.825 12.29 26.244 12.658 26.371 13.245 26.133 13.759 25.921 14.215 25.434 14.479 24.931 14.479L23 14.479 23 23.729C23 24.695 22.217 25.479 21.25 25.479Z"/>
-            </svg>
-          </div>
-          <span>Marketplace</span>
-        <% end %>
-        
-        <%= link_to '#', class: 'fb-nav-dropdown-item' do %>
-          <div class="fb-nav-dropdown-icon">
-            <svg width="20" height="20" viewBox="0 0 28 28" fill="currentColor">
-              <path d="M23.5 9.5H10.25a.75.75 0 00-.75.75v7c0 .414.336.75.75.75H17v5.5H4.5v-19h19v5zm0 14h-5v-6.25a.75.75 0 00-.75-.75H11V11h12.5v12.5zm1.5.25V4.25C25 3.561 24.439 3 23.75 3H4.25C3.561 3 3 3.561 3 4.25v19.5c0 .689.561 1.25 1.25 1.25h19.5c.689 0 1.25-.561 1.25-1.25z"/>
-            </svg>
-          </div>
-          <span>Gaming</span>
-        <% end %>
-        
-        <div class="fb-dropdown-divider"></div>
-        
-        <button class="fb-nav-dropdown-item" title="Menu">
-          <div class="fb-nav-dropdown-icon">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M2.5 5.5a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm6-6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm6-6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3zm0 6a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-3z"/>
-            </svg>
-          </div>
-          <span>Menu</span>
-        </button>
 
-        <%# Messenger link — works on mobile %>
-        <%= link_to conversations_path, class: "fb-nav-dropdown-item", title: "Messenger", style: "position:relative;" do %>
-          <div class="fb-nav-dropdown-icon" style="background:#e7f3ff;">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="#0084ff">
-              <path d="M10 2.5c-4.687 0-8.5 3.439-8.5 7.688 0 2.414 1.203 4.562 3.094 5.969V19.5l3.594-1.969c.938.25 1.938.406 2.969.406 4.687 0 8.5-3.438 8.5-7.688S14.687 2.5 10 2.5zm.906 10.344l-2.187-2.344-4.281 2.344 4.719-5L11.406 10l4.219-2.344-4.719 5z"/>
-            </svg>
-          </div>
-          <span>Messenger</span>
-          <% unread = current_user.total_unread_messages %>
-          <% if unread > 0 %>
-            <span class="fb-notification-badge" style="position:static;margin-left:auto;"><%= unread %></span>
-          <% end %>
-        <% end %>
-        
-        <button class="fb-nav-dropdown-item fb-notification-btn" title="Notifications" onclick="toggleNotifDropdown(); toggleNavMenu();">
-          <div class="fb-nav-dropdown-icon">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M10 2.5c-.828 0-1.5.672-1.5 1.5v.586C6.348 5.207 5 7.13 5 9.5v3.75l-1.25 1.25v.75h12.5v-.75L15 13.25V9.5c0-2.37-1.348-4.293-3.5-4.914V4c0-.828-.672-1.5-1.5-1.5zm-2.5 15c0 1.379 1.121 2.5 2.5 2.5s2.5-1.121 2.5-2.5h-5z"/>
-            </svg>
-          </div>
-          <span>Notifications</span>
-          <% unread_notif_count = current_user.unread_notifications_count %>
-          <% if unread_notif_count > 0 %>
-            <span class="fb-notification-badge" id="notifBadgeMobile" style="position:static;margin-left:auto;"><%= unread_notif_count > 99 ? '99+' : unread_notif_count %></span>
-          <% else %>
-            <span class="fb-notification-badge" id="notifBadgeMobile" style="position:static;margin-left:auto;display:none;"></span>
-          <% end %>
-        </button>
-      </div>
-      
-      <button class="fb-profile-btn" onclick="toggleUserMenu()" title="Account">
-        <div class="fb-profile-avatar">
+      <!-- User Menu -->
+      <button class="premium-user-btn" id="userMenuBtn" aria-label="Account menu" aria-expanded="false">
+        <div class="premium-avatar">
           <%= current_user.name&.first&.upcase || 'U' %>
         </div>
-        <svg class="fb-dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-          <path d="M6 8L2 4h8z"/>
+        <svg class="premium-user-btn__arrow" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M4 6l4 4 4-4"/>
         </svg>
       </button>
-      
-      <div class="fb-user-dropdown" id="userDropdown">
-        <%= link_to profile_path(current_user), class: 'fb-dropdown-item' do %>
-          <div class="fb-dropdown-avatar">
+
+      <!-- User Dropdown -->
+      <div class="premium-dropdown premium-dropdown--user" id="userDropdown">
+        <%= link_to profile_path(current_user), class: 'premium-user-profile' do %>
+          <div class="premium-avatar premium-avatar--lg">
             <%= current_user.name&.first&.upcase || 'U' %>
           </div>
-          <div class="fb-dropdown-info">
-            <div class="fb-dropdown-name"><%= current_user.name || current_user.email %></div>
-            <div class="fb-dropdown-text">See your profile</div>
+          <div class="premium-user-profile__info">
+            <div class="premium-user-profile__name"><%= current_user.name || current_user.email %></div>
+            <div class="premium-user-profile__label">View profile</div>
           </div>
         <% end %>
-        <div class="fb-dropdown-divider"></div>
-        <%= link_to bookmarks_path, class: 'fb-dropdown-item' do %>
-          <div class="fb-dropdown-icon">
+        
+        <div class="premium-dropdown__divider"></div>
+        
+        <%= link_to bookmarks_path, class: 'premium-dropdown__item' do %>
+          <div class="premium-dropdown__icon">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
               <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
             </svg>
           </div>
           <span>Saved Posts</span>
         <% end %>
+        
         <% if current_user.super_admin? %>
-          <div class="fb-dropdown-divider"></div>
-          <%= link_to admin_dashboard_path, class: 'fb-dropdown-item super-admin-link' do %>
-            <div class="fb-dropdown-icon">
+          <div class="premium-dropdown__divider"></div>
+          <%= link_to admin_dashboard_path, class: 'premium-dropdown__item premium-dropdown__item--admin' do %>
+            <div class="premium-dropdown__icon">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10 2L2 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-8-5zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H3V7.89l7-4.67v9.77z"/>
+                <path d="M10 2L2 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-8-5z"/>
               </svg>
             </div>
-            <span>🎯 Super Admin Dashboard</span>
+            <span>Admin Dashboard</span>
           <% end %>
         <% end %>
-        <div class="fb-dropdown-divider"></div>
-        <%= button_to destroy_user_session_path, method: :delete, class: 'fb-dropdown-item' do %>
-          <div class="fb-dropdown-icon">
+        
+        <div class="premium-dropdown__divider"></div>
+        
+        <%= button_to destroy_user_session_path, method: :delete, class: 'premium-dropdown__item premium-dropdown__item--logout' do %>
+          <div class="premium-dropdown__icon">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
               <path d="M10.5 3.5h-7v13h7v1.5h-7c-.828 0-1.5-.672-1.5-1.5v-13c0-.828.672-1.5 1.5-1.5h7v1.5zm4.5 6.5l-3.5-3.5v2.5h-6v2h6v2.5l3.5-3.5z"/>
             </svg>
           </div>
-          <span>Log Out</span>
+          <span>Log out</span>
         <% end %>
       </div>
+
+      <!-- Mobile Menu Toggle -->
+      <button class="premium-action-btn premium-action-btn--menu" id="mobileMenuToggle" aria-label="Menu">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
     </div>
   </div>
 </header>
 
-<!-- Mobile Search Bar (slides down on mobile) -->
-<div class="fb-mobile-search-bar" id="mobileSearchBar">
-  <div class="fb-mobile-search-inner">
-    <button class="fb-mobile-search-back" onclick="toggleMobileSearch()">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M12.5 15L7.5 10l5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+<!-- Mobile Search Overlay -->
+<div class="premium-mobile-search" id="mobileSearchOverlay">
+  <div class="premium-mobile-search__header">
+    <button class="premium-mobile-search__back" id="mobileSearchClose" aria-label="Close">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       </svg>
     </button>
-    <div class="fb-search fb-mobile-search-box">
-      <svg class="fb-search-icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-        <path d="M10.917 10.917a6.5 6.5 0 111.414-1.414l4.242 4.242a1 1 0 01-1.414 1.414l-4.242-4.242zM11.5 6.5a5 5 0 11-10 0 5 5 0 0110 0z"/>
-      </svg>
-      <input
-        type="text"
+    <div class="premium-search">
+      <input 
+        type="text" 
+        class="premium-search__input" 
         id="mobileSearchInput"
-        placeholder="Search Sangam"
-        class="fb-search-input"
+        placeholder="Search Sangam..."
         autocomplete="off"
-      >
+      />
     </div>
   </div>
-  <div class="fb-mobile-search-results" id="mobileSearchResults">
-    <div class="fb-search-dropdown-inner" id="searchDropdownInner"></div>
-  </div>
+  <div class="premium-mobile-search__results" id="mobileSearchResults"></div>
 </div>
 
-<script>
-  // ── Dropdowns ──────────────────────────────────────────────────────────────
-  function toggleNavMenu() {
-    document.getElementById('navDropdown').classList.toggle('show');
-  }
-  function toggleUserMenu() {
-    document.getElementById('userDropdown').classList.toggle('show');
-  }
-
-  // Close dropdowns when clicking outside
-  document.addEventListener('click', function(e) {
-    const navDropdown   = document.getElementById('navDropdown');
-    const userDropdown  = document.getElementById('userDropdown');
-    const searchDropdown = document.getElementById('searchDropdown');
-
-    if (navDropdown && !e.target.closest('.fb-hamburger-btn') && !e.target.closest('.fb-nav-dropdown'))
-      navDropdown.classList.remove('show');
-
-    if (userDropdown && !e.target.closest('.fb-profile-btn') && !e.target.closest('.fb-user-dropdown'))
-      userDropdown.classList.remove('show');
-
-    if (searchDropdown && !e.target.closest('#headerSearchBox') && !e.target.closest('#mobileSearchBar'))
-      closeSearch();
-  });
-
-  // ── Mobile Search ──────────────────────────────────────────────────────────
-  function toggleMobileSearch() {
-    const bar = document.getElementById('mobileSearchBar');
-    if (!bar) return;
-    const isOpen = bar.classList.toggle('show');
-    if (isOpen) {
-      bar.querySelector('input').focus();
-    } else {
-      closeSearch();
-    }
-  }
-
-  // ── Live Search ────────────────────────────────────────────────────────────
-  let _searchTimer = null;
-  let _currentQuery = '';
-
-  function initHeaderSearch() {
-    const inputs = [
-      document.getElementById('headerSearchInput'),
-      document.getElementById('mobileSearchInput')
-    ].filter(Boolean);
-
-    inputs.forEach(input => {
-      input.addEventListener('input', function() {
-        const q = this.value.trim();
-        _currentQuery = q;
-        clearTimeout(_searchTimer);
-
-        if (q.length < 2) {
-          closeSearch();
-          return;
-        }
-
-        showSearchLoading();
-        _searchTimer = setTimeout(() => fetchSearchResults(q), 300);
-      });
-
-      input.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-          this.value = '';
-          closeSearch();
-        }
-      });
-
-      input.addEventListener('focus', function() {
-        if (this.value.trim().length >= 2) {
-          openDropdown(this);
-        }
-      });
-    });
-  }
-
-  function fetchSearchResults(query) {
-    if (query !== _currentQuery) return;
-
-    fetch(`/profiles/search?q=${encodeURIComponent(query)}`, {
-      headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(r => r.json())
-    .then(users => {
-      if (query !== _currentQuery) return;
-      renderSearchResults(users, query);
-    })
-    .catch(() => {
-      renderSearchError();
-    });
-  }
-
-  function renderSearchResults(users, query) {
-    const inner = document.getElementById('searchDropdownInner');
-    if (!inner) return;
-
-    if (users.length === 0) {
-      inner.innerHTML = `
-        <div class="fb-search-empty">
-          <div class="fb-search-empty-icon">🔍</div>
-          <p>No results for "<strong>${escapeHtml(query)}</strong>"</p>
-          <p class="fb-search-empty-sub">Try a different name or email</p>
-        </div>`;
-    } else {
-      inner.innerHTML = `
-        <div class="fb-search-section-label">People</div>
-        ${users.map(u => buildUserResultHTML(u)).join('')}
-      `;
-    }
-
-    openDropdown(document.getElementById('headerSearchInput') || document.getElementById('mobileSearchInput'));
-  }
-
-  function buildUserResultHTML(u) {
-    const avatarHtml = u.avatar
-      ? `<img src="${u.avatar}" class="fb-search-result-avatar" alt="${escapeHtml(u.name)}">`
-      : `<div class="fb-search-result-avatar fb-search-result-avatar-placeholder">${(u.name || '?')[0].toUpperCase()}</div>`;
-
-    const onlineDot = u.online
-      ? `<span class="fb-search-online-dot"></span>` : '';
-
-    const mutualText = u.mutual_friends_count > 0
-      ? `<span class="fb-search-mutual">${u.mutual_friends_count} mutual friend${u.mutual_friends_count > 1 ? 's' : ''}</span>`
-      : `<span class="fb-search-mutual">${escapeHtml(u.email)}</span>`;
-
-    const actionBtn = buildActionButton(u);
-
-    return `
-      <div class="fb-search-result-item" data-user-id="${u.id}">
-        <a href="${u.profile_url}" class="fb-search-result-link">
-          <div class="fb-search-result-avatar-wrap">
-            ${avatarHtml}
-            ${onlineDot}
-          </div>
-          <div class="fb-search-result-info">
-            <span class="fb-search-result-name">${escapeHtml(u.name)}</span>
-            ${mutualText}
-          </div>
-        </a>
-        <div class="fb-search-result-actions">
-          ${actionBtn}
-        </div>
+<!-- Mobile Menu Overlay -->
+<div class="premium-mobile-menu" id="mobileMenuOverlay">
+  <div class="premium-mobile-menu__header">
+    <div class="premium-logo">
+      <div class="premium-logo__icon">
+        <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+          <defs>
+            <linearGradient id="logoGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <circle cx="20" cy="20" r="20" fill="url(#logoGrad2)"/>
+          <path d="M20 8C15.5 8 12 10.5 12 13.5C12 15.5 13.5 17 15.5 17.5C14 18 13 19.5 13 21C13 23.5 15.5 25.5 19 26.5V28C19 29.5 17.5 30.5 15.5 30.5C13.5 30.5 12 29.5 12 28H9C9 31.5 12.5 34 16.5 34C20.5 34 24 31.5 24 28C24 26 22.5 24.5 20.5 24C22 23.5 23 22 23 20.5C23 18 20.5 16 17 15V13C17 11.5 18.5 10.5 20.5 10.5C22.5 10.5 24 11.5 24 13H27C27 9.5 23.5 8 20 8Z" fill="white"/>
+        </svg>
       </div>
-    `;
-  }
+      <span class="premium-logo__text">Sangam</span>
+    </div>
+    <button class="premium-mobile-menu__close" id="mobileMenuClose" aria-label="Close">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
 
-  function buildActionButton(u) {
-    switch (u.friendship_status) {
-      case 'friends':
-        return `
-          <a href="${u.profile_url}" class="fb-search-action-btn fb-search-btn-message" title="Message">
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M10 2.5c-4.687 0-8.5 3.439-8.5 7.688 0 2.414 1.203 4.562 3.094 5.969V19.5l3.594-1.969c.938.25 1.938.406 2.969.406 4.687 0 8.5-3.438 8.5-7.688S14.687 2.5 10 2.5z"/>
-            </svg>
-            Message
-          </a>`;
+  <nav class="premium-mobile-nav">
+    <%= link_to profile_path(current_user), class: 'premium-mobile-profile' do %>
+      <div class="premium-avatar premium-avatar--lg">
+        <%= current_user.name&.first&.upcase || 'U' %>
+      </div>
+      <div class="premium-mobile-profile__info">
+        <div class="premium-mobile-profile__name"><%= current_user.name || current_user.email %></div>
+        <div class="premium-mobile-profile__label">View profile</div>
+      </div>
+    <% end %>
 
-      case 'request_sent':
-        return `
-          <button class="fb-search-action-btn fb-search-btn-pending" disabled title="Request sent">
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-            </svg>
-            Pending
-          </button>`;
+    <div class="premium-mobile-nav__divider"></div>
 
-      case 'request_received':
-        return `
-          <button class="fb-search-action-btn fb-search-btn-accept"
-                  onclick="searchAcceptRequest(${u.friendship_id}, ${u.id}, this)"
-                  title="Accept request">
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-            </svg>
-            Accept
-          </button>`;
+    <%= link_to posts_path, class: "premium-mobile-nav__item #{current_page?(posts_path) ? 'is-active' : ''}" do %>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span>Home</span>
+    <% end %>
 
-      default:
-        return `
-          <button class="fb-search-action-btn fb-search-btn-add"
-                  onclick="searchAddFriend(${u.id}, this)"
-                  title="Add friend">
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/>
-            </svg>
-            Add Friend
-          </button>`;
-    }
-  }
+    <%= link_to reels_path, class: "premium-mobile-nav__item #{current_page?(reels_path) ? 'is-active' : ''}" do %>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path d="M10 8l6 4-6 4V8z" fill="currentColor"/>
+      </svg>
+      <span>Reels</span>
+    <% end %>
 
-  function showSearchLoading() {
-    const inner = document.getElementById('searchDropdownInner');
-    if (!inner) return;
-    inner.innerHTML = `
-      <div class="fb-search-loading">
-        <div class="fb-search-spinner"></div>
-        <span>Searching...</span>
-      </div>`;
-    openDropdown(document.getElementById('headerSearchInput') || document.getElementById('mobileSearchInput'));
-  }
+    <%= link_to groups_path, class: "premium-mobile-nav__item #{current_page?(groups_path) ? 'is-active' : ''}" do %>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span>Groups</span>
+    <% end %>
 
-  function renderSearchError() {
-    const inner = document.getElementById('searchDropdownInner');
-    if (inner) inner.innerHTML = `<div class="fb-search-empty"><p>Something went wrong. Try again.</p></div>`;
-  }
+    <%= link_to events_path, class: "premium-mobile-nav__item #{current_page?(events_path) ? 'is-active' : ''}" do %>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+        <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span>Events</span>
+    <% end %>
 
-  function openDropdown(inputEl) {
-    const isMobile = window.innerWidth <= 767;
-    if (isMobile) {
-      // On mobile, results are already inside the mobile bar — just make sure bar is open
-      const bar = document.getElementById('mobileSearchBar');
-      if (bar) bar.classList.add('show');
-    } else {
-      const dropdown = document.getElementById('searchDropdown');
-      if (dropdown) {
-        dropdown.classList.add('show');
-        if (inputEl) inputEl.setAttribute('aria-expanded', 'true');
-      }
-    }
-  }
+    <%= link_to explore_path, class: "premium-mobile-nav__item #{current_page?(explore_path) ? 'is-active' : ''}" do %>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+        <path d="M8 14l9-5-5 9-1-4-3-0z" fill="currentColor"/>
+      </svg>
+      <span>Explore</span>
+    <% end %>
 
-  function closeSearch() {
-    const dropdown = document.getElementById('searchDropdown');
-    if (dropdown) dropdown.classList.remove('show');
-    const input = document.getElementById('headerSearchInput');
-    if (input) input.setAttribute('aria-expanded', 'false');
-  }
+    <%= link_to conversations_path, class: 'premium-mobile-nav__item' do %>
+      <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+        <path d="M10 2C5.313 2 1.5 5.438 1.5 9.688c0 2.414 1.203 4.562 3.094 5.969V19l3.594-1.969A9.458 9.458 0 0010 17.5c4.687 0 8.5-3.438 8.5-7.688S14.687 2 10 2z" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <span>Messages</span>
+      <% unread = current_user.total_unread_messages %>
+      <% if unread > 0 %>
+        <span class="premium-badge"><%= unread > 99 ? '99+' : unread %></span>
+      <% end %>
+    <% end %>
 
-  // ── Friend Actions from Search ─────────────────────────────────────────────
-  function searchAddFriend(userId, btn) {
-    btn.disabled = true;
-    btn.innerHTML = `<span class="fb-search-spinner-sm"></span> Sending...`;
+    <%= link_to bookmarks_path, class: 'premium-mobile-nav__item' do %>
+      <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+        <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" stroke="currentColor" stroke-width="1.5"/>
+      </svg>
+      <span>Saved Posts</span>
+    <% end %>
 
-    fetch('/friendships', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({ friend_id: userId })
-    })
-    .then(r => {
-      if (r.ok || r.status === 422) return r.json();
-      throw new Error('Request failed');
-    })
-    .then(() => {
-      btn.outerHTML = `
-        <button class="fb-search-action-btn fb-search-btn-pending" disabled>
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-          </svg>
-          Pending
-        </button>`;
-    })
-    .catch(() => {
-      btn.disabled = false;
-      btn.innerHTML = 'Add Friend';
-    });
-  }
+    <% if current_user.super_admin? %>
+      <div class="premium-mobile-nav__divider"></div>
+      <%= link_to admin_dashboard_path, class: 'premium-mobile-nav__item premium-mobile-nav__item--admin' do %>
+        <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 2L2 7v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-8-5z"/>
+        </svg>
+        <span>Admin Dashboard</span>
+      <% end %>
+    <% end %>
 
-  function searchAcceptRequest(friendshipId, userId, btn) {
-    btn.disabled = true;
-    btn.innerHTML = `<span class="fb-search-spinner-sm"></span>`;
+    <div class="premium-mobile-nav__divider"></div>
 
-    fetch(`/friendships/${friendshipId}/accept`, {
-      method: 'PATCH',
-      headers: {
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-        'Accept': 'application/json'
-      }
-    })
-    .then(r => {
-      if (r.ok) {
-        btn.outerHTML = `
-          <a href="/conversations" class="fb-search-action-btn fb-search-btn-message"
-             onclick="searchStartChat(${userId}, event)">
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M10 2.5c-4.687 0-8.5 3.439-8.5 7.688 0 2.414 1.203 4.562 3.094 5.969V19.5l3.594-1.969c.938.25 1.938.406 2.969.406 4.687 0 8.5-3.438 8.5-7.688S14.687 2.5 10 2.5z"/>
-            </svg>
-            Message
-          </a>`;
-      }
-    })
-    .catch(() => {
-      btn.disabled = false;
-      btn.innerHTML = 'Accept';
-    });
-  }
-
-  function searchStartChat(userId, e) {
-    e.preventDefault();
-    fetch('/conversations', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-        'Accept': 'application/json'
-      },
-      body: JSON.stringify({ recipient_id: userId })
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.conversation_id) window.location.href = `/conversations/${data.conversation_id}`;
-    });
-  }
-
-  // ── Helpers ────────────────────────────────────────────────────────────────
-  function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  // ── Header Height CSS Variable (for messenger layout positioning) ──────────
-  function setHeaderHeight() {
-    var header = document.querySelector('.fb-header');
-    if (header) {
-      var h = header.getBoundingClientRect().height;
-      document.documentElement.style.setProperty('--header-height', h + 'px');
-    }
-  }
-
-  // Set on load and on resize
-  setHeaderHeight();
-  window.addEventListener('resize', setHeaderHeight);
-
-  // Init on DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      initHeaderSearch();
-      setHeaderHeight();
-    });
-  } else {
-    initHeaderSearch();
-  }
-</script>
+    <%= button_to destroy_user_session_path, method: :delete, class: 'premium-mobile-nav__item premium-mobile-nav__item--logout' do %>
+      <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+        <path d="M10.5 3.5h-7v13h7v1.5h-7c-.828 0-1.5-.672-1.5-1.5v-13c0-.828.672-1.5 1.5-1.5h7v1.5zm4.5 6.5l-3.5-3.5v2.5h-6v2h6v2.5l3.5-3.5z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span>Log out</span>
+    <% end %>
+  </nav>
+</div>
