@@ -6,13 +6,24 @@ class LikesController < ApplicationController
     @like.reaction_type = params[:reaction_type] || 'like'
     
     if @like.save
+      @post.reload # Reload to get updated counter_cache
       respond_to do |format|
         format.html { redirect_back(fallback_location: posts_path) }
         format.turbo_stream
-        format.json { render json: { success: true, reaction: @like.reaction_type } }
+        format.json do
+          render json: {
+            success: true,
+            reaction: @like.reaction_type,
+            likes_count: @post.likes_count,
+            reaction_counts: @post.reaction_counts
+          }
+        end
       end
     else
-      redirect_back(fallback_location: posts_path, alert: 'Could not react to post.')
+      respond_to do |format|
+        format.html { redirect_back(fallback_location: posts_path, alert: 'Could not react to post.') }
+        format.json { render json: { success: false, errors: @like.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -20,13 +31,23 @@ class LikesController < ApplicationController
     @like = @post.likes.find_by(user: current_user)
     
     if @like&.destroy
+      @post.reload # Reload to get updated counter_cache
       respond_to do |format|
         format.html { redirect_back(fallback_location: posts_path) }
         format.turbo_stream
-        format.json { render json: { success: true } }
+        format.json do
+          render json: {
+            success: true,
+            likes_count: @post.likes_count,
+            reaction_counts: @post.reaction_counts
+          }
+        end
       end
     else
-      redirect_back(fallback_location: posts_path, alert: 'Could not remove reaction.')
+      respond_to do |format|
+        format.html { redirect_back(fallback_location: posts_path, alert: 'Could not remove reaction.') }
+        format.json { render json: { success: false }, status: :unprocessable_entity }
+      end
     end
   end
 

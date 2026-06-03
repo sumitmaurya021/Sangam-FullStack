@@ -1,0 +1,6 @@
+<%= turbo_stream.prepend "posts-feed", partial: "posts/post_card", locals: { post: @post } %>
+<%= turbo_stream.replace "create-post-form-wrapper" do %>
+  <div class="create-post-card" id="create-post-form-wrapper">
+    <%= render "posts/create_post_form", post: Post.new %>
+  </div>
+<% end %>

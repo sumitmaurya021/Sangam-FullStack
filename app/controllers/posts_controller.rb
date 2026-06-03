@@ -36,6 +36,16 @@ class PostsController < ApplicationController
 
   def show
     @comments = @post.comments.top_level.includes(:user, :replies => :user).recent
+
+    # Stimulus cancel button fetches /posts/:id via XHR and extracts the card
+    if request.xhr?
+      render partial: "posts/post_card", locals: { post: @post }
+    else
+      respond_to do |format|
+        format.html
+        format.json { render json: { success: true } }
+      end
+    end
   end
 
   def create
@@ -47,17 +57,36 @@ class PostsController < ApplicationController
         format.turbo_stream
       end
     else
-      @posts = Post.visible_to(current_user)
-                   .includes(:user, :likes, :comments, :shares)
-                   .order(created_at: :desc)
-                   .page(1)
-                   .per(POSTS_PER_PAGE)
-      @users = User.where.not(id: current_user.id).limit(10)
-      render :index, status: :unprocessable_entity
+      respond_to do |format|
+        format.html do
+          @posts = Post.visible_to(current_user)
+                       .includes(:user, :likes, :comments, :shares)
+                       .order(created_at: :desc)
+                       .page(1)
+                       .per(POSTS_PER_PAGE)
+          @users = User.where.not(id: current_user.id).limit(10)
+          render :index, status: :unprocessable_entity
+        end
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "create-post-form-wrapper",
+            partial: "posts/create_post_form",
+            locals:  { post: @post }
+          ), status: :unprocessable_entity
+        end
+      end
     end
   end
 
-  def edit; end
+  def edit
+    # XHR requests (from Stimulus inline-edit) get the partial directly
+    if request.xhr?
+      render partial: "posts/inline_edit_form", locals: { post: @post }
+    else
+      # Normal browser navigation: render the standalone edit page
+      render :edit
+    end
+  end
 
   def update
     if @post.update(post_params.merge(edited_at: Time.current))
@@ -67,7 +96,16 @@ class PostsController < ApplicationController
         format.json { render json: { success: true } }
       end
     else
-      render :edit, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render :edit, status: :unprocessable_entity }
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "post-#{@post.id}",
+            partial: "posts/inline_edit_form",
+            locals:  { post: @post }
+          ), status: :unprocessable_entity
+        end
+      end
     end
   end
 
