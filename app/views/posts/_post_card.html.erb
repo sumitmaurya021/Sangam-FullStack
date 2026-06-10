@@ -71,7 +71,7 @@
 
   <!-- Post Content -->
   <div class="post-content">
-    <p><%= simple_format(post.content) %></p>
+    <%= simple_format(post.content) %>
     
     <!-- Multiple Images Grid -->
     <% if post.images.attached? && post.images.any? %>

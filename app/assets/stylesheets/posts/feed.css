@@ -24,6 +24,9 @@
 /* Main Feed Column */
 .feed-main {
   min-width: 0;
+  max-width: 680px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 /* ==================== SIDEBARS ==================== */
@@ -366,8 +369,37 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
   padding-top: 16px;
   border-top: 1px solid rgba(102, 126, 234, 0.08);
+}
+
+.post-visibility-wrapper {
+  flex-shrink: 0;
+}
+
+.visibility-select {
+  padding: 8px 12px;
+  border: 1.5px solid #e4e6eb;
+  border-radius: 12px;
+  background: #f0f2f5;
+  font-size: 13px;
+  font-weight: 600;
+  color: #536471;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.visibility-select:hover {
+  background: #e4e6eb;
+}
+
+.visibility-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.08);
 }
 
 .post-options {
@@ -534,7 +566,11 @@
 .posts-feed {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
+}
+
+.posts-feed .post-card {
+  margin-bottom: 0;
 }
 
 /* Loading Spinner */
@@ -680,16 +716,13 @@
 
 /* Dark Mode Support (Optional) */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --feed-bg: #0f1419;
-    --glass-card: #1a2028;
-    --text-primary: #e7e9ea;
-    --text-secondary: #a8b2c0;
-    --text-tertiary: #536471;
+  .feed-container {
+    background: #f8f9ff;
   }
-  
+
   .sidebar-section,
   .create-post-card {
+    background: #ffffff;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
 }
