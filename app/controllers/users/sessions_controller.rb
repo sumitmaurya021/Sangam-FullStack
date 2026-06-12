@@ -1,27 +1,21 @@
-# frozen_string_literal: true
-
 class Users::SessionsController < Devise::SessionsController
-  # before_action :configure_sign_in_params, only: [:create]
+  # Override sign-in to intercept users with 2FA enabled.
+  # Devise authenticates credentials normally, but we halt before establishing
+  # the session and redirect to the OTP verification page instead.
+  def create
+    self.resource = warden.authenticate!(auth_options)
 
-  # GET /resource/sign_in
-  # def new
-  #   super
-  # end
-
-  # POST /resource/sign_in
-  # def create
-  #   super
-  # end
-
-  # DELETE /resource/sign_out
-  # def destroy
-  #   super
-  # end
-
-  # protected
-
-  # If you have extra params to permit, append them to the sanitizer.
-  # def configure_sign_in_params
-  #   devise_parameter_sanitizer.permit(:sign_in, keys: [:attribute])
-  # end
+    if resource.otp_enabled?
+      # Stash user id in session and redirect to OTP page — do NOT sign in yet
+      warden.logout
+      session[:pending_2fa_user_id] = resource.id
+      redirect_to verify_two_factor_auth_path
+    else
+      # Normal login (no 2FA)
+      set_flash_message!(:notice, :signed_in)
+      sign_in(resource_name, resource)
+      yield resource if block_given?
+      respond_with resource, location: after_sign_in_path_for(resource)
+    end
+  end
 end

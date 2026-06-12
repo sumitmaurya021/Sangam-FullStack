@@ -163,6 +163,15 @@
           </div>
           <span>Saved Posts</span>
         <% end %>
+
+        <%= link_to group_chats_path, class: 'premium-dropdown__item' do %>
+          <div class="premium-dropdown__icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M9 9a3 3 0 116 0 3 3 0 01-6 0zM3 9a3 3 0 116 0 3 3 0 01-6 0zM9 17a6 6 0 0112 0H9zm-6 0a6 6 0 0112 0H3z"/>
+            </svg>
+          </div>
+          <span>Group Chats</span>
+        <% end %>
         
         <% if current_user.super_admin? %>
           <div class="premium-dropdown__divider"></div>

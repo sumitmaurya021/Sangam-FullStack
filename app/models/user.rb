@@ -3,7 +3,8 @@ class User < ApplicationRecord
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable,
-         :lockable
+         :lockable,
+         :omniauthable, omniauth_providers: %i[google_oauth2 github]
 
   # Active Storage Attachments
   has_one_attached :avatar
@@ -16,7 +17,10 @@ class User < ApplicationRecord
   has_many :reel_comments, dependent: :destroy
   has_many :stories, dependent: :destroy
   has_many :bookmarks, dependent: :destroy
-  has_many :bookmarked_posts, through: :bookmarks, source: :post
+  has_many :bookmarked_posts, -> { where(bookmarks: { bookmarkable_type: 'Post' }) },
+           through: :bookmarks, source: :bookmarkable, source_type: 'Post'
+  has_many :bookmarked_reels, -> { where(bookmarks: { bookmarkable_type: 'Reel' }) },
+           through: :bookmarks, source: :bookmarkable, source_type: 'Reel'
   has_many :events, foreign_key: :organizer_id, dependent: :destroy, class_name: 'Event'
   has_many :event_responses, dependent: :destroy
   has_many :group_memberships, dependent: :destroy
@@ -26,6 +30,12 @@ class User < ApplicationRecord
   has_many :sent_conversations, class_name: 'Conversation', foreign_key: 'sender_id', dependent: :destroy
   has_many :received_conversations, class_name: 'Conversation', foreign_key: 'recipient_id', dependent: :destroy
   has_many :messages, dependent: :destroy
+
+  # Group chat associations
+  has_many :owned_group_chats,   class_name: 'GroupChat', foreign_key: 'owner_id', dependent: :destroy
+  has_many :group_chat_members,  dependent: :destroy
+  has_many :group_chats,         through: :group_chat_members
+  has_many :group_chat_messages, dependent: :destroy
   has_many :likes, dependent: :destroy
   has_many :liked_posts, through: :likes, source: :post
   has_many :comments, dependent: :destroy
@@ -42,6 +52,12 @@ class User < ApplicationRecord
   has_many :inverse_friends, -> { where(friendships: { status: 'accepted' }) }, through: :inverse_friendships, source: :user
   has_many :pending_friend_requests, -> { where(status: 'pending') }, class_name: 'Friendship', foreign_key: 'friend_id'
   has_many :sent_friend_requests, -> { where(status: 'pending') }, class_name: 'Friendship', foreign_key: 'user_id'
+
+  # Follows (Instagram-style one-way)
+  has_many :active_follows,  class_name: 'Follow', foreign_key: 'follower_id', dependent: :destroy
+  has_many :passive_follows, class_name: 'Follow', foreign_key: 'followee_id', dependent: :destroy
+  has_many :following, through: :active_follows,  source: :followee
+  has_many :followers, through: :passive_follows, source: :follower
 
   # Validations
   validates :name, presence: true, length: { maximum: 100 }
@@ -65,6 +81,18 @@ class User < ApplicationRecord
   def friend_request_pending?(user)
     sent_friend_requests.exists?(friend_id: user.id) || 
     pending_friend_requests.exists?(user_id: user.id)
+  end
+
+  def follow!(other_user)
+    active_follows.find_or_create_by!(followee: other_user)
+  end
+
+  def unfollow!(other_user)
+    active_follows.find_by(followee: other_user)&.destroy
+  end
+
+  def following?(other_user)
+    active_follows.exists?(followee_id: other_user.id)
   end
 
   def liked?(post)
@@ -93,5 +121,51 @@ class User < ApplicationRecord
 
   def online_status
     online? ? 'online' : (last_seen_at ? "Last seen #{ActionController::Base.helpers.time_ago_in_words(last_seen_at)} ago" : 'Offline')
+  end
+
+  # ─── 2FA helpers ──────────────────────────────────────────────────────────
+  def two_factor_enabled?
+    otp_enabled? && otp_secret.present?
+  end
+
+  def valid_otp?(code)
+    return false unless two_factor_enabled?
+    ROTP::TOTP.new(otp_secret, issuer: 'Sangam')
+              .verify(code.to_s.strip.gsub(/\s/, ''), drift_behind: 30)
+  end
+
+  # ─── OAuth ────────────────────────────────────────────────────────────────
+  # Find or create a user from an OmniAuth hash (Google / GitHub).
+  # Rules:
+  #   1. If a user with the same provider+uid already exists → return it.
+  #   2. If a user with the same email exists → link the provider to that account.
+  #   3. Otherwise → create a brand-new user (no password required for OAuth accounts).
+  def self.from_omniauth(auth)
+    # 1. Existing OAuth link
+    user = find_by(provider: auth.provider, uid: auth.uid.to_s)
+    return user if user
+
+    # 2. Email-based lookup (link accounts)
+    email = auth.info.email.to_s.downcase.strip
+    user  = find_by(email: email) if email.present?
+
+    if user
+      # Link provider to existing account
+      user.update_columns(provider: auth.provider, uid: auth.uid.to_s)
+      return user
+    end
+
+    # 3. Create new user
+    user = new(
+      provider:  auth.provider,
+      uid:       auth.uid.to_s,
+      email:     email,
+      name:      auth.info.name.presence || auth.info.nickname.presence || email.split('@').first,
+      password:  Devise.friendly_token(40),   # random, user never needs to know it
+      confirmed_at: Time.current              # skip email confirmation for OAuth users
+    )
+    user.skip_confirmation! if user.respond_to?(:skip_confirmation!)
+    user.save
+    user
   end
 end

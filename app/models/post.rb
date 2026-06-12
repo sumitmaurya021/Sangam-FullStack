@@ -7,19 +7,22 @@ class Post < ApplicationRecord
   has_many :likers, through: :likes, source: :user
   has_many :comments, dependent: :destroy
   has_many :shares, dependent: :destroy
-  has_many :bookmarks, dependent: :destroy
+  has_many :bookmarks, as: :bookmarkable, dependent: :destroy
   has_many :bookmarked_by, through: :bookmarks, source: :user
   has_many :post_hashtags, dependent: :destroy
   has_many :hashtags, through: :post_hashtags
   has_many :post_mentions, dependent: :destroy
   has_many :mentioned_users, through: :post_mentions, source: :user
+  has_one  :poll, dependent: :destroy
+  accepts_nested_attributes_for :poll, reject_if: :poll_blank?, allow_destroy: false
 
   VISIBILITY_OPTIONS = %w[public friends private].freeze
 
-  validates :content, presence: true, length: { maximum: 5000 }
-  validates :user, presence: true
+  validates :content,    length: { maximum: 5000 }, allow_blank: true
+  validates :user,       presence: true
   validates :visibility, inclusion: { in: VISIBILITY_OPTIONS }
-  validate :acceptable_images
+  validate  :content_or_poll_present
+  validate  :acceptable_images
 
   scope :recent, -> { order(created_at: :desc) }
   scope :public_posts,   -> { where(visibility: 'public') }
@@ -92,7 +95,29 @@ class Post < ApplicationRecord
     edited_at.present?
   end
 
+  def has_poll?
+    poll.present?
+  end
+
   private
+
+  # Poll is blank if question and all options are empty
+  def poll_blank?(attrs)
+    attrs['question'].blank? &&
+      Array(attrs['poll_options_attributes']).all? { |o| o['body'].blank? }
+  end
+
+  def content_or_poll_present
+    return if content.present?
+    return if poll.present? || (poll_attributes_present?)
+    errors.add(:content, "can't be blank unless you add a poll")
+  end
+
+  def poll_attributes_present?
+    # During nested attributes build, check if poll will be built
+    poll_changed = changes.key?(:id) # new record
+    return false
+  end
 
   def process_hashtags
     return unless saved_change_to_content?

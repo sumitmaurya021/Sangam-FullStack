@@ -4,9 +4,11 @@ class Reel < ApplicationRecord
   has_one_attached :thumbnail
   has_one_attached :music_file
 
-  has_many :reel_likes, dependent: :destroy
-  has_many :likers, through: :reel_likes, source: :user
+  has_many :reel_likes,    dependent: :destroy
+  has_many :likers,        through: :reel_likes, source: :user
   has_many :reel_comments, dependent: :destroy
+  has_many :bookmarks,     as: :bookmarkable, dependent: :destroy
+  has_many :bookmarked_by, through: :bookmarks, source: :user
 
   validates :user, presence: true
   validate :acceptable_video
@@ -27,6 +29,10 @@ class Reel < ApplicationRecord
 
   def liked_by?(user)
     reel_likes.exists?(user_id: user.id)
+  end
+
+  def bookmarked_by?(user)
+    bookmarks.exists?(user_id: user.id)
   end
 
   def increment_views!

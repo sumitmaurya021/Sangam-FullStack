@@ -1,0 +1,55 @@
+<%# Shown after successful password login when 2FA is enabled.
+    No shared header — keep this page minimal for security. %>
+
+<div class="tfa-page tfa-page--login">
+  <div class="tfa-card tfa-card--centered">
+
+    <div class="tfa-card__header">
+      <div class="tfa-icon tfa-icon--lock">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <h1 class="tfa-card__title">Two-Factor Authentication</h1>
+      <p class="tfa-card__subtitle">
+        Enter the 6-digit code from your authenticator app, or use a backup code.
+      </p>
+    </div>
+
+    <% if flash[:alert].present? %>
+      <div class="tfa-alert tfa-alert--error" role="alert">
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
+
+    <%= form_with url: confirm_two_factor_auth_path, method: :post,
+                  html: { class: 'tfa-form', autocomplete: 'off' } do |f| %>
+      <div class="tfa-otp-group tfa-otp-group--centered">
+        <%= f.text_field :otp_code,
+              placeholder: '000 000',
+              class: 'tfa-otp-input tfa-otp-input--large',
+              maxlength: 9,
+              inputmode: 'numeric',
+              autofocus: true,
+              required: true,
+              aria: { label: 'Authentication code' } %>
+        <%= f.submit 'Verify',
+              class: 'tfa-btn tfa-btn--primary tfa-btn--full' %>
+      </div>
+    <% end %>
+
+    <div class="tfa-card__footer tfa-card__footer--center">
+      <p class="tfa-hint">
+        Lost your device?
+        <%= link_to 'Use a backup code', '#',
+              class: 'tfa-link',
+              onclick: "document.querySelector('.tfa-otp-input').placeholder='XXXX-XXXX'; return false;" %>
+      </p>
+      <%= link_to '← Back to sign in', new_user_session_path, class: 'tfa-back-link' %>
+    </div>
+
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'two_factor_auth', 'data-turbo-track': 'reload' %>

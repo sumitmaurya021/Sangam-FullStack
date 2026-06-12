@@ -1,0 +1,216 @@
+<% content_for :title, "Group Chats – Sangam" %>
+<% content_for :head do %>
+  <meta name="turbo-visit-control" content="reload">
+  <meta name="turbo-cache-control" content="no-cache">
+<% end %>
+
+<%= render 'shared/header' %>
+
+<div class="messenger-layout" id="messengerLayout">
+  <!-- Sidebar -->
+  <div class="messenger-sidebar" id="messengerSidebar">
+    <div class="messenger-sidebar-header">
+      <h1 class="messenger-title">Group Chats</h1>
+      <button class="messenger-icon-btn" id="newGroupBtn" title="New Group Chat"
+              onclick="document.getElementById('newGroupModal').style.display='flex'">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M9 9a3 3 0 116 0 3 3 0 01-6 0zM3 9a3 3 0 116 0 3 3 0 01-6 0zM9 17a6 6 0 0112 0H9zm-6 0a6 6 0 0112 0H3z"/>
+          <path d="M16 6a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V6z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Tab switcher: DMs | Groups -->
+    <div class="gc-tab-bar">
+      <%= link_to conversations_path, class: 'gc-tab' do %>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 2C5.313 2 1.5 5.438 1.5 9.688c0 2.414 1.203 4.562 3.094 5.969V19l3.594-1.969A9.458 9.458 0 0010 17.5c4.687 0 8.5-3.438 8.5-7.688S14.687 2 10 2z"/>
+        </svg>
+        Direct
+      <% end %>
+      <span class="gc-tab gc-tab--active">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M9 9a3 3 0 116 0 3 3 0 01-6 0zM3 9a3 3 0 116 0 3 3 0 01-6 0zM9 17a6 6 0 0112 0H9zm-6 0a6 6 0 0112 0H3z"/>
+        </svg>
+        Groups
+      </span>
+    </div>
+
+    <!-- Groups list -->
+    <div class="messenger-conversations-list">
+      <% if @group_chats.empty? %>
+        <div class="messenger-empty-state">
+          <div class="messenger-empty-icon">👥</div>
+          <p>No group chats yet</p>
+          <p class="messenger-empty-sub">Create one to chat with multiple friends!</p>
+        </div>
+      <% else %>
+        <% @group_chats.each do |gc| %>
+          <% last_msg = gc.last_message %>
+          <%= link_to group_chat_path(gc),
+                class: 'messenger-conversation-item',
+                data: { turbo: false } do %>
+            <div class="messenger-avatar-wrapper">
+              <% if gc.avatar.attached? %>
+                <%= image_tag url_for(gc.avatar), class: 'messenger-avatar', alt: gc.name %>
+              <% else %>
+                <div class="messenger-avatar-placeholder gc-avatar-placeholder">
+                  <%= gc.name&.first&.upcase || 'G' %>
+                </div>
+              <% end %>
+            </div>
+            <div class="messenger-conversation-info">
+              <div class="messenger-conversation-top">
+                <span class="messenger-conversation-name"><%= gc.name %></span>
+                <span class="messenger-conversation-time">
+                  <%= last_msg ? time_ago_in_words(last_msg.created_at) : '' %>
+                </span>
+              </div>
+              <div class="messenger-conversation-bottom">
+                <span class="messenger-last-message">
+                  <% if last_msg %>
+                    <% if last_msg.deleted %>
+                      <em>Message deleted</em>
+                    <% elsif last_msg.message_type != 'text' %>
+                      📎 <%= last_msg.message_type.capitalize %>
+                    <% else %>
+                      <strong><%= last_msg.user.name.split(' ').first %>:</strong>
+                      <%= truncate(last_msg.body, length: 28) %>
+                    <% end %>
+                  <% else %>
+                    <%= gc.members_count %> member<%= gc.members_count == 1 ? '' : 's' %>
+                  <% end %>
+                </span>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Welcome panel -->
+  <div class="messenger-main messenger-welcome">
+    <div class="messenger-welcome-content">
+      <div class="messenger-welcome-icon">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+          <circle cx="40" cy="40" r="40" fill="#f0f2f5"/>
+          <path d="M52 28H28a4 4 0 00-4 4v16a4 4 0 004 4h4v6l6-6h14a4 4 0 004-4V32a4 4 0 00-4-4z" fill="#0084ff" opacity=".2" stroke="#0084ff" stroke-width="2"/>
+          <circle cx="34" cy="40" r="2" fill="#0084ff"/>
+          <circle cx="40" cy="40" r="2" fill="#0084ff"/>
+          <circle cx="46" cy="40" r="2" fill="#0084ff"/>
+        </svg>
+      </div>
+      <h2>Group Chats</h2>
+      <p>Chat with multiple friends at once</p>
+      <button class="btn-start-chat"
+              onclick="document.getElementById('newGroupModal').style.display='flex'">
+        Create a group
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- New Group Modal -->
+<div class="messenger-modal-overlay" id="newGroupModal" style="display:none;"
+     onclick="if(event.target===this)this.style.display='none'">
+  <div class="messenger-modal gc-create-modal">
+    <div class="messenger-modal-header">
+      <h3>New Group Chat</h3>
+      <button class="messenger-modal-close" onclick="document.getElementById('newGroupModal').style.display='none'">✕</button>
+    </div>
+
+    <%= form_with url: group_chats_path, method: :post, html: { id: 'newGroupForm' } do |f| %>
+      <div class="gc-create-body">
+        <!-- Name -->
+        <div class="gc-field">
+          <label class="gc-field-label">Group name *</label>
+          <%= f.text_field :name, placeholder: 'e.g. Weekend Plans',
+                class: 'gc-field-input', required: true, maxlength: 100 %>
+        </div>
+
+        <!-- Description -->
+        <div class="gc-field">
+          <label class="gc-field-label">Description (optional)</label>
+          <%= f.text_area :description, placeholder: 'What is this group about?',
+                class: 'gc-field-input gc-field-textarea', maxlength: 500, rows: 2 %>
+        </div>
+
+        <!-- Member search -->
+        <div class="gc-field">
+          <label class="gc-field-label">Add members</label>
+          <input type="text" id="gcMemberSearch" class="gc-field-input"
+                 placeholder="Search friends by name..." autocomplete="off">
+          <div id="gcMemberResults" class="gc-member-results"></div>
+          <div id="gcSelectedMembers" class="gc-selected-chips"></div>
+          <div id="gcMemberIdInputs"></div>
+        </div>
+
+        <div class="gc-create-footer">
+          <button type="button" class="messenger-modal-close-btn"
+                  onclick="document.getElementById('newGroupModal').style.display='none'">Cancel</button>
+          <%= f.submit 'Create Group', class: 'gc-create-submit-btn' %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  // Member search for new group creation
+  (function() {
+    const input     = document.getElementById('gcMemberSearch');
+    const results   = document.getElementById('gcMemberResults');
+    const chips     = document.getElementById('gcSelectedMembers');
+    const hiddenDiv = document.getElementById('gcMemberIdInputs');
+    const selected  = new Map();
+    let timer;
+
+    if (!input) return;
+
+    input.addEventListener('input', function() {
+      clearTimeout(timer);
+      const q = this.value.trim();
+      if (q.length < 2) { results.innerHTML = ''; return; }
+      timer = setTimeout(() => fetchFriends(q), 280);
+    });
+
+    async function fetchFriends(q) {
+      const res  = await fetch(`/profiles/search?q=${encodeURIComponent(q)}`,
+                               { headers: { 'Accept': 'application/json' } });
+      const data = await res.json();
+      results.innerHTML = data.slice(0, 8).map(u => `
+        <div class="gc-member-item" onclick="selectMember(${u.id}, '${u.name.replace(/'/g,"\\'")}')">
+          <div class="gc-member-avatar">${u.name[0].toUpperCase()}</div>
+          <span>${u.name}</span>
+        </div>`).join('');
+    }
+
+    window.selectMember = function(id, name) {
+      if (selected.has(id)) return;
+      selected.set(id, name);
+      results.innerHTML = '';
+      input.value = '';
+
+      // Add chip
+      const chip = document.createElement('span');
+      chip.className = 'gc-chip';
+      chip.innerHTML = `${name} <button type="button" onclick="removeMember(${id}, this.parentNode)">×</button>`;
+      chips.appendChild(chip);
+
+      // Add hidden input
+      const inp = document.createElement('input');
+      inp.type = 'hidden'; inp.name = 'member_ids[]'; inp.value = id; inp.id = `mid_${id}`;
+      hiddenDiv.appendChild(inp);
+    };
+
+    window.removeMember = function(id, chip) {
+      selected.delete(id);
+      chip.remove();
+      document.getElementById(`mid_${id}`)?.remove();
+    };
+  })();
+</script>
+
+<%= stylesheet_link_tag 'chat/messenger', 'data-turbo-track': 'reload' %>
+<%= stylesheet_link_tag 'chat/group_chat', 'data-turbo-track': 'reload' %>

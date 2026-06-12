@@ -114,6 +114,35 @@ function showCurrentStory() {
     txt.style.background = story.background_color || '#1a1a2e';
     txt.style.color      = story.text_color || '#fff';
     txt.textContent      = story.caption || '';
+  } else if (story.story_type === 'shared_post' && story.shared_post) {
+    // Render shared post card inline
+    const sp = story.shared_post;
+    txt.style.display    = 'flex';
+    txt.style.flexDirection = 'column';
+    txt.style.alignItems = 'flex-start';
+    txt.style.padding    = '24px';
+    txt.style.background = story.background_color || '#1a1a2e';
+    txt.style.color      = story.text_color || '#fff';
+    txt.style.fontSize   = '14px';
+    txt.style.fontWeight = '400';
+    txt.style.textAlign  = 'left';
+
+    const authorAvatar = sp.author.avatar
+      ? `<img src="${sp.author.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+      : `<span style="font-weight:700;">${(sp.author.name || '?')[0].toUpperCase()}</span>`;
+
+    txt.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);
+                    display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+          ${authorAvatar}
+        </div>
+        <span style="font-weight:700;font-size:14px;">${escHtml(sp.author.name)}</span>
+      </div>
+      ${sp.content ? `<p style="margin:0 0 12px;line-height:1.5;opacity:.92;">${escHtml(sp.content)}</p>` : ''}
+      ${sp.image_url ? `<img src="${sp.image_url}" style="width:100%;border-radius:12px;object-fit:cover;max-height:220px;">` : ''}
+      ${story.caption ? `<p style="margin-top:12px;font-style:italic;opacity:.8;">"${escHtml(story.caption)}"</p>` : ''}
+    `;
   } else if (story.media_url) {
     img.src = story.media_url;
     img.style.display = 'block';
@@ -302,3 +331,21 @@ function timeAgo(isoStr) {
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
   return `${Math.floor(seconds / 3600)}h ago`;
 }
+
+// ── Share-to-Story Modal ────────────────────────────────────
+// The modal is rendered inline in the post card partial.
+// openStsModal() just makes the already-present overlay visible.
+window.openStsModal = function(postId) {
+  const overlay = document.getElementById(`sts-overlay-${postId}`);
+  if (!overlay) return;
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeStsModal = function(postId) {
+  const overlay = document.getElementById(`sts-overlay-${postId}`);
+  if (overlay) {
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+};

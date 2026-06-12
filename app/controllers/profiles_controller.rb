@@ -2,13 +2,23 @@ class ProfilesController < ApplicationController
   before_action :set_user, except: [:friends_list, :search]
 
   def show
-    @posts = @user.posts.includes(:likes, :comments, :shares).order(created_at: :desc)
-    @friends_count = @user.all_friends.count
-    @posts_count = @user.posts.count
+    @posts           = @user.posts.includes(:likes, :comments, :shares).order(created_at: :desc)
+    @friends_count   = @user.all_friends.count
+    @posts_count     = @user.posts.count
+    @followers_count = @user.followers_count
+    @following_count = @user.following_count
   end
 
   def friends
     @friends = @user.all_friends
+  end
+
+  def following
+    @following = @user.following.order('follows.created_at DESC').page(params[:page]).per(20)
+  end
+
+  def followers
+    @followers = @user.followers.order('follows.created_at DESC').page(params[:page]).per(20)
   end
 
   # JSON endpoint for chat new message modal

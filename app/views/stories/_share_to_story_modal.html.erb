@@ -1,0 +1,104 @@
+<%# Inline share-to-story modal. Hidden by default; openStsModal(id) shows it.
+    The turbo_frame_tag lets the POST response replace just this modal section. %>
+
+<%= turbo_frame_tag "share_to_story_modal_#{post.id}" do %>
+  <div class="sts-modal-overlay"
+       id="sts-overlay-<%= post.id %>"
+       style="display:none;"
+       onclick="closeStsModal(<%= post.id %>)">
+
+    <div class="sts-modal" onclick="event.stopPropagation()" role="dialog" aria-modal="true"
+         aria-labelledby="sts-title-<%= post.id %>">
+
+      <!-- Header -->
+      <div class="sts-modal__header">
+        <div class="sts-modal__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+        </div>
+        <h3 id="sts-title-<%= post.id %>" class="sts-modal__title">Share to Story</h3>
+        <button class="sts-modal__close" onclick="closeStsModal(<%= post.id %>)" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L10 11.414l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Post preview card -->
+      <div class="sts-preview">
+        <div class="sts-preview__card">
+          <div class="sts-preview__author">
+            <div class="sts-preview__avatar">
+              <% if post.user.avatar.attached? %>
+                <%= image_tag post.user.avatar, alt: post.user.name %>
+              <% else %>
+                <%= post.user.name&.first&.upcase || 'U' %>
+              <% end %>
+            </div>
+            <div>
+              <div class="sts-preview__name"><%= post.user.name %></div>
+              <div class="sts-preview__time"><%= time_ago_in_words(post.created_at) %> ago</div>
+            </div>
+          </div>
+
+          <% if post.content.present? %>
+            <p class="sts-preview__text"><%= post.content.truncate(120) %></p>
+          <% end %>
+
+          <% if post.images.any? %>
+            <div class="sts-preview__image">
+              <%= image_tag post.images.first, alt: "Post image" %>
+            </div>
+          <% elsif post.image.attached? %>
+            <div class="sts-preview__image">
+              <%= image_tag post.image, alt: "Post image" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <%= form_with url: share_to_story_post_path(post),
+                    method: :post,
+                    html: { class: 'sts-form' },
+                    data: { turbo_frame: "share_to_story_modal_#{post.id}" } do |f| %>
+
+        <div class="sts-form__caption-row">
+          <%= f.text_field :caption,
+                placeholder: 'Add a message to your story... (optional)',
+                class: 'sts-form__caption',
+                maxlength: 200 %>
+        </div>
+
+        <!-- Background colour picker -->
+        <div class="sts-form__bg-row">
+          <span class="sts-form__bg-label">Story background:</span>
+          <div class="sts-form__bg-swatches">
+            <% [['#1a1a2e','Dark'],['#667eea','Purple'],['#e74c3c','Red'],
+                ['#27ae60','Green'],['#f39c12','Orange'],['#0084ff','Blue'],
+                ['#2c3e50','Navy'],['#111111','Black']].each do |color, name| %>
+              <label class="sts-swatch" title="<%= name %>">
+                <%= f.radio_button :background_color, color,
+                      id: "bg_#{post.id}_#{color.tr('#','')}",
+                      class: 'sts-swatch__radio' %>
+                <span class="sts-swatch__dot" style="background:<%= color %>;"></span>
+              </label>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="sts-form__actions">
+          <button type="button" class="sts-btn sts-btn--cancel"
+                  onclick="closeStsModal(<%= post.id %>)">Cancel</button>
+          <%= f.submit 'Share to Story',
+                class: 'sts-btn sts-btn--share',
+                data: { disable_with: 'Sharing…' } %>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+<% end %>

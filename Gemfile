@@ -95,6 +95,11 @@ group :test do
   gem "shoulda-matchers", "~> 6.0"
 end
 gem "devise"
+gem "omniauth-google-oauth2", "~> 1.1"
+gem "omniauth-github",        "~> 2.0"
+gem "omniauth-rails_csrf_protection", "~> 1.0"
+gem "rotp",    "~> 6.3"   # TOTP 2FA (RFC 6238)
+gem "rqrcode", "~> 2.2"   # QR code generation for authenticator app setup
 gem 'dotenv-rails', groups: [:development, :test]
 gem 'rack-timeout'
 

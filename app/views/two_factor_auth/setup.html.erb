@@ -1,0 +1,83 @@
+<%= render 'shared/header' %>
+
+<div class="tfa-page">
+  <div class="tfa-card">
+
+    <!-- Header -->
+    <div class="tfa-card__header">
+      <div class="tfa-icon tfa-icon--shield">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-4"/>
+        </svg>
+      </div>
+      <h1 class="tfa-card__title">Set up Two-Factor Authentication</h1>
+      <p class="tfa-card__subtitle">
+        Protect your account with an authenticator app like Google Authenticator,
+        Authy, or 1Password.
+      </p>
+    </div>
+
+    <!-- Steps -->
+    <div class="tfa-steps">
+
+      <!-- Step 1: Scan QR -->
+      <div class="tfa-step">
+        <div class="tfa-step__num">1</div>
+        <div class="tfa-step__body">
+          <h3>Scan this QR code</h3>
+          <p>Open your authenticator app and scan the code below.</p>
+
+          <div class="tfa-qr-wrapper">
+            <%= raw @qr_svg %>
+          </div>
+
+          <details class="tfa-manual">
+            <summary>Can't scan? Enter the key manually</summary>
+            <code class="tfa-secret"><%= @provisional_secret %></code>
+            <p class="tfa-manual__hint">Type: Time-based &nbsp;·&nbsp; Digits: 6</p>
+          </details>
+        </div>
+      </div>
+
+      <!-- Step 2: Enter code -->
+      <div class="tfa-step">
+        <div class="tfa-step__num">2</div>
+        <div class="tfa-step__body">
+          <h3>Enter the 6-digit code to confirm</h3>
+          <p>Enter the code shown in your app to verify the setup.</p>
+
+          <%= form_with url: enable_two_factor_auth_path, method: :post,
+                        html: { class: 'tfa-form', autocomplete: 'off' } do |f| %>
+            <div class="tfa-otp-group">
+              <%= f.text_field :otp_code,
+                    placeholder: '000 000',
+                    class: 'tfa-otp-input',
+                    maxlength: 7,
+                    inputmode: 'numeric',
+                    pattern: '[0-9 ]{6,7}',
+                    autofocus: true,
+                    required: true,
+                    aria: { label: 'One-time code' } %>
+              <%= f.submit 'Enable 2FA',
+                    class: 'tfa-btn tfa-btn--primary' %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+    </div><!-- /.tfa-steps -->
+
+    <div class="tfa-card__footer">
+      <%= link_to edit_user_registration_path, class: 'tfa-back-link' do %>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd"/>
+        </svg>
+        Back to Settings
+      <% end %>
+    </div>
+
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'two_factor_auth', 'data-turbo-track': 'reload' %>

@@ -71,8 +71,13 @@
 
   <!-- Post Content -->
   <div class="post-content">
-    <%= simple_format(post.content) %>
+    <%= simple_format(post.content) if post.content.present? %>
     
+    <!-- Poll -->
+    <% if post.has_poll? %>
+      <%= render 'polls/poll', poll: post.poll %>
+    <% end %>
+
     <!-- Multiple Images Grid -->
     <% if post.images.attached? && post.images.any? %>
       <% total = post.total_images_count %>
@@ -159,6 +164,22 @@
       </svg>
       <span>Share</span>
     <% end %>
+
+    <%# Share to Story — modal rendered inline, opened by JS %>
+    <button class="action-btn action-btn--story"
+            onclick="openStsModal(<%= post.id %>)"
+            aria-label="Share to story"
+            title="Share to your story">
+      <svg class="action-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 8 12 12 14 14"/>
+        <path d="M12 2a10 10 0 010 20" stroke-dasharray="4 2"/>
+      </svg>
+      <span>Story</span>
+    </button>
+
+    <%# Inline modal — hidden until openStsModal() is called %>
+    <%= render 'stories/share_to_story_modal', post: post %>
 
     <button class="action-btn <%= post.bookmarked_by?(current_user) ? 'active' : '' %>"
             id="bookmark-btn-<%= post.id %>"

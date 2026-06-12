@@ -1,0 +1,29 @@
+<%# After submit Turbo Stream replaces the modal with this toast-style result %>
+<%= turbo_frame_tag "share_to_story_modal_#{post.id}" do %>
+  <div class="sts-result <%= success ? 'sts-result--ok' : 'sts-result--err' %>"
+       id="sts-result-<%= post.id %>"
+       data-post-id="<%= post.id %>">
+    <% if success %>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+    <% else %>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    <% end %>
+    <span><%= message %></span>
+  </div>
+
+  <script>
+    // Auto-dismiss result after 2.5 s and restore the original button
+    (function() {
+      var el = document.getElementById('sts-result-<%= post.id %>');
+      if (!el) return;
+      setTimeout(function() {
+        var frame = document.getElementById('share_to_story_modal_<%= post.id %>');
+        if (frame) frame.innerHTML = '';
+      }, 2500);
+    })();
+  </script>
+<% end %>

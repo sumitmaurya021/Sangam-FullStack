@@ -39,6 +39,14 @@
               <span class="stat-value"><%= @friends_count %></span>
               <span class="stat-label">Friends</span>
             </div>
+            <%= link_to profile_followers_path(@user), class: 'stat-item stat-item--link' do %>
+              <span class="stat-value" id="followers_count_<%= @user.id %>"><%= @followers_count %></span>
+              <span class="stat-label">Followers</span>
+            <% end %>
+            <%= link_to profile_following_path(@user), class: 'stat-item stat-item--link' do %>
+              <span class="stat-value"><%= @following_count %></span>
+              <span class="stat-label">Following</span>
+            <% end %>
           </div>
           
           <!-- Action Buttons -->
@@ -72,6 +80,11 @@
                 </svg>
                 Add Friend
               <% end %>
+            <% end %>
+
+            <%# Follow / Unfollow button (always visible for other users) %>
+            <% if @user != current_user %>
+              <%= render 'follows/button', user: @user %>
             <% end %>
             
             <%= link_to profile_friends_path(@user), class: 'btn-profile-action btn-secondary' do %>

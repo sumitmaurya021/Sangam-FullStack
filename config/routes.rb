@@ -1,24 +1,41 @@
 Rails.application.routes.draw do
   devise_for :users, controllers: {
-    sessions:      'users/sessions',
-    registrations: 'users/registrations',
-    passwords:     'users/passwords',
-    confirmations: 'users/confirmations',
-    unlocks:       'users/unlocks'
+    sessions:             'users/sessions',
+    registrations:        'users/registrations',
+    passwords:            'users/passwords',
+    confirmations:        'users/confirmations',
+    unlocks:              'users/unlocks',
+    omniauth_callbacks:   'users/omniauth_callbacks'
   }
   
+  # 2FA — setup, enable, disable (authenticated), verify/confirm (during login)
+  get    'two_factor_auth/setup',   to: 'two_factor_auth#setup',   as: 'setup_two_factor_auth'
+  post   'two_factor_auth/enable',  to: 'two_factor_auth#enable',  as: 'enable_two_factor_auth'
+  delete 'two_factor_auth/disable', to: 'two_factor_auth#disable', as: 'disable_two_factor_auth'
+  get    'two_factor_auth/verify',  to: 'two_factor_auth#verify',  as: 'verify_two_factor_auth'
+  post   'two_factor_auth/confirm', to: 'two_factor_auth#confirm', as: 'confirm_two_factor_auth'
+
   root to: "posts#index"
   
   # Posts — with edit/update + bookmark
   resources :posts, only: [:index, :show, :create, :edit, :update, :destroy] do
     member do
-      post   'like',      to: 'likes#create'
-      delete 'unlike',    to: 'likes#destroy'
-      post   'share',     to: 'shares#create'
-      post   'bookmark',  to: 'bookmarks#create'
-      delete 'unbookmark', to: 'bookmarks#destroy'
+      post   'like',               to: 'likes#create'
+      delete 'unlike',             to: 'likes#destroy'
+      post   'share',              to: 'shares#create'
+      post   'bookmark',           to: 'bookmarks#create'
+      delete 'unbookmark',         to: 'bookmarks#destroy'
+      post   'share_to_story',     to: 'stories#share_to_story'
+      get    'share_to_story_modal', to: 'stories#share_to_story_modal'
     end
     resources :comments, only: [:create, :destroy]
+  end
+
+  # Post Polls
+  resources :polls, only: [] do
+    member do
+      post :vote
+    end
   end
 
   # Bookmarks — saved posts page
@@ -37,11 +54,21 @@ Rails.application.routes.draw do
   # Reels
   resources :reels, only: [:index, :create, :destroy] do
     member do
-      post   'like',   to: 'reels#like'
-      delete 'unlike', to: 'reels#unlike'
-      post   'view',   to: 'reels#view'
+      post   'like',            to: 'reels#like'
+      delete 'unlike',          to: 'reels#unlike'
+      post   'view',            to: 'reels#view'
+      post   'bookmark_reel',   to: 'bookmarks#create'
+      delete 'unbookmark_reel', to: 'bookmarks#destroy'
     end
     resources :reel_comments, only: [:index, :create, :destroy]
+  end
+
+  # Follows (Instagram-style one-way)
+  resources :follows, only: [:create, :destroy], param: :followee_id do
+    collection do
+      get :following, to: 'follows#following_list'
+      get :followers, to: 'follows#followers_list'
+    end
   end
 
   # Profiles
@@ -49,6 +76,8 @@ Rails.application.routes.draw do
   get 'profiles/search',       to: 'profiles#search',       as: 'search_profiles'
   get 'profile/:id',           to: 'profiles#show',         as: 'profile'
   get 'profile/:id/friends',   to: 'profiles#friends',      as: 'profile_friends'
+  get 'profile/:id/following', to: 'profiles#following',    as: 'profile_following'
+  get 'profile/:id/followers', to: 'profiles#followers',    as: 'profile_followers'
   
   # Friendships
   resources :friendships, only: [:create, :destroy] do
@@ -88,6 +117,18 @@ Rails.application.routes.draw do
       get :messages
     end
     resources :messages, only: [:create, :destroy]
+  end
+
+  # Group Chat
+  resources :group_chats, only: [:index, :show, :create, :destroy] do
+    member do
+      post   :add_member
+      delete :remove_member
+      delete :leave
+    end
+    resources :messages, only: [:index, :create, :destroy],
+              controller: 'group_chat_messages',
+              as: :group_chat_messages
   end
 
   # Notifications

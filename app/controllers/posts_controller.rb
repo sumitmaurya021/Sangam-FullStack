@@ -133,6 +133,12 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    params.require(:post).permit(:content, :image, :visibility, images: [])
+    params.require(:post).permit(
+      :content, :image, :visibility, images: [],
+      poll_attributes: [
+        :question, :ends_at,
+        poll_options_attributes: [:body, :position]
+      ]
+    )
   end
 end

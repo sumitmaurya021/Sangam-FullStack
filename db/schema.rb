@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_02_000009) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_13_000005) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -43,11 +43,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_000009) do
   end
 
   create_table "bookmarks", force: :cascade do |t|
+    t.bigint "bookmarkable_id"
+    t.string "bookmarkable_type"
     t.datetime "created_at", null: false
-    t.bigint "post_id", null: false
+    t.bigint "post_id"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["bookmarkable_type", "bookmarkable_id"], name: "index_bookmarks_on_bookmarkable"
     t.index ["post_id"], name: "index_bookmarks_on_post_id"
+    t.index ["user_id", "bookmarkable_type", "bookmarkable_id"], name: "index_bookmarks_unique_per_user", unique: true
     t.index ["user_id", "post_id"], name: "index_bookmarks_on_user_id_and_post_id", unique: true
     t.index ["user_id"], name: "index_bookmarks_on_user_id"
   end
@@ -106,6 +110,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_000009) do
     t.index ["starts_at"], name: "index_events_on_starts_at"
   end
 
+  create_table "follows", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "followee_id", null: false
+    t.bigint "follower_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["followee_id"], name: "index_follows_on_followee_id"
+    t.index ["follower_id", "followee_id"], name: "index_follows_on_follower_id_and_followee_id", unique: true
+    t.index ["follower_id"], name: "index_follows_on_follower_id"
+  end
+
   create_table "friendships", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "friend_id", null: false
@@ -116,6 +130,44 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_000009) do
     t.index ["status"], name: "index_friendships_on_status"
     t.index ["user_id", "friend_id"], name: "index_friendships_on_user_id_and_friend_id", unique: true
     t.index ["user_id"], name: "index_friendships_on_user_id"
+  end
+
+  create_table "group_chat_members", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "group_chat_id", null: false
+    t.string "role", default: "member", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["group_chat_id", "user_id"], name: "index_group_chat_members_on_group_chat_id_and_user_id", unique: true
+    t.index ["group_chat_id"], name: "index_group_chat_members_on_group_chat_id"
+    t.index ["role"], name: "index_group_chat_members_on_role"
+    t.index ["user_id"], name: "index_group_chat_members_on_user_id"
+  end
+
+  create_table "group_chat_messages", force: :cascade do |t|
+    t.text "body"
+    t.datetime "created_at", null: false
+    t.boolean "deleted", default: false, null: false
+    t.bigint "group_chat_id", null: false
+    t.string "message_type", default: "text", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["created_at"], name: "index_group_chat_messages_on_created_at"
+    t.index ["deleted"], name: "index_group_chat_messages_on_deleted"
+    t.index ["group_chat_id"], name: "index_group_chat_messages_on_group_chat_id"
+    t.index ["message_type"], name: "index_group_chat_messages_on_message_type"
+    t.index ["user_id"], name: "index_group_chat_messages_on_user_id"
+  end
+
+  create_table "group_chats", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.integer "members_count", default: 0, null: false
+    t.string "name", null: false
+    t.bigint "owner_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_group_chats_on_name"
+    t.index ["owner_id"], name: "index_group_chats_on_owner_id"
   end
 
   create_table "group_memberships", force: :cascade do |t|
@@ -198,6 +250,41 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_000009) do
     t.index ["recipient_id"], name: "index_notifications_on_recipient_id"
   end
 
+  create_table "poll_options", force: :cascade do |t|
+    t.string "body", null: false
+    t.datetime "created_at", null: false
+    t.bigint "poll_id", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.integer "votes_count", default: 0, null: false
+    t.index ["poll_id", "position"], name: "index_poll_options_on_poll_id_and_position"
+    t.index ["poll_id"], name: "index_poll_options_on_poll_id"
+  end
+
+  create_table "poll_votes", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "poll_id", null: false
+    t.bigint "poll_option_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["poll_id", "user_id"], name: "index_poll_votes_on_poll_id_and_user_id", unique: true
+    t.index ["poll_id"], name: "index_poll_votes_on_poll_id"
+    t.index ["poll_option_id"], name: "index_poll_votes_on_poll_option_id"
+    t.index ["user_id"], name: "index_poll_votes_on_user_id"
+  end
+
+  create_table "polls", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "ends_at"
+    t.boolean "expired", default: false, null: false
+    t.bigint "post_id", null: false
+    t.string "question", null: false
+    t.datetime "updated_at", null: false
+    t.index ["ends_at"], name: "index_polls_on_ends_at"
+    t.index ["expired"], name: "index_polls_on_expired"
+    t.index ["post_id"], name: "index_polls_on_post_id"
+  end
+
   create_table "post_hashtags", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "hashtag_id", null: false
@@ -271,7 +358,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_000009) do
     t.integer "duration"
     t.text "hashtags"
     t.integer "likes_count", default: 0, null: false
-    t.string "music"
     t.string "music_artist"
     t.string "music_preview_url"
     t.string "music_title"
@@ -438,12 +524,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_000009) do
     t.text "caption"
     t.datetime "created_at", null: false
     t.datetime "expires_at", null: false
+    t.boolean "is_shared_post", default: false, null: false
+    t.bigint "shared_post_id"
     t.string "story_type", default: "image", null: false
     t.string "text_color", default: "#ffffff"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.integer "views_count", default: 0, null: false
     t.index ["expires_at"], name: "index_stories_on_expires_at"
+    t.index ["is_shared_post"], name: "index_stories_on_is_shared_post"
+    t.index ["shared_post_id"], name: "index_stories_on_shared_post_id"
     t.index ["user_id", "created_at"], name: "index_stories_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_stories_on_user_id"
   end
@@ -469,6 +559,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_000009) do
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.integer "failed_attempts", default: 0, null: false
+    t.integer "followers_count", default: 0, null: false
+    t.integer "following_count", default: 0, null: false
     t.datetime "last_seen_at"
     t.datetime "locked_at"
     t.string "name"
@@ -508,8 +600,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_000009) do
   add_foreign_key "event_responses", "events"
   add_foreign_key "event_responses", "users"
   add_foreign_key "events", "users", column: "organizer_id"
+  add_foreign_key "follows", "users", column: "followee_id"
+  add_foreign_key "follows", "users", column: "follower_id"
   add_foreign_key "friendships", "users"
   add_foreign_key "friendships", "users", column: "friend_id"
+  add_foreign_key "group_chat_members", "group_chats"
+  add_foreign_key "group_chat_members", "users"
+  add_foreign_key "group_chat_messages", "group_chats"
+  add_foreign_key "group_chat_messages", "users"
+  add_foreign_key "group_chats", "users", column: "owner_id"
   add_foreign_key "group_memberships", "groups"
   add_foreign_key "group_memberships", "users"
   add_foreign_key "groups", "users", column: "owner_id"
@@ -519,6 +618,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_000009) do
   add_foreign_key "messages", "users"
   add_foreign_key "notifications", "users", column: "actor_id"
   add_foreign_key "notifications", "users", column: "recipient_id"
+  add_foreign_key "poll_options", "polls"
+  add_foreign_key "poll_votes", "poll_options"
+  add_foreign_key "poll_votes", "polls"
+  add_foreign_key "poll_votes", "users"
+  add_foreign_key "polls", "posts"
   add_foreign_key "post_hashtags", "hashtags"
   add_foreign_key "post_hashtags", "posts"
   add_foreign_key "post_mentions", "posts"
@@ -539,6 +643,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_02_000009) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "stories", "posts", column: "shared_post_id"
   add_foreign_key "stories", "users"
   add_foreign_key "story_views", "stories"
   add_foreign_key "story_views", "users"

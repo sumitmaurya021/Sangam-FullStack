@@ -16,6 +16,7 @@ class Notification < ApplicationRecord
     group_invite
     event_invite
     story_view
+    follow
   ].freeze
 
   validates :notification_type, inclusion: { in: TYPES }
@@ -70,6 +71,8 @@ class Notification < ApplicationRecord
       "#{actor_name} invited you to an event"
     when 'story_view'
       "#{actor_name} viewed your story"
+    when 'follow'
+      "#{actor_name} started following you"
     else
       "#{actor_name} interacted with you"
     end
@@ -88,6 +91,7 @@ class Notification < ApplicationRecord
     when 'group_invite' then 'group'
     when 'event_invite' then 'event'
     when 'story_view'   then 'story'
+    when 'follow'       then 'friend'
     else 'bell'
     end
   end
@@ -99,6 +103,8 @@ class Notification < ApplicationRecord
       post = notifiable.is_a?(Post) ? notifiable : notifiable.try(:post)
       post ? routes.post_path(post) : routes.posts_path
     when 'friend_request', 'friend_accepted'
+      routes.profile_path(actor)
+    when 'follow'
       routes.profile_path(actor)
     else
       routes.posts_path

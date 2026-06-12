@@ -1,20 +1,28 @@
 class Story < ApplicationRecord
   belongs_to :user
+  belongs_to :shared_post, class_name: 'Post', optional: true
   has_one_attached :media   # image or video file
   has_many :story_views, dependent: :destroy
   has_many :viewers, through: :story_views, source: :user
 
-  STORY_TYPES = %w[image video text].freeze
+  STORY_TYPES = %w[image video text shared_post].freeze
 
   validates :story_type, inclusion: { in: STORY_TYPES }
   validates :expires_at, presence: true
-  validate  :acceptable_media
+  # shared_post stories don't require media
+  validate  :acceptable_media, unless: :shared_post_story?
+  validate  :shared_post_required, if: :shared_post_story?
 
   scope :active,   -> { where('expires_at > ?', Time.current) }
   scope :expired,  -> { where('expires_at <= ?', Time.current) }
   scope :recent,   -> { order(created_at: :desc) }
 
   before_validation :set_expiry, on: :create
+  before_validation :mark_shared, if: :shared_post_story?
+
+  def shared_post_story?
+    story_type == 'shared_post' || is_shared_post?
+  end
 
   def active?
     expires_at > Time.current
@@ -36,8 +44,16 @@ class Story < ApplicationRecord
 
   private
 
+  def mark_shared
+    self.is_shared_post = true
+  end
+
   def set_expiry
     self.expires_at ||= 24.hours.from_now
+  end
+
+  def shared_post_required
+    errors.add(:shared_post, "must be present for shared post stories") unless shared_post.present?
   end
 
   def acceptable_media

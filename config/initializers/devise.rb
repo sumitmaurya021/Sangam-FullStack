@@ -273,9 +273,20 @@ Devise.setup do |config|
   config.sign_out_via = :delete
 
   # ==> OmniAuth
-  # Disabled for now — add :omniauthable to User model and configure
-  # a provider here when ready (e.g. Google, GitHub).
-  # config.omniauth :google_oauth2, ENV['GOOGLE_CLIENT_ID'], ENV['GOOGLE_CLIENT_SECRET']
+  # Google OAuth2
+  config.omniauth :google_oauth2,
+    ENV.fetch('GOOGLE_CLIENT_ID', nil),
+    ENV.fetch('GOOGLE_CLIENT_SECRET', nil),
+    scope: 'email,profile',
+    prompt: 'select_account',
+    image_aspect_ratio: 'square',
+    image_size: 200
+
+  # GitHub OAuth
+  config.omniauth :github,
+    ENV.fetch('GITHUB_CLIENT_ID', nil),
+    ENV.fetch('GITHUB_CLIENT_SECRET', nil),
+    scope: 'user:email'
 
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or

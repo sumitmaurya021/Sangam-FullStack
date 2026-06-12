@@ -129,7 +129,8 @@ class ReelsController < ApplicationController
       music_artist: reel.music_artist,
       hashtags: reel.hashtag_list,
       created_at: reel.created_at.iso8601,
-      liked_by_current_user: reel.liked_by?(current_user)
+      liked_by_current_user:      reel.liked_by?(current_user),
+      bookmarked_by_current_user: reel.bookmarked_by?(current_user)
     }
   end
 end
