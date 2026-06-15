@@ -92,7 +92,7 @@ group :test do
   gem "database_cleaner-active_record"
   
   # Shoulda matchers for RSpec
-  gem "shoulda-matchers", "~> 6.0"
+  gem "shoulda-matchers", "~> 8.0"
 end
 gem "devise"
 gem "omniauth-google-oauth2", "~> 1.1"
