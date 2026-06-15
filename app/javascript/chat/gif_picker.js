@@ -101,19 +101,31 @@ export class GifPicker {
     }
 
     this.grid.innerHTML = gifs.map(gif => {
-      // Use downsized preview for grid, original for sending
-      const preview = gif.images?.fixed_height_small?.url || gif.images?.downsized?.url;
-      const full    = gif.images?.original?.url || gif.images?.downsized?.url;
+      // fixed_width: fills the column width naturally with correct aspect ratio
+      // fallback to downsized_medium → downsized
+      const imgData = gif.images?.fixed_width
+                   || gif.images?.downsized_medium
+                   || gif.images?.downsized;
+      const full    = gif.images?.original?.url
+                   || gif.images?.downsized?.url;
       const title   = gif.title || "GIF";
 
-      if (!preview || !full) return "";
+      if (!imgData?.url || !full) return "";
 
-      // Escape single quotes in URL for onclick
+      const preview = imgData.url;
+      const w       = imgData.width  || "";
+      const h       = imgData.height || "";
+
       const safeUrl = full.replace(/'/g, "\\'");
 
       return `
         <div class="gif-item" onclick="chatApp._sendGifFromUrl('${safeUrl}')" title="${title}">
-          <img src="${preview}" alt="${title}" loading="lazy" class="gif-thumbnail">
+          <img src="${preview}"
+               alt="${title}"
+               loading="lazy"
+               class="gif-thumbnail"
+               ${w ? `width="${w}"` : ""}
+               ${h ? `height="${h}"` : ""}>
         </div>`;
     }).join("");
   }

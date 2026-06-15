@@ -450,12 +450,6 @@
   position: relative;
 }
 
-.message-wrapper.mine .message-bubble {
-  background: #0084ff;
-  color: #fff;
-  border-bottom-right-radius: 4px;
-}
-
 .message-wrapper.theirs .message-bubble {
   background: #f0f2f5;
   color: #050505;
@@ -977,20 +971,18 @@
   }
 
   .gif-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
+    columns: 2;
+    column-gap: 6px;
     padding: 8px;
   }
 
   .gif-item {
     border-radius: 10px;
-    aspect-ratio: 16/9;
   }
 
   .gif-thumbnail {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
     display: block;
   }
 }
@@ -1004,8 +996,8 @@
   }
 
   .gif-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 4px;
+    columns: 2;
+    column-gap: 4px;
     padding: 6px;
   }
 }
@@ -1041,25 +1033,32 @@
 .gif-grid {
   flex: 1;
   overflow-y: auto;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 4px;
+  /* Masonry-style: 2 columns, each GIF shows at its full natural size */
+  columns: 2;
+  column-gap: 6px;
   padding: 8px;
 }
 
 .gif-item {
-  border-radius: 8px;
+  break-inside: avoid;          /* never split a GIF across columns */
+  margin-bottom: 6px;
+  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
-  aspect-ratio: 16/9;
   background: #f0f2f5;
+  display: block;
 }
 
 .gif-thumbnail {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;                 /* full natural height — nothing cut off */
   display: block;
+  border-radius: 10px;
+  transition: opacity 0.15s ease;
+}
+
+.gif-thumbnail:hover {
+  opacity: 0.85;
 }
 
 .gif-loading { grid-column: 1/-1; text-align: center; padding: 20px; color: #65676b; }
