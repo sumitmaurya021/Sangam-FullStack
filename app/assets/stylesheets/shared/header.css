@@ -688,12 +688,29 @@
   }
   
   .premium-header__container {
-    gap: 8px;
+    padding: 0 12px;
+    gap: 0;
+    justify-content: space-between;
   }
   
-  /* Logo */
+  /* Logo - Left side */
+  .premium-header__logo {
+    flex: 0 0 auto;
+    margin-right: auto;
+  }
+  
   .premium-logo {
     padding: 6px;
+    flex-shrink: 0;
+  }
+  
+  /* Mobile Actions - Right side with proper spacing */
+  .premium-header__actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
   }
   
   .premium-logo__icon {
@@ -733,6 +750,7 @@
   .premium-action-btn {
     width: 40px;
     height: 40px;
+    flex-shrink: 0;
   }
   
   /* Mobile Search Overlay */
@@ -982,6 +1000,16 @@
   .premium-header__container {
     padding: 0 12px;
     gap: 6px;
+    justify-content: space-between;
+  }
+  
+  .premium-header__logo {
+    flex: 0 0 auto;
+  }
+  
+  .premium-header__actions {
+    flex: 0 0 auto;
+    gap: 4px;
   }
   
   .premium-logo__icon {

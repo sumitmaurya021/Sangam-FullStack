@@ -1,11 +1,11 @@
 class ProfileHighlightsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_highlight, only: [:update, :destroy, :add_story, :remove_story]
+  before_action :set_highlight, only: [:update, :destroy, :add_story, :remove_story, :stories]
 
   # GET /profile_highlights (JSON — for profile page)
   def index
     @user       = User.find(params[:user_id])
-    @highlights = @user.profile_highlights.ordered.includes(stories: :media_attachment)
+    @highlights = @user.profile_highlights.ordered
     render json: @highlights.map { |h| highlight_json(h) }
   end
 
@@ -36,6 +36,32 @@ class ProfileHighlightsController < ApplicationController
     render json: { success: true }
   end
 
+  # GET /profile_highlights/:id/stories
+  # Returns JSON list of stories in this highlight for the story viewer
+  def stories
+    story_list = @highlight.stories
+                            .order('highlight_stories.position ASC, stories.created_at DESC')
+                            .includes(:user, :media_attachment)
+
+    respond_to do |format|
+      format.json do
+        render json: {
+          highlight: {
+            id:   @highlight.id,
+            name: @highlight.name,
+            emoji: @highlight.emoji
+          },
+          stories: story_list.map { |s| story_data(s) }
+        }
+      end
+      format.html do
+        # Fallback: redirect to owner's profile — viewer will open client-side
+        redirect_to profile_path(@highlight.user),
+                    notice: "Opening highlight: #{@highlight.name}"
+      end
+    end
+  end
+
   # POST /profile_highlights/:id/add_story
   def add_story
     authorize_highlight!
@@ -59,10 +85,17 @@ class ProfileHighlightsController < ApplicationController
 
   def set_highlight
     @highlight = ProfileHighlight.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    respond_to do |format|
+      format.html { redirect_to root_path, alert: 'Highlight not found.' }
+      format.json { render json: { error: 'Not found' }, status: :not_found }
+    end
   end
 
   def authorize_highlight!
-    render json: { error: 'Forbidden' }, status: :forbidden unless @highlight.user == current_user
+    unless @highlight.user == current_user
+      render json: { error: 'Forbidden' }, status: :forbidden
+    end
   end
 
   def highlight_params
@@ -78,12 +111,40 @@ class ProfileHighlightsController < ApplicationController
     end
 
     {
-      id:       h.id,
-      name:     h.name,
-      emoji:    h.emoji,
-      position: h.position,
-      cover:    cover,
-      stories_count: h.stories.count
+      id:            h.id,
+      name:          h.name,
+      emoji:         h.emoji,
+      position:      h.position,
+      cover:         cover,
+      stories_count: h.stories.count,
+      stories_url:   stories_profile_highlight_path(h)
+    }
+  end
+
+  def story_data(story)
+    {
+      id:               story.id,
+      story_type:       story.story_type,
+      caption:          story.caption,
+      background_color: story.background_color,
+      text_color:       story.text_color,
+      views_count:      story.views_count,
+      expires_at:       story.expires_at.iso8601,
+      active:           story.active?,
+      archived:         story.archived,
+      media_url:        story.media.attached? ? url_for(story.media) : nil,
+      poll_question:    story.poll_question,
+      poll_option_a:    story.poll_option_a,
+      poll_option_b:    story.poll_option_b,
+      poll_votes_a:     story.poll_votes_a,
+      poll_votes_b:     story.poll_votes_b,
+      qa_question:      story.qa_question,
+      created_at:       story.created_at.iso8601,
+      user: {
+        id:     story.user.id,
+        name:   story.user.name,
+        avatar: story.user.avatar.attached? ? url_for(story.user.avatar) : nil
+      }
     }
   end
 end

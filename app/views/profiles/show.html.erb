@@ -239,9 +239,52 @@
     } catch(e) { console.error(e); }
   };
 
-  window.openHighlight = function(id) {
-    // Fetch stories for this highlight and show story viewer
-    window.location.href = `/profile_highlights/${id}/stories`;
+  window.openHighlight = async function(id) {
+    try {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+      const resp = await fetch(`/profile_highlights/${id}/stories`, {
+        headers: { 'Accept': 'application/json', 'X-CSRF-Token': csrfToken }
+      });
+      if (!resp.ok) { console.error('Highlight fetch failed'); return; }
+      const data = await resp.json();
+
+      if (!data.stories || data.stories.length === 0) {
+        alert(`"${data.highlight?.name || 'Highlight'}" has no stories yet.`);
+        return;
+      }
+
+      // Inject stories into the global storyGroups and open the viewer
+      // Build a fake group matching the stories.js format
+      const group = {
+        user: data.stories[0].user,
+        stories: data.stories,
+        all_viewed: false,
+        highlight_name: data.highlight.name
+      };
+
+      // Push to storyGroups and open at that index
+      if (typeof storyGroups !== 'undefined' && typeof openStoryViewer === 'function') {
+        // Add highlight group at the front temporarily
+        const originalGroups = [...storyGroups];
+        storyGroups.unshift(group);
+        openStoryViewer(0);
+
+        // After viewer closes, restore storyGroups
+        const overlay = document.getElementById('storyViewerOverlay');
+        const observer = new MutationObserver(() => {
+          if (overlay && overlay.style.display === 'none') {
+            storyGroups = originalGroups;
+            observer.disconnect();
+          }
+        });
+        if (overlay) observer.observe(overlay, { attributes: true, attributeFilter: ['style'] });
+      } else {
+        // Fallback: navigate to first story
+        window.location.href = `/stories/${data.stories[0].id}`;
+      }
+    } catch(e) {
+      console.error('openHighlight error:', e);
+    }
   };
 
   window.createHighlightPrompt = async function() {

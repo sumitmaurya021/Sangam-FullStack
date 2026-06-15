@@ -16,7 +16,7 @@ class MarketplaceListingsController < ApplicationController
       @listings = @listings.where('price <= ?', params[:max_price].to_f)
     end
 
-    @listings = @listings.includes(:user).page(params[:page]).per(20)
+    @listings = @listings.includes(:user, images_attachments: :blob).page(params[:page]).per(20)
     @categories = MarketplaceListing::CATEGORIES
   end
 
@@ -27,6 +27,7 @@ class MarketplaceListingsController < ApplicationController
     @related = MarketplaceListing.active
                                  .where(category: @listing.category)
                                  .where.not(id: @listing.id)
+                                 .includes(images_attachments: :blob)
                                  .limit(6)
   end
 
@@ -92,6 +93,7 @@ class MarketplaceListingsController < ApplicationController
   # GET /marketplace/my_listings
   def my_listings
     @listings = current_user.marketplace_listings.recent
+                             .includes(images_attachments: :blob)
                              .page(params[:page]).per(20)
   end
 

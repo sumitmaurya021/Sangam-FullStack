@@ -174,6 +174,7 @@ Rails.application.routes.draw do
     member do
       post   :add_story
       delete :remove_story
+      get    :stories   # GET /profile_highlights/:id/stories
     end
   end
   get 'users/:user_id/highlights', to: 'profile_highlights#index', as: 'user_highlights'
