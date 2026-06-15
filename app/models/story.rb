@@ -4,6 +4,10 @@ class Story < ApplicationRecord
   has_one_attached :media   # image or video file
   has_many :story_views, dependent: :destroy
   has_many :viewers, through: :story_views, source: :user
+  has_many :highlight_stories, dependent: :destroy
+  has_many :profile_highlights, through: :highlight_stories
+  has_many :story_qa_replies, dependent: :destroy
+  has_many :story_poll_votes, dependent: :destroy
 
   STORY_TYPES = %w[image video text shared_post].freeze
 
@@ -13,9 +17,10 @@ class Story < ApplicationRecord
   validate  :acceptable_media, unless: :shared_post_story?
   validate  :shared_post_required, if: :shared_post_story?
 
-  scope :active,   -> { where('expires_at > ?', Time.current) }
-  scope :expired,  -> { where('expires_at <= ?', Time.current) }
-  scope :recent,   -> { order(created_at: :desc) }
+  scope :active,    -> { where('expires_at > ?', Time.current).where(archived: false) }
+  scope :expired,   -> { where('expires_at <= ?', Time.current) }
+  scope :archived,  -> { where(archived: true) }
+  scope :recent,    -> { order(created_at: :desc) }
 
   before_validation :set_expiry, on: :create
   before_validation :mark_shared, if: :shared_post_story?
@@ -40,6 +45,26 @@ class Story < ApplicationRecord
 
   def time_remaining
     ((expires_at - Time.current) / 3600).round(1)
+  end
+
+  def has_poll?
+    poll_question.present? && poll_option_a.present? && poll_option_b.present?
+  end
+
+  def has_qa?
+    qa_question.present?
+  end
+
+  def poll_voted_by?(user)
+    story_poll_votes.exists?(user_id: user.id)
+  end
+
+  def poll_vote_by(user)
+    story_poll_votes.find_by(user_id: user.id)&.option
+  end
+
+  def archive!
+    update!(archived: true)
   end
 
   private

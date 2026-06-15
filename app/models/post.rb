@@ -14,9 +14,13 @@ class Post < ApplicationRecord
   has_many :post_mentions, dependent: :destroy
   has_many :mentioned_users, through: :post_mentions, source: :user
   has_one  :poll, dependent: :destroy
+  has_one  :fundraiser, dependent: :destroy
+  has_many :post_collaborators, dependent: :destroy
+  has_many :collaborators, through: :post_collaborators, source: :user
   accepts_nested_attributes_for :poll, reject_if: :poll_blank?, allow_destroy: false
+  accepts_nested_attributes_for :fundraiser, reject_if: :fundraiser_blank?, allow_destroy: false
 
-  VISIBILITY_OPTIONS = %w[public friends private].freeze
+  VISIBILITY_OPTIONS = %w[public friends private close_friends].freeze
 
   validates :content,    length: { maximum: 5000 }, allow_blank: true
   validates :user,       presence: true
@@ -24,8 +28,10 @@ class Post < ApplicationRecord
   validate  :content_or_poll_present
   validate  :acceptable_images
 
+  scope :published,   -> { where(published: true).where('scheduled_at IS NULL OR scheduled_at <= ?', Time.current) }
+  scope :scheduled,   -> { where(published: false).where('scheduled_at > ?', Time.current) }
   scope :recent, -> { order(created_at: :desc) }
-  scope :public_posts,   -> { where(visibility: 'public') }
+  scope :public_posts,   -> { published.where(visibility: 'public') }
   scope :friends_posts,  -> { where(visibility: %w[public friends]) }
   scope :visible_to, ->(user) {
     friend_ids = user.all_friends.pluck(:id)
@@ -99,12 +105,37 @@ class Post < ApplicationRecord
     poll.present?
   end
 
+  def has_fundraiser?
+    fundraiser.present?
+  end
+
+  def scheduled?
+    scheduled_at.present? && scheduled_at > Time.current
+  end
+
+  def track_view!(user)
+    return if user == self.user
+    increment!(:views_count)
+  end
+
+  def has_link_preview?
+    link_url.present? && link_title.present?
+  end
+
+  def has_location?
+    location_name.present?
+  end
+
   private
 
   # Poll is blank if question and all options are empty
   def poll_blank?(attrs)
     attrs['question'].blank? &&
       Array(attrs['poll_options_attributes']).all? { |o| o['body'].blank? }
+  end
+
+  def fundraiser_blank?(attrs)
+    attrs['title'].blank? && attrs['goal_amount'].blank?
   end
 
   def content_or_poll_present

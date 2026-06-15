@@ -1,0 +1,125 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <main class="feed-main">
+
+      <div class="marketplace-detail">
+        <!-- Image Gallery -->
+        <div class="marketplace-detail__gallery">
+          <% if @listing.images.attached? %>
+            <div class="marketplace-gallery-main">
+              <%= image_tag @listing.images.first, id: 'gallery-main', alt: @listing.title %>
+            </div>
+            <% if @listing.images.count > 1 %>
+              <div class="marketplace-gallery-thumbs">
+                <% @listing.images.each_with_index do |img, i| %>
+                  <div class="marketplace-gallery-thumb <%= 'active' if i == 0 %>"
+                       onclick="document.getElementById('gallery-main').src='<%= rails_blob_url(img) %>'; document.querySelectorAll('.marketplace-gallery-thumb').forEach(t=>t.classList.remove('active')); this.classList.add('active')">
+                    <%= image_tag img, alt: "Photo #{i+1}" %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="marketplace-detail__no-image">
+              <span style="font-size:80px">🖼️</span>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Details -->
+        <div class="marketplace-detail__info">
+          <div class="marketplace-detail__status-row">
+            <span class="marketplace-badge marketplace-badge--<%= @listing.status %>"><%= @listing.status.upcase %></span>
+            <span class="marketplace-badge"><%= @listing.category.humanize %></span>
+            <span class="marketplace-badge"><%= @listing.condition.humanize %></span>
+          </div>
+
+          <h1 class="marketplace-detail__title"><%= @listing.title %></h1>
+          <p class="marketplace-detail__price"><%= @listing.formatted_price %></p>
+
+          <% if @listing.location_name.present? %>
+            <p class="marketplace-detail__location">📍 <%= @listing.location_name %></p>
+          <% end %>
+
+          <div class="marketplace-detail__desc">
+            <h3>Description</h3>
+            <p><%= simple_format(@listing.description) %></p>
+          </div>
+
+          <!-- Seller Card -->
+          <div class="marketplace-seller-card">
+            <div class="marketplace-seller-card__avatar">
+              <% if @seller.avatar.attached? %>
+                <%= image_tag @seller.avatar, alt: @seller.name %>
+              <% else %>
+                <%= @seller.name&.first&.upcase %>
+              <% end %>
+            </div>
+            <div>
+              <h4><%= @seller.name %></h4>
+              <p><%= link_to 'View Profile', profile_path(@seller), class: 'link-subtle' %></p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="marketplace-detail__actions">
+            <% if @listing.user == current_user %>
+              <% if @listing.status == 'active' %>
+                <%= button_to mark_sold_marketplace_listing_path(@listing), method: :patch, class: 'btn-danger' do %>
+                  ✓ Mark as Sold
+                <% end %>
+              <% end %>
+              <%= link_to edit_marketplace_listing_path(@listing), class: 'btn-secondary' do %>
+                ✏️ Edit
+              <% end %>
+              <%= button_to marketplace_listing_path(@listing), method: :delete, class: 'btn-danger', data: { confirm: 'Delete this listing?' } do %>
+                🗑 Delete
+              <% end %>
+            <% else %>
+              <% if @listing.status == 'active' %>
+                <%= button_to conversations_path(recipient_id: @listing.user.id),
+                      method: :post,
+                      class: 'btn-primary',
+                      form: { data: { turbo: false } } do %>
+                  💬 Message Seller
+                <% end %>
+              <% else %>
+                <button class="btn-secondary" disabled>Item Sold</button>
+              <% end %>
+            <% end %>
+          </div>
+
+          <p class="marketplace-detail__views">👁 <%= number_with_delimiter(@listing.views_count) %> views · <%= time_ago_in_words(@listing.created_at) %> ago</p>
+        </div>
+      </div>
+
+      <!-- Related Listings -->
+      <% if @related.any? %>
+        <div class="marketplace-related">
+          <h2>More in <%= @listing.category.humanize %></h2>
+          <div class="marketplace-grid marketplace-grid--small">
+            <% @related.each do |rel| %>
+              <%= link_to marketplace_listing_path(rel), class: 'marketplace-card' do %>
+                <div class="marketplace-card__image">
+                  <% if rel.images.attached? %>
+                    <%= image_tag rel.images.first, alt: rel.title %>
+                  <% else %>
+                    <div class="marketplace-card__no-image"><span>🖼️</span></div>
+                  <% end %>
+                </div>
+                <div class="marketplace-card__info">
+                  <h3 class="marketplace-card__title"><%= rel.title.truncate(40) %></h3>
+                  <p class="marketplace-card__price"><%= rel.formatted_price %></p>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+    </main>
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'shared/marketplace', 'data-turbo-track': 'reload' %>

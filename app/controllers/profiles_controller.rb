@@ -2,11 +2,14 @@ class ProfilesController < ApplicationController
   before_action :set_user, except: [:friends_list, :search]
 
   def show
-    @posts           = @user.posts.includes(:likes, :comments, :shares).order(created_at: :desc)
+    @posts           = @user.posts.published.includes(:likes, :comments, :shares).order(created_at: :desc)
     @friends_count   = @user.all_friends.count
-    @posts_count     = @user.posts.count
+    @posts_count     = @user.posts.published.count
     @followers_count = @user.followers_count
     @following_count = @user.following_count
+    @highlights      = @user.profile_highlights.ordered
+    @mutual_friends  = current_user == @user ? [] : current_user.mutual_friends_with(@user).first(6)
+    @is_close_friend = current_user != @user && current_user.close_friends_with?(@user)
   end
 
   def friends

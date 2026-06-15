@@ -44,7 +44,24 @@ class User < ApplicationRecord
   # Notifications
   has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
   has_many :sent_notifications, class_name: 'Notification', foreign_key: :actor_id, dependent: :destroy
-  
+
+  # Bookmark Collections
+  has_many :bookmark_collections, dependent: :destroy
+
+  # Profile Highlights
+  has_many :profile_highlights, dependent: :destroy
+
+  # Close Friends
+  has_many :close_friend_records,  class_name: 'CloseFriend', foreign_key: :user_id, dependent: :destroy
+  has_many :close_friends_list,    through: :close_friend_records, source: :close_friend
+
+  # Marketplace
+  has_many :marketplace_listings, dependent: :destroy
+
+  # Post collaborations
+  has_many :post_collaborators, dependent: :destroy
+  has_many :collaborative_posts, through: :post_collaborators, source: :post
+
   # Friendships
   has_many :friendships, dependent: :destroy
   has_many :inverse_friendships, class_name: 'Friendship', foreign_key: 'friend_id', dependent: :destroy
@@ -62,6 +79,7 @@ class User < ApplicationRecord
   # Validations
   validates :name, presence: true, length: { maximum: 100 }
   validates :bio, length: { maximum: 500 }
+  validates :website_url, format: { with: URI::DEFAULT_PARSER.make_regexp(%w[http https]), message: 'must be a valid URL' }, allow_blank: true
 
   # Scopes
   scope :super_admins, -> { where(super_admin: true) }
@@ -121,6 +139,23 @@ class User < ApplicationRecord
 
   def online_status
     online? ? 'online' : (last_seen_at ? "Last seen #{ActionController::Base.helpers.time_ago_in_words(last_seen_at)} ago" : 'Offline')
+  end
+
+  def close_friends_with?(user)
+    close_friend_records.exists?(close_friend_id: user.id)
+  end
+
+  def toggle_close_friend!(user)
+    record = close_friend_records.find_by(close_friend_id: user.id)
+    record ? record.destroy : close_friend_records.create!(close_friend: user)
+  end
+
+  def birthday_today?
+    birthday.present? && birthday.month == Date.today.month && birthday.day == Date.today.day
+  end
+
+  def mutual_friends_with(user)
+    all_friends & user.all_friends
   end
 
   # ─── 2FA helpers ──────────────────────────────────────────────────────────

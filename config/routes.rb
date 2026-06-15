@@ -158,4 +158,70 @@ Rails.application.routes.draw do
 
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
+
+  # ─── Saved Collections ──────────────────────────────────────────────────────
+  resources :bookmark_collections, only: [:index, :create, :show, :update, :destroy] do
+    member do
+      patch :add_bookmark
+    end
+  end
+
+  # ─── Profile Highlights ─────────────────────────────────────────────────────
+  resources :profile_highlights, only: [:create, :update, :destroy] do
+    collection do
+      get '/', to: 'profile_highlights#index', as: ''
+    end
+    member do
+      post   :add_story
+      delete :remove_story
+    end
+  end
+  get 'users/:user_id/highlights', to: 'profile_highlights#index', as: 'user_highlights'
+
+  # ─── Close Friends ───────────────────────────────────────────────────────────
+  resources :close_friends, only: [:index, :create, :destroy], param: :user_id
+
+  # ─── Story Interactions (polls & Q&A) ────────────────────────────────────────
+  scope '/stories/:story_id' do
+    post   'poll_vote',   to: 'story_interactions#poll_vote',   as: 'story_poll_vote'
+    post   'qa_reply',    to: 'story_interactions#qa_reply',    as: 'story_qa_reply'
+    get    'qa_replies',  to: 'story_interactions#qa_replies',  as: 'story_qa_replies'
+  end
+
+  # ─── Post Collaborators ───────────────────────────────────────────────────────
+  resources :posts do
+    resources :collaborators, controller: 'post_collaborators', only: [:create, :destroy] do
+      member do
+        patch :accept
+        patch :reject
+      end
+    end
+  end
+
+  # ─── Link Preview ─────────────────────────────────────────────────────────────
+  get 'link_preview', to: 'link_previews#show', as: 'link_preview'
+
+  # ─── Memories / On This Day ───────────────────────────────────────────────────
+  get 'memories', to: 'memories#index', as: 'memories'
+
+  # ─── Fundraisers ──────────────────────────────────────────────────────────────
+  resources :fundraisers, only: [:show] do
+    member do
+      post :donate
+    end
+  end
+
+  # ─── Marketplace ──────────────────────────────────────────────────────────────
+  resources :marketplace_listings, path: 'marketplace', as: 'marketplace_listings' do
+    collection do
+      get :my_listings
+    end
+    member do
+      patch :mark_sold
+    end
+  end
+  get 'marketplace', to: 'marketplace_listings#index', as: 'marketplace'
+
+  # ─── Dark Mode preference (AJAX toggle) ──────────────────────────────────────
+  patch 'settings/dark_mode', to: 'settings#toggle_dark_mode', as: 'toggle_dark_mode'
 end

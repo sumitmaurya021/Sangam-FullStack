@@ -1,0 +1,62 @@
+<%= form_with model: listing, url: listing.new_record? ? marketplace_listings_path : marketplace_listing_path(listing), class: 'marketplace-form' do |f| %>
+
+  <% if listing.errors.any? %>
+    <div class="form-errors">
+      <% listing.errors.full_messages.each do |msg| %>
+        <p>⚠️ <%= msg %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :title, 'Title *' %>
+    <%= f.text_field :title, placeholder: 'What are you selling?', class: 'form-control', required: true %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :description, 'Description' %>
+    <%= f.text_area :description, placeholder: 'Describe your item...', rows: 4, class: 'form-control' %>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <%= f.label :price, 'Price ($)' %>
+      <%= f.number_field :price, placeholder: '0.00', step: '0.01', min: 0, class: 'form-control' %>
+    </div>
+    <div class="form-group">
+      <%= f.label :price_negotiable, class: 'checkbox-label' do %>
+        <%= f.check_box :price_negotiable %>
+        Price Negotiable (OBO)
+      <% end %>
+    </div>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <%= f.label :category, 'Category *' %>
+      <%= f.select :category, MarketplaceListing::CATEGORIES.map { |c| [c.humanize, c] },
+            { prompt: 'Select category' }, class: 'form-select', required: true %>
+    </div>
+    <div class="form-group">
+      <%= f.label :condition, 'Condition *' %>
+      <%= f.select :condition, MarketplaceListing::CONDITIONS.map { |c| [c.humanize, c] },
+            { prompt: 'Select condition' }, class: 'form-select', required: true %>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :location_name, 'Location' %>
+    <%= f.text_field :location_name, placeholder: 'City, Area...', class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :images, 'Photos (up to 10)' %>
+    <%= f.file_field :images, multiple: true, accept: 'image/*', class: 'form-file-input' %>
+    <p class="form-hint">First photo will be the cover image</p>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit listing.new_record? ? 'Post Listing' : 'Update Listing', class: 'btn-primary btn-lg' %>
+    <%= link_to 'Cancel', marketplace_path, class: 'btn-secondary' %>
+  </div>
+<% end %>

@@ -1,0 +1,12 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <main class="feed-main">
+      <div class="page-header-card">
+        <h1 class="page-title">✏️ Edit Listing</h1>
+      </div>
+      <%= render 'form', listing: @listing %>
+    </main>
+  </div>
+</div>
+<%= stylesheet_link_tag 'shared/marketplace', 'data-turbo-track': 'reload' %>
