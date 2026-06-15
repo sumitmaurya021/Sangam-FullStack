@@ -147,7 +147,10 @@ class StoriesController < ApplicationController
   end
 
   def story_params
-    params.require(:story).permit(:story_type, :caption, :background_color, :text_color, :media)
+    params.require(:story).permit(
+      :story_type, :caption, :background_color, :text_color, :media,
+      :poll_question, :poll_option_a, :poll_option_b, :qa_question
+    )
   end
 
   def story_json(story)
@@ -164,6 +167,16 @@ class StoriesController < ApplicationController
       is_shared_post:   story.is_shared_post?,
       media_url:        story.media.attached? ? url_for(story.media) : nil,
       created_at:       story.created_at.iso8601,
+      # Poll sticker fields
+      poll_question:    story.poll_question,
+      poll_option_a:    story.poll_option_a,
+      poll_option_b:    story.poll_option_b,
+      poll_votes_a:     story.poll_votes_a,
+      poll_votes_b:     story.poll_votes_b,
+      poll_voted:       story.has_poll? ? story.poll_voted_by?(current_user) : false,
+      poll_my_vote:     story.has_poll? ? story.poll_vote_by(current_user) : nil,
+      # Q&A sticker field
+      qa_question:      story.qa_question,
       user: {
         id:     story.user.id,
         name:   story.user.name,

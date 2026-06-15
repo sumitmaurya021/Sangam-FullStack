@@ -5,16 +5,23 @@
 
       <!-- Page header -->
       <div class="page-header-card">
-        <h1 class="page-title">
-          <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor" style="vertical-align:middle;margin-right:8px;">
-            <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
-          </svg>
-          Saved
-        </h1>
-        <p class="page-subtitle">
-          <%= @post_bookmarks.total_count %> post<%= @post_bookmarks.total_count == 1 ? '' : 's' %> ·
-          <%= @saved_reels.size %> reel<%= @saved_reels.size == 1 ? '' : 's' %>
-        </p>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div>
+            <h1 class="page-title">
+              <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor" style="vertical-align:middle;margin-right:8px;">
+                <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
+              </svg>
+              Saved
+            </h1>
+            <p class="page-subtitle">
+              <%= @post_bookmarks.total_count %> post<%= @post_bookmarks.total_count == 1 ? '' : 's' %> ·
+              <%= @saved_reels.size %> reel<%= @saved_reels.size == 1 ? '' : 's' %>
+            </p>
+          </div>
+          <%= link_to bookmark_collections_path, class: 'btn-secondary btn-sm' do %>
+            📂 Collections (<%= @collections.count %>)
+          <% end %>
+        </div>
       </div>
 
       <!-- Tabs -->

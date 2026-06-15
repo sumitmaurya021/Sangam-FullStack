@@ -1,35 +1,63 @@
 <div class="profile-container">
   <%= render 'shared/header' %>
 
-  <!-- Cinematic Cover Photo -->
+  <!-- Cover Photo -->
   <div class="cover-photo">
     <% if @user.cover_photo.present? %>
       <%= image_tag @user.cover_photo, alt: 'Cover photo' %>
     <% end %>
   </div>
 
-  <!-- Profile Info Section - Floating Card -->
+  <!-- Profile Info Card -->
   <div class="profile-info-section">
     <div class="profile-info-card">
       <div class="profile-header-layout">
-        <!-- Large Animated Avatar -->
+        <!-- Avatar -->
         <div class="profile-avatar-large">
           <% if @user.avatar.attached? %>
-            <%= image_tag @user.avatar, alt: "#{@user.name || @user.email} profile photo" %>
+            <%= image_tag @user.avatar, alt: "#{@user.name} profile photo" %>
           <% else %>
             <%= @user.name&.first&.upcase || 'U' %>
           <% end %>
         </div>
-        
-        <!-- Profile Details -->
+
+        <!-- Details -->
         <div class="profile-details-main">
-          <h1 class="profile-name"><%= @user.name || @user.email %></h1>
-          
+          <div class="profile-name-row">
+            <h1 class="profile-name"><%= @user.name || @user.email %></h1>
+            <% if @user.verified? %>
+              <span class="verified-badge" title="Verified account">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877f2">
+                  <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+              </span>
+            <% end %>
+            <% if @user.birthday_today? %>
+              <span class="birthday-badge" title="Birthday today! 🎂">🎂</span>
+            <% end %>
+          </div>
+
           <% if @user.bio.present? %>
             <p class="profile-bio"><%= @user.bio %></p>
           <% end %>
-          
-          <!-- Horizontal Stats -->
+
+          <!-- Extra info row -->
+          <div class="profile-extra-info">
+            <% if @user.location.present? %>
+              <span class="profile-extra-item">📍 <%= @user.location %></span>
+            <% end %>
+            <% if @user.website_url.present? %>
+              <span class="profile-extra-item">
+                🔗 <%= link_to @user.website_url.sub(/https?:\/\//, ''), @user.website_url, target: '_blank', rel: 'noopener noreferrer', class: 'profile-link' %>
+              </span>
+            <% end %>
+            <% if @user.birthday.present? && @user != current_user %>
+              <span class="profile-extra-item">🎂 <%= @user.birthday.strftime('%B %d') %></span>
+            <% end %>
+            <span class="profile-extra-item">🗓 Joined <%= @user.created_at.strftime('%B %Y') %></span>
+          </div>
+
+          <!-- Stats -->
           <div class="profile-stats-row">
             <div class="stat-item">
               <span class="stat-value"><%= @posts_count %></span>
@@ -48,49 +76,62 @@
               <span class="stat-label">Following</span>
             <% end %>
           </div>
-          
+
+          <!-- Mutual Friends -->
+          <% if @mutual_friends.any? %>
+            <div class="mutual-friends-row">
+              <div class="mutual-friends-avatars">
+                <% @mutual_friends.first(4).each do |mf| %>
+                  <div class="mutual-friend-avatar" title="<%= mf.name %>">
+                    <% if mf.avatar.attached? %>
+                      <%= image_tag mf.avatar, alt: mf.name %>
+                    <% else %>
+                      <%= mf.name&.first&.upcase %>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+              <span class="mutual-friends-text">
+                <%= @mutual_friends.count %> mutual friend<%= @mutual_friends.count == 1 ? '' : 's' %>
+              </span>
+            </div>
+          <% end %>
+
           <!-- Action Buttons -->
           <div class="profile-actions">
             <% if @user == current_user %>
               <%= link_to edit_user_registration_path, class: 'btn-profile-action' do %>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
-                </svg>
+                <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
                 Edit Profile
               <% end %>
             <% elsif current_user.friends_with?(@user) %>
               <% friendship = current_user.friendships.find_by(friend: @user) || @user.friendships.find_by(friend: current_user) %>
               <%= button_to friendship_path(friendship), method: :delete, class: 'btn-profile-action btn-unfriend', data: { confirm: 'Remove friend?' } do %>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M11 6a3 3 0 11-6 0 3 3 0 016 0zM14 17a6 6 0 00-12 0h12zM13 8a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V8z"/>
-                </svg>
                 Unfriend
               <% end %>
             <% elsif current_user.friend_request_pending?(@user) %>
-              <button class="btn-profile-action btn-pending" disabled>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                </svg>
-                Request Pending
-              </button>
+              <button class="btn-profile-action btn-pending" disabled>Request Pending</button>
             <% else %>
               <%= button_to friendships_path(friend_id: @user.id), class: 'btn-profile-action btn-add-friend' do %>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z"/>
-                </svg>
-                Add Friend
+                + Add Friend
               <% end %>
             <% end %>
 
-            <%# Follow / Unfollow button (always visible for other users) %>
             <% if @user != current_user %>
               <%= render 'follows/button', user: @user %>
             <% end %>
-            
+
+            <% if @user != current_user %>
+              <%# Close Friends toggle %>
+              <button class="btn-profile-action <%= @is_close_friend ? 'btn-close-friend--active' : 'btn-close-friend' %>"
+                      id="close-friend-btn-<%= @user.id %>"
+                      onclick="toggleCloseFriend(<%= @user.id %>, this)"
+                      title="<%= @is_close_friend ? 'Remove from Close Friends' : 'Add to Close Friends' %>">
+                ⭐ <%= @is_close_friend ? 'Close Friend' : 'Add to Close Friends' %>
+              </button>
+            <% end %>
+
             <%= link_to profile_friends_path(@user), class: 'btn-profile-action btn-secondary' do %>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
-              </svg>
               View Friends
             <% end %>
 
@@ -99,10 +140,7 @@
                             method: :post,
                             class: 'btn-profile-action btn-message',
                             form: { data: { turbo: false } } do %>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M10 2.5c-4.687 0-8.5 3.439-8.5 7.688 0 2.414 1.203 4.562 3.094 5.969V19.5l3.594-1.969c.938.25 1.938.406 2.969.406 4.687 0 8.5-3.438 8.5-7.688S14.687 2.5 10 2.5z"/>
-                </svg>
-                Message
+                💬 Message
               <% end %>
             <% end %>
           </div>
@@ -111,20 +149,67 @@
     </div>
   </div>
 
-  <!-- Timeline Posts - Facebook Style -->
+  <!-- Profile Highlights (Instagram style) -->
+  <% if @highlights.any? || @user == current_user %>
+    <div class="profile-highlights-section">
+      <div class="profile-highlights-row" id="highlights-row-<%= @user.id %>">
+        <% @highlights.each do |highlight| %>
+          <div class="highlight-item" onclick="openHighlight(<%= highlight.id %>)" title="<%= highlight.name %>">
+            <div class="highlight-circle">
+              <% cover = highlight.cover_media_url(self) %>
+              <% if cover %>
+                <img src="<%= cover %>" alt="<%= highlight.name %>">
+              <% else %>
+                <span class="highlight-emoji"><%= highlight.emoji %></span>
+              <% end %>
+            </div>
+            <span class="highlight-item__name"><%= highlight.name.truncate(12) %></span>
+          </div>
+        <% end %>
+
+        <% if @user == current_user %>
+          <div class="highlight-item highlight-item--new" onclick="createHighlightPrompt()" title="New Highlight">
+            <div class="highlight-circle highlight-circle--new">
+              <span>+</span>
+            </div>
+            <span class="highlight-item__name">New</span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Post Analytics (own profile only) -->
+  <% if @user == current_user && @posts_count > 0 %>
+    <div class="profile-analytics-bar">
+      <div class="analytics-stat">
+        <span class="analytics-value"><%= number_with_delimiter(@user.posts.sum(:views_count)) %></span>
+        <span class="analytics-label">Total Views</span>
+      </div>
+      <div class="analytics-stat">
+        <span class="analytics-value"><%= number_with_delimiter(@user.posts.sum(:likes_count)) %></span>
+        <span class="analytics-label">Total Likes</span>
+      </div>
+      <div class="analytics-stat">
+        <span class="analytics-value"><%= number_with_delimiter(@user.posts.sum(:comments_count)) %></span>
+        <span class="analytics-label">Total Comments</span>
+      </div>
+      <div class="analytics-stat">
+        <span class="analytics-value"><%= number_with_delimiter(@user.posts.sum(:shares_count)) %></span>
+        <span class="analytics-label">Total Shares</span>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Timeline Posts -->
   <div class="profile-content">
     <h2 class="section-title">Posts</h2>
-    
     <% if @posts.any? %>
       <div class="timeline-posts">
         <%= render partial: 'posts/post_card', collection: @posts, as: :post %>
       </div>
     <% else %>
       <div class="empty-state-timeline">
-        <svg width="80" height="80" viewBox="0 0 64 64" fill="#ccc">
-          <path d="M32 4C16.536 4 4 16.536 4 32s12.536 28 28 28 28-12.536 28-28S47.464 4 32 4zm0 52c-13.234 0-24-10.766-24-24S18.766 8 32 8s24 10.766 24 24-10.766 24-24 24z"/>
-          <path d="M32 16a4 4 0 100 8 4 4 0 000-8zm-2 14h4v16h-4V30z"/>
-        </svg>
         <h3>No posts yet</h3>
         <p>When <%= @user.name || @user.email %> posts, you'll see them here.</p>
       </div>
@@ -132,7 +217,54 @@
   </div>
 </div>
 
-<%= stylesheet_link_tag 'posts/post_card', 'data-turbo-track': 'reload' %>
-<%= stylesheet_link_tag 'posts/feed', 'data-turbo-track': 'reload' %>
-<%= stylesheet_link_tag 'profiles/show', 'data-turbo-track': 'reload' %>
-<%= javascript_include_tag 'profiles/show', 'data-turbo-track': 'reload' %>
+<script>
+  window.toggleCloseFriend = async function(userId, btn) {
+    const isActive = btn.classList.contains('btn-close-friend--active');
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    const method = isActive ? 'DELETE' : 'POST';
+    const url = `/close_friends/${userId}`;
+
+    try {
+      const resp = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken }
+      });
+      const data = await resp.json();
+      if (data.success) {
+        btn.classList.toggle('btn-close-friend--active', !isActive);
+        btn.classList.toggle('btn-close-friend', isActive);
+        btn.textContent = isActive ? '⭐ Add to Close Friends' : '⭐ Close Friend';
+        btn.title = isActive ? 'Add to Close Friends' : 'Remove from Close Friends';
+      }
+    } catch(e) { console.error(e); }
+  };
+
+  window.openHighlight = function(id) {
+    // Fetch stories for this highlight and show story viewer
+    window.location.href = `/profile_highlights/${id}/stories`;
+  };
+
+  window.createHighlightPrompt = async function() {
+    const name = prompt('Highlight name (max 15 chars):');
+    if (!name?.trim()) return;
+    const emoji = prompt('Pick an emoji:', '⭐') || '⭐';
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    const resp = await fetch('/profile_highlights', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+      body: JSON.stringify({ profile_highlight: { name: name.trim().slice(0,15), emoji } })
+    });
+    const data = await resp.json();
+    if (data.success) {
+      window.location.reload();
+    } else {
+      alert(data.errors?.join('\n'));
+    }
+  };
+</script>
+
+<%= stylesheet_link_tag 'posts/post_card',   'data-turbo-track': 'reload' %>
+<%= stylesheet_link_tag 'posts/feed',        'data-turbo-track': 'reload' %>
+<%= stylesheet_link_tag 'profiles/show',     'data-turbo-track': 'reload' %>
+<%= stylesheet_link_tag 'shared/marketplace','data-turbo-track': 'reload' %>
+<%= javascript_include_tag 'profiles/show',  'data-turbo-track': 'reload' %>

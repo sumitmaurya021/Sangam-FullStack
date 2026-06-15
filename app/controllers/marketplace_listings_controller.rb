@@ -77,7 +77,7 @@ class MarketplaceListingsController < ApplicationController
     authorize_listing!
     @listing.destroy
     respond_to do |format|
-      format.html { redirect_to marketplace_path, notice: 'Listing deleted.' }
+      format.html { redirect_to marketplace_listing_index_path, notice: 'Listing deleted.' }
       format.json { render json: { success: true } }
     end
   end
@@ -100,11 +100,11 @@ class MarketplaceListingsController < ApplicationController
   def set_listing
     @listing = MarketplaceListing.find(params[:id])
   rescue ActiveRecord::RecordNotFound
-    redirect_to marketplace_path, alert: 'Listing not found.'
+    redirect_to marketplace_listing_index_path, alert: 'Listing not found.'
   end
 
   def authorize_listing!
-    redirect_to marketplace_path, alert: 'Not authorized.' unless @listing.user == current_user
+    redirect_to marketplace_listing_index_path, alert: 'Not authorized.' unless @listing.user == current_user
   end
 
   def listing_params

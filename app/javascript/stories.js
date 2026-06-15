@@ -152,6 +152,48 @@ function showCurrentStory() {
   document.getElementById('storyViewerCaption').textContent =
     (story.story_type !== 'text' && story.caption) ? story.caption : '';
 
+  // Poll sticker
+  const existingSticker = document.getElementById('story-viewer-sticker');
+  if (existingSticker) existingSticker.remove();
+
+  if (story.poll_question && story.poll_option_a && story.poll_option_b) {
+    const stickerEl = document.createElement('div');
+    stickerEl.id = 'story-viewer-sticker';
+    stickerEl.className = 'story-poll-sticker';
+    const totalVotes = (story.poll_votes_a || 0) + (story.poll_votes_b || 0);
+    const pctA = totalVotes ? Math.round(((story.poll_votes_a||0)/totalVotes)*100) : 50;
+    const pctB = 100 - pctA;
+    stickerEl.innerHTML = `
+      <div class="story-poll-question">${escHtml(story.poll_question)}</div>
+      <div class="story-poll-options" id="story-poll-${story.id}">
+        <button class="story-poll-option" data-option="a" onclick="voteStoryPoll(${story.id},'a')">
+          <span>${escHtml(story.poll_option_a)}</span>
+          <div class="story-poll-bar"><div class="story-poll-bar__fill" id="poll-bar-a-${story.id}" style="width:${pctA}%"></div></div>
+          <span id="poll-count-a-${story.id}">${pctA}%</span>
+        </button>
+        <button class="story-poll-option" data-option="b" onclick="voteStoryPoll(${story.id},'b')">
+          <span>${escHtml(story.poll_option_b)}</span>
+          <div class="story-poll-bar"><div class="story-poll-bar__fill" id="poll-bar-b-${story.id}" style="width:${pctB}%"></div></div>
+          <span id="poll-count-b-${story.id}">${pctB}%</span>
+        </button>
+      </div>
+    `;
+    document.getElementById('storyViewer').appendChild(stickerEl);
+  } else if (story.qa_question) {
+    const stickerEl = document.createElement('div');
+    stickerEl.id = 'story-viewer-sticker';
+    stickerEl.className = 'story-qa-sticker';
+    stickerEl.innerHTML = `
+      <div class="story-qa-label">❓ Ask me anything</div>
+      <div class="story-qa-question">${escHtml(story.qa_question)}</div>
+      <div class="story-qa-input-row">
+        <input type="text" class="story-qa-input" placeholder="Type your answer..." maxlength="300" id="qa-input-${story.id}">
+        <button class="story-qa-send" onclick="submitStoryQA(${story.id}, document.getElementById('qa-input-${story.id}'))">Send</button>
+      </div>
+    `;
+    document.getElementById('storyViewer').appendChild(stickerEl);
+  }
+
   // Progress bars
   renderProgressBars(group.stories.length, currentStoryIndex);
 
@@ -274,16 +316,31 @@ window.switchStoryTab = function(type, btn) {
   const mediaSection   = document.getElementById('story-media-section');
   const textSection    = document.getElementById('story-text-section');
   const captionSection = document.getElementById('story-caption-section');
+  const pollSection    = document.getElementById('story-poll-section');
+  const qaSection      = document.getElementById('story-qa-section');
+
+  // Hide all first
+  [mediaSection, textSection, captionSection, pollSection, qaSection].forEach(el => {
+    if (el) el.style.display = 'none';
+  });
 
   if (type === 'text') {
-    mediaSection.style.display   = 'none';
-    textSection.style.display    = 'block';
-    captionSection.style.display = 'none';
+    if (textSection) textSection.style.display = 'block';
+  } else if (type === 'poll') {
+    if (mediaSection) mediaSection.style.display = 'block';
+    if (pollSection)  pollSection.style.display  = 'block';
+    document.getElementById('story-type-input').value = 'image'; // poll is on image type
+  } else if (type === 'qa') {
+    if (mediaSection) mediaSection.style.display = 'block';
+    if (qaSection)    qaSection.style.display    = 'block';
+    document.getElementById('story-type-input').value = 'image'; // qa is on image type
   } else {
-    mediaSection.style.display   = 'block';
-    textSection.style.display    = 'none';
-    captionSection.style.display = 'block';
-    document.getElementById('story-media-input').accept = type === 'video' ? 'video/*' : 'image/*';
+    if (mediaSection)   mediaSection.style.display   = 'block';
+    if (captionSection) captionSection.style.display = 'block';
+    if (mediaSection) {
+      const mediaInput = document.getElementById('story-media-input');
+      if (mediaInput) mediaInput.accept = type === 'video' ? 'video/*' : 'image/*';
+    }
   }
 };
 

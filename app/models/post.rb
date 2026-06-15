@@ -35,11 +35,16 @@ class Post < ApplicationRecord
   scope :friends_posts,  -> { where(visibility: %w[public friends]) }
   scope :visible_to, ->(user) {
     friend_ids = user.all_friends.pluck(:id)
-    if friend_ids.any?
+    close_friend_ids = user.close_friend_records.pluck(:close_friend_id)
+    all_ids = (friend_ids + [user.id]).uniq
+
+    if all_ids.any?
       where(
-        "posts.visibility = 'public' OR posts.user_id = ? OR (posts.visibility = 'friends' AND posts.user_id IN (?))",
-        user.id,
-        friend_ids
+        "posts.visibility = 'public' " \
+        "OR posts.user_id = ? " \
+        "OR (posts.visibility = 'friends' AND posts.user_id IN (?)) " \
+        "OR (posts.visibility = 'close_friends' AND posts.user_id IN (?))",
+        user.id, friend_ids, close_friend_ids
       )
     else
       where("posts.visibility = 'public' OR posts.user_id = ?", user.id)
@@ -50,10 +55,20 @@ class Post < ApplicationRecord
   # Feed algorithm: friends-first, then recency, with engagement boost
   # Returns posts ordered by a composite score (friends content = +100 boost)
   scope :ranked_feed, ->(user) {
-    friend_ids     = user.all_friends.pluck(:id)
-    all_ids        = (friend_ids + [user.id]).uniq
-    friend_ids_sql = all_ids.any? ? all_ids.join(',') : '0'
-    visible_to(user)
+    friend_ids       = user.all_friends.pluck(:id)
+    close_friend_ids = user.close_friend_records.pluck(:close_friend_id)
+    all_ids          = (friend_ids + [user.id]).uniq
+    friend_ids_sql   = all_ids.any? ? all_ids.join(',') : '0'
+    close_ids_sql    = close_friend_ids.any? ? close_friend_ids.join(',') : '0'
+
+    published
+      .where(
+        "posts.visibility = 'public' " \
+        "OR posts.user_id = ? " \
+        "OR (posts.visibility = 'friends' AND posts.user_id IN (#{friend_ids_sql})) " \
+        "OR (posts.visibility = 'close_friends' AND posts.user_id IN (#{close_ids_sql}))",
+        user.id
+      )
       .includes(:user, :likes, :comments, :shares, :hashtags)
       .order(
         Arel.sql(

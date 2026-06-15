@@ -1,6 +1,7 @@
 class BookmarksController < ApplicationController
   # GET /bookmarks  — shows both saved posts and reels, tabbed
   def index
+    @collections      = current_user.bookmark_collections.ordered
     @post_bookmarks = current_user.bookmarks
                                   .for_posts
                                   .includes(bookmarkable: [:user, :likes, :comments])

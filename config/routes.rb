@@ -212,7 +212,7 @@ Rails.application.routes.draw do
   end
 
   # ─── Marketplace ──────────────────────────────────────────────────────────────
-  resources :marketplace_listings, path: 'marketplace', as: 'marketplace_listings' do
+  resources :marketplace_listings, path: 'marketplace', as: 'marketplace_listing' do
     collection do
       get :my_listings
     end
@@ -220,7 +220,6 @@ Rails.application.routes.draw do
       patch :mark_sold
     end
   end
-  get 'marketplace', to: 'marketplace_listings#index', as: 'marketplace'
 
   # ─── Dark Mode preference (AJAX toggle) ──────────────────────────────────────
   patch 'settings/dark_mode', to: 'settings#toggle_dark_mode', as: 'toggle_dark_mode'

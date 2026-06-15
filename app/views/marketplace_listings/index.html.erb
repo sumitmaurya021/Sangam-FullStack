@@ -19,7 +19,7 @@
       </div>
 
       <!-- Search & Filters -->
-      <%= form_with url: marketplace_path, method: :get, local: true, class: 'marketplace-filters' do |f| %>
+      <%= form_with url: marketplace_listing_index_path, method: :get, local: true, class: 'marketplace-filters' do |f| %>
         <div class="marketplace-search-row">
           <%= f.text_field :q, placeholder: 'Search listings...', value: params[:q], class: 'marketplace-search-input' %>
           <%= f.submit 'Search', class: 'btn-primary btn-sm' %>
@@ -93,7 +93,7 @@
         <!-- Pagination -->
         <% if @listings.next_page %>
           <div class="pagination-wrapper">
-            <%= link_to 'Load More', marketplace_path(params.permit(:q, :category, :condition, :min_price, :max_price).merge(page: @listings.next_page)), class: 'btn-load-more' %>
+            <%= link_to 'Load More', marketplace_listing_index_path(params.permit(:q, :category, :condition, :min_price, :max_price).merge(page: @listings.next_page)), class: 'btn-load-more' %>
           </div>
         <% end %>
       <% else %>
