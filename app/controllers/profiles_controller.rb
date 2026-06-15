@@ -83,6 +83,15 @@ class ProfilesController < ApplicationController
     render json: results
   end
 
+  # Toggle dark mode via AJAX
+  def toggle_dark_mode
+    dark_mode = params[:dark_mode] == true || params[:dark_mode] == "true"
+    current_user.update_column(:dark_mode, dark_mode)
+    render json: { success: true, dark_mode: current_user.dark_mode }
+  rescue => e
+    render json: { success: false, error: e.message }, status: :unprocessable_entity
+  end
+
   private
 
   def set_user

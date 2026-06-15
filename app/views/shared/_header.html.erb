@@ -171,6 +171,31 @@
           <span>Saved Posts</span>
         <% end %>
 
+        <div class="premium-dropdown__divider"></div>
+
+        <!-- Dark Mode Toggle -->
+        <div class="premium-dropdown__item premium-dropdown__item--toggle" id="darkModeToggleItem">
+          <div class="premium-dropdown__icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" id="darkModeIcon">
+              <% if current_user.dark_mode %>
+                <!-- Sun icon for light mode -->
+                <circle cx="10" cy="10" r="3" fill="currentColor"/>
+                <path d="M10 1v2m0 14v2M4.22 4.22l1.42 1.42m8.72 8.72l1.42 1.42M1 10h2m14 0h2M4.22 15.78l1.42-1.42m8.72-8.72l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <% else %>
+                <!-- Moon icon for dark mode -->
+                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+              <% end %>
+            </svg>
+          </div>
+          <span id="darkModeLabel"><%= current_user.dark_mode ? 'Light Mode' : 'Dark Mode' %></span>
+          <div class="premium-toggle">
+            <input type="checkbox" id="darkModeCheckbox" <%= 'checked' if current_user.dark_mode %>>
+            <label for="darkModeCheckbox" class="premium-toggle__slider"></label>
+          </div>
+        </div>
+
+        <div class="premium-dropdown__divider"></div>
+
         <%= link_to memories_path, class: 'premium-dropdown__item' do %>
           <div class="premium-dropdown__icon">🕰️</div>
           <span>Memories</span>
@@ -338,6 +363,27 @@
       </svg>
       <span>Saved Posts</span>
     <% end %>
+
+    <div class="premium-mobile-nav__divider"></div>
+
+    <!-- Mobile Dark Mode Toggle -->
+    <div class="premium-mobile-nav__item premium-mobile-nav__item--toggle" id="mobileDarkModeToggleItem">
+      <svg width="24" height="24" viewBox="0 0 20 20" fill="currentColor" id="mobileDarkModeIcon">
+        <% if current_user.dark_mode %>
+          <circle cx="10" cy="10" r="3" fill="currentColor"/>
+          <path d="M10 1v2m0 14v2M4.22 4.22l1.42 1.42m8.72 8.72l1.42 1.42M1 10h2m14 0h2M4.22 15.78l1.42-1.42m8.72-8.72l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <% else %>
+          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+        <% end %>
+      </svg>
+      <span id="mobileDarkModeLabel"><%= current_user.dark_mode ? 'Light Mode' : 'Dark Mode' %></span>
+      <div class="premium-toggle">
+        <input type="checkbox" id="mobileDarkModeCheckbox" <%= 'checked' if current_user.dark_mode %>>
+        <label for="mobileDarkModeCheckbox" class="premium-toggle__slider"></label>
+      </div>
+    </div>
+
+    <div class="premium-mobile-nav__divider"></div>
 
     <%= link_to memories_path, class: "premium-mobile-nav__item #{current_page?(memories_path) ? 'is-active' : ''}" do %>
       <span style="font-size:20px;width:24px;text-align:center">🕰️</span>

@@ -72,12 +72,13 @@ Rails.application.routes.draw do
   end
 
   # Profiles
-  get 'profiles/friends_list', to: 'profiles#friends_list', as: 'friends_list'
-  get 'profiles/search',       to: 'profiles#search',       as: 'search_profiles'
-  get 'profile/:id',           to: 'profiles#show',         as: 'profile'
-  get 'profile/:id/friends',   to: 'profiles#friends',      as: 'profile_friends'
-  get 'profile/:id/following', to: 'profiles#following',    as: 'profile_following'
-  get 'profile/:id/followers', to: 'profiles#followers',    as: 'profile_followers'
+  get  'profiles/friends_list',     to: 'profiles#friends_list',     as: 'friends_list'
+  get  'profiles/search',           to: 'profiles#search',           as: 'search_profiles'
+  post 'profiles/toggle_dark_mode', to: 'profiles#toggle_dark_mode', as: 'profile_toggle_dark_mode'
+  get  'profile/:id',               to: 'profiles#show',             as: 'profile'
+  get  'profile/:id/friends',       to: 'profiles#friends',          as: 'profile_friends'
+  get  'profile/:id/following',     to: 'profiles#following',        as: 'profile_following'
+  get  'profile/:id/followers',     to: 'profiles#followers',        as: 'profile_followers'
   
   # Friendships
   resources :friendships, only: [:create, :destroy] do
