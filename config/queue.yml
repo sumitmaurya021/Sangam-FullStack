@@ -7,6 +7,22 @@ default: &default
       threads: 3
       processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
       polling_interval: 0.1
+  recurring_tasks:
+    # Run birthday notifications every day at 8am
+    birthday_notifications:
+      class: BirthdayNotificationJob
+      schedule: "0 8 * * *"
+      queue: default
+    # Archive expired stories every hour
+    archive_expired_stories:
+      class: ArchiveExpiredStoriesJob
+      schedule: "0 * * * *"
+      queue: default
+    # Send event reminders every hour
+    event_reminders:
+      class: EventReminderJob
+      schedule: "30 * * * *"
+      queue: default
 
 development:
   <<: *default

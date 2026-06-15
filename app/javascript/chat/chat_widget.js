@@ -28,9 +28,17 @@ export class ChatWidget {
   }
 
   _subscribeToPresence() {
+    // Only listen for updates to refresh sidebar dots.
+    // Heartbeating is handled by PresenceChannel class (used in chat pages).
+    // On non-chat pages (where ChatApp is not loaded), we create a minimal subscription
+    // that just updates the sidebar dots without duplicating heartbeat logic.
     consumer.subscriptions.create(
       { channel: "PresenceChannel" },
       {
+        connected() {
+          // Perform a heartbeat so we appear online on pages that don't load ChatApp
+          this.perform("heartbeat");
+        },
         received: (data) => {
           if (data.type === "presence_update") {
             this._updatePresenceDot(data.user_id, data.online);

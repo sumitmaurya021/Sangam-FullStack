@@ -1,0 +1,458 @@
+/* ==========================================================
+   TWO-FACTOR AUTHENTICATION — shared styles
+   Used by: setup, verify pages + registrations/edit settings block
+========================================================== */
+
+/* ── Page wrapper ─────────────────────────────────────── */
+.tfa-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f2f5 0%, #e4e6eb 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+.tfa-page--login {
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* ── Card ─────────────────────────────────────────────── */
+.tfa-card {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 16px 48px rgba(0,0,0,.10);
+  max-width: 640px;
+  width: 100%;
+  margin: 40px auto;
+  padding: 0 0 8px;
+  overflow: hidden;
+}
+
+.tfa-card--centered {
+  margin: 0;
+  max-width: 420px;
+  border-radius: 28px;
+}
+
+.tfa-card__header {
+  padding: 40px 40px 28px;
+  border-bottom: 1px solid #f3f4f6;
+  text-align: center;
+}
+
+.tfa-card__title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #111827;
+  margin: 16px 0 8px;
+}
+
+.tfa-card__subtitle {
+  color: #6b7280;
+  font-size: .95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.tfa-card__footer {
+  padding: 20px 40px 24px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.tfa-card__footer--center {
+  text-align: center;
+}
+
+/* ── Icons ────────────────────────────────────────────── */
+.tfa-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 4px;
+}
+
+.tfa-icon--shield {
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  color: #059669;
+}
+
+.tfa-icon--lock {
+  background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+  color: #7c3aed;
+}
+
+/* ── Steps ────────────────────────────────────────────── */
+.tfa-steps {
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.tfa-step {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.tfa-step__num {
+  min-width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-weight: 800;
+  font-size: .95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tfa-step__body h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 6px;
+}
+
+.tfa-step__body p {
+  font-size: .88rem;
+  color: #6b7280;
+  margin: 0 0 16px;
+}
+
+/* ── QR Code ──────────────────────────────────────────── */
+.tfa-qr-wrapper {
+  background: #fff;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  display: inline-flex;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.06);
+  margin-bottom: 16px;
+}
+
+.tfa-qr-wrapper svg {
+  display: block;
+  max-width: 200px;
+  height: auto;
+}
+
+/* ── Manual key ───────────────────────────────────────── */
+.tfa-manual {
+  margin-top: 8px;
+  font-size: .85rem;
+}
+
+.tfa-manual summary {
+  color: #667eea;
+  cursor: pointer;
+  font-weight: 600;
+  user-select: none;
+}
+
+.tfa-manual summary:hover { text-decoration: underline; }
+
+.tfa-secret {
+  display: block;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-size: 1rem;
+  letter-spacing: .12em;
+  color: #111827;
+  word-break: break-all;
+}
+
+.tfa-manual__hint {
+  margin: 6px 0 0;
+  color: #9ca3af;
+  font-size: .8rem;
+}
+
+/* ── OTP input + form ─────────────────────────────────── */
+.tfa-form { width: 100%; }
+
+.tfa-otp-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tfa-otp-group--centered {
+  flex-direction: column;
+}
+
+.tfa-otp-input {
+  width: 160px;
+  height: 52px;
+  border: 2px solid #e5e7eb;
+  border-radius: 14px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: .18em;
+  text-align: center;
+  color: #111827;
+  outline: none;
+  transition: border-color .2s;
+  font-family: ui-monospace, 'Courier New', monospace;
+}
+
+.tfa-otp-input--large {
+  width: 100%;
+  height: 62px;
+  font-size: 1.8rem;
+  border-radius: 16px;
+}
+
+.tfa-otp-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 4px rgba(102,126,234,.12);
+}
+
+/* ── Buttons ──────────────────────────────────────────── */
+.tfa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 24px;
+  border-radius: 14px;
+  font-size: .95rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all .22s ease;
+  text-decoration: none;
+}
+
+.tfa-btn--primary {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(102,126,234,.35);
+}
+
+.tfa-btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(102,126,234,.45);
+}
+
+.tfa-btn--full { width: 100%; }
+
+/* ── Alerts ───────────────────────────────────────────── */
+.tfa-alert {
+  margin: 0 40px 16px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  font-size: .9rem;
+  font-weight: 500;
+}
+
+.tfa-alert--error {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+/* ── Back link / hint ─────────────────────────────────── */
+.tfa-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #667eea;
+  font-size: .9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.tfa-back-link:hover { text-decoration: underline; }
+
+.tfa-hint {
+  color: #6b7280;
+  font-size: .85rem;
+  margin: 0 0 12px;
+}
+
+.tfa-link {
+  color: #667eea;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.tfa-link:hover { text-decoration: underline; }
+
+/* ==========================================================
+   SETTINGS CARD (inside edit profile page)
+========================================================== */
+.tfa-settings-card {
+  background: rgba(255,255,255,.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 28px 32px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.10);
+  margin-bottom: 2rem;
+}
+
+.tfa-settings-card__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.tfa-settings-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tfa-settings-info h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px;
+}
+
+/* Enabled / disabled badge */
+.tfa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.tfa-badge--on  { background: #d1fae5; color: #065f46; }
+.tfa-badge--off { background: #f3f4f6; color: #6b7280; }
+
+.tfa-settings-desc {
+  color: #6b7280;
+  font-size: .9rem;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+
+/* Enable button */
+.btn-tfa-enable {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 22px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: .92rem;
+  text-decoration: none;
+  transition: all .22s;
+  box-shadow: 0 4px 14px rgba(102,126,234,.3);
+}
+
+.btn-tfa-enable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(102,126,234,.45);
+}
+
+/* Disable inline form */
+.tfa-disable-form { margin-top: 4px; }
+
+.tfa-disable-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tfa-inline-input {
+  width: 220px;
+  font-family: ui-monospace, 'Courier New', monospace;
+  letter-spacing: .1em;
+}
+
+.btn-danger-outline {
+  padding: 12px 20px;
+  background: transparent;
+  border: 2px solid #ef4444;
+  color: #ef4444;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: .9rem;
+  cursor: pointer;
+  transition: all .22s;
+}
+
+.btn-danger-outline:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* ── Backup codes ─────────────────────────────────────── */
+.tfa-backup-codes {
+  background: #fffbeb;
+  border: 1.5px solid #fbbf24;
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 20px;
+}
+
+.tfa-backup-codes h4 {
+  font-size: .95rem;
+  font-weight: 700;
+  color: #92400e;
+  margin: 0 0 6px;
+}
+
+.tfa-backup-codes p {
+  font-size: .82rem;
+  color: #b45309;
+  margin: 0 0 14px;
+}
+
+.tfa-backup-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.tfa-backup-code {
+  background: #fff;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: ui-monospace, 'Courier New', monospace;
+  font-size: .82rem;
+  color: #78350f;
+  text-align: center;
+  letter-spacing: .05em;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 640px) {
+  .tfa-card { margin: 16px; border-radius: 20px; }
+  .tfa-card__header,
+  .tfa-steps,
+  .tfa-card__footer { padding-left: 22px; padding-right: 22px; }
+  .tfa-alert { margin-left: 22px; margin-right: 22px; }
+  .tfa-backup-grid { grid-template-columns: repeat(2, 1fr); }
+  .tfa-inline-input { width: 100%; }
+  .tfa-disable-row { flex-direction: column; align-items: stretch; }
+  .tfa-otp-group { flex-direction: column; align-items: stretch; }
+  .tfa-otp-input { width: 100%; }
+}

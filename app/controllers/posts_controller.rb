@@ -52,8 +52,13 @@ class PostsController < ApplicationController
     @post = current_user.posts.build(post_params)
 
     if @post.save
+      # Schedule publishing job if needed
+      if @post.scheduled_at.present? && !@post.published?
+        PublishScheduledPostJob.set(wait_until: @post.scheduled_at).perform_later(@post.id)
+      end
+
       respond_to do |format|
-        format.html { redirect_to posts_path, notice: 'Post created successfully!' }
+        format.html { redirect_to posts_path, notice: @post.scheduled? ? 'Post scheduled!' : 'Post created successfully!' }
         format.turbo_stream
       end
     else
@@ -133,6 +138,16 @@ class PostsController < ApplicationController
   end
 
   def post_params
-    params.require(:post).permit(:content, :image, :visibility, images: [])
+    params.require(:post).permit(
+      :content, :image, :visibility, :scheduled_at, :published,
+      :link_url, :link_title, :link_description, :link_image_url, :link_domain,
+      :location_name, :latitude, :longitude,
+      images: [],
+      poll_attributes: [
+        :question, :ends_at,
+        poll_options_attributes: [:body, :position]
+      ],
+      fundraiser_attributes: [:title, :description, :goal_amount, :currency, :ends_at]
+    )
   end
 end

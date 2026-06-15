@@ -16,8 +16,13 @@
             <%= time_ago_in_words(post.created_at) %> ago
             <% if post.visibility == 'friends' %>
               <span class="post-visibility-badge" title="Friends only">👥</span>
+            <% elsif post.visibility == 'close_friends' %>
+              <span class="post-visibility-badge" title="Close Friends">⭐</span>
             <% elsif post.visibility == 'private' %>
               <span class="post-visibility-badge" title="Only me">🔒</span>
+            <% end %>
+            <% if post.scheduled? %>
+              <span class="post-visibility-badge" title="Scheduled">🕐 Scheduled</span>
             <% end %>
             <% if post.edited? %>
               <span class="post-edited-badge"> · Edited</span>
@@ -71,8 +76,38 @@
 
   <!-- Post Content -->
   <div class="post-content">
-    <%= simple_format(post.content) %>
+    <%= simple_format(post.content) if post.content.present? %>
+
+    <%# Location tag %>
+    <% if post.has_location? %>
+      <div class="post-location-tag">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+        <%= post.location_name %>
+      </div>
+    <% end %>
+
+    <%# Collaborators %>
+    <% accepted_collabs = post.post_collaborators.accepted rescue [] %>
+    <% if accepted_collabs.any? %>
+      <div class="post-collaborators">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+        <span>With </span>
+        <% accepted_collabs.each_with_index do |c, i| %>
+          <%= link_to c.user.name, profile_path(c.user), class: 'collab-name' %><%= i < accepted_collabs.length - 1 ? ', ' : '' %>
+        <% end %>
+      </div>
+    <% end %>
     
+    <!-- Poll -->
+    <% if post.has_poll? %>
+      <%= render 'polls/poll', poll: post.poll %>
+    <% end %>
+
+    <%# Fundraiser %>
+    <% if post.has_fundraiser? %>
+      <%= render 'posts/fundraiser_card', fundraiser: post.fundraiser %>
+    <% end %>
+
     <!-- Multiple Images Grid -->
     <% if post.images.attached? && post.images.any? %>
       <% total = post.total_images_count %>
@@ -82,9 +117,7 @@
           <div class="post-image-item <%= 'image-overlay' if is_last %>" onclick="openImageGallery(<%= post.id %>, <%= index %>)">
             <%= image_tag image, alt: "Post image #{index + 1}", loading: "lazy" %>
             <% if is_last %>
-              <div class="image-overlay-text">
-                <span class="overlay-plus">+<%= total - 5 %></span>
-              </div>
+              <div class="image-overlay-text"><span class="overlay-plus">+<%= total - 5 %></span></div>
             <% end %>
           </div>
         <% end %>
@@ -93,6 +126,22 @@
       <div class="post-single-image">
         <%= image_tag post.image, alt: 'Post image', loading: "lazy" %>
       </div>
+    <% end %>
+
+    <%# Link Preview %>
+    <% if post.has_link_preview? %>
+      <a href="<%= post.link_url %>" target="_blank" rel="noopener noreferrer" class="link-preview-card">
+        <% if post.link_image_url.present? %>
+          <img class="link-preview-img" src="<%= post.link_image_url %>" alt="<%= post.link_title %>" onerror="this.style.display='none'">
+        <% end %>
+        <div class="link-preview-body">
+          <p class="link-preview-domain"><%= post.link_domain %></p>
+          <p class="link-preview-title"><%= post.link_title %></p>
+          <% if post.link_description.present? %>
+            <p class="link-preview-desc"><%= post.link_description.truncate(120) %></p>
+          <% end %>
+        </div>
+      </a>
     <% end %>
   </div>
 
@@ -114,6 +163,9 @@
     <div class="stat-links">
       <span><%= pluralize(post.comments_count, 'comment') %></span>
       <span><%= pluralize(post.shares_count, 'share') %></span>
+      <% if post.views_count > 0 %>
+        <span>👁 <%= number_with_delimiter(post.views_count) %></span>
+      <% end %>
     </div>
   </div>
 
@@ -160,10 +212,28 @@
       <span>Share</span>
     <% end %>
 
+    <%# Share to Story — modal rendered inline, opened by JS %>
+    <button class="action-btn action-btn--story"
+            onclick="openStsModal(<%= post.id %>)"
+            aria-label="Share to story"
+            title="Share to your story">
+      <svg class="action-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 8 12 12 14 14"/>
+        <path d="M12 2a10 10 0 010 20" stroke-dasharray="4 2"/>
+      </svg>
+      <span>Story</span>
+    </button>
+
+    <%# Inline modal — hidden until openStsModal() is called %>
+    <%= render 'stories/share_to_story_modal', post: post %>
+
     <button class="action-btn <%= post.bookmarked_by?(current_user) ? 'active' : '' %>"
             id="bookmark-btn-<%= post.id %>"
             onclick="toggleBookmark(<%= post.id %>, this)"
-            data-bookmarked="<%= post.bookmarked_by?(current_user) %>">
+            data-bookmarked="<%= post.bookmarked_by?(current_user) %>"
+            oncontextmenu="showCollectionPicker(<%= post.id %>, this); return false;"
+            title="Save post (right-click to save to collection)">
       <svg class="action-icon" width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
         <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
       </svg>

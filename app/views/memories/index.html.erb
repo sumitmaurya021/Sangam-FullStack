@@ -1,0 +1,43 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <main class="feed-main">
+
+      <div class="page-header-card memories-header">
+        <div class="memories-header__icon">🕰️</div>
+        <div>
+          <h1 class="page-title">On This Day</h1>
+          <p class="page-subtitle">
+            <%= Date.today.strftime('%B %d') %> — Memories from your past
+          </p>
+        </div>
+      </div>
+
+      <% if @memories.any? %>
+        <% @memories.group_by { |p| p.created_at.year }.sort.reverse.each do |year, posts| %>
+          <div class="memory-year-section">
+            <div class="memory-year-label">
+              <span class="memory-year-badge">
+                <%= Date.today.year - year %> year<%= Date.today.year - year == 1 ? '' : 's' %> ago — <%= year %>
+              </span>
+            </div>
+            <div class="posts-feed">
+              <%= render partial: 'posts/post_card', collection: posts, as: :post %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="bookmarks-empty">
+          <div class="bookmarks-empty__icon">🕰️</div>
+          <h3>No memories yet</h3>
+          <p>Come back after you've been posting for a while!</p>
+          <%= link_to 'Create a Post', posts_path, class: 'bookmarks-empty__btn' %>
+        </div>
+      <% end %>
+
+    </main>
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'posts/post_card',  'data-turbo-track': 'reload' %>
+<%= stylesheet_link_tag 'posts/feed',       'data-turbo-track': 'reload' %>

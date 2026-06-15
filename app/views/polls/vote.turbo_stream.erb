@@ -1,0 +1,5 @@
+<%# After a successful vote, replace the entire poll turbo_frame with
+    fresh results so the % bars animate in without a page reload. %>
+<%= turbo_stream.replace "poll-#{@poll.id}" do %>
+  <%= render 'polls/poll', poll: @poll.reload %>
+<% end %>

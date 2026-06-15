@@ -1,0 +1,295 @@
+/* ═══════════════════════════════════════════════════════
+   GROUP CHAT — supplemental styles (builds on messenger.css)
+═══════════════════════════════════════════════════════ */
+
+/* ── Tab bar (DMs | Groups) ───────────────────────────── */
+.gc-tab-bar {
+  display: flex;
+  gap: 4px;
+  padding: 6px 12px;
+  border-bottom: 1px solid #e4e6eb;
+  flex-shrink: 0;
+}
+
+.gc-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: .85rem;
+  font-weight: 600;
+  color: #65676b;
+  text-decoration: none;
+  transition: background .15s, color .15s;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+.gc-tab:hover { background: #f0f2f5; color: #050505; }
+
+.gc-tab--active {
+  background: #e7f3ff;
+  color: #0084ff;
+}
+
+/* ── Group avatar placeholder ─────────────────────────── */
+.gc-avatar-placeholder {
+  background: linear-gradient(135deg, #667eea, #764ba2) !important;
+  font-size: 18px !important;
+}
+
+.info-gc-avatar {
+  width: 72px;
+  height: 72px;
+  font-size: 28px !important;
+}
+
+/* ── Sender name above bubble (group context) ─────────── */
+.gc-msg-sender-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0084ff;
+  margin-bottom: 2px;
+  padding-left: 12px;
+  display: block;
+}
+
+/* ── Members list in info panel ───────────────────────── */
+.gc-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.gc-member-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 6px;
+  border-radius: 8px;
+  transition: background .15s;
+}
+
+.gc-member-row:hover { background: #f0f2f5; }
+
+.gc-member-mini-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.gc-member-mini-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gc-member-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gc-member-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #050505;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gc-admin-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0084ff;
+  background: #e7f3ff;
+  border-radius: 10px;
+  padding: 1px 7px;
+  flex-shrink: 0;
+}
+
+.gc-remove-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #65676b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: background .15s, color .15s;
+  flex-shrink: 0;
+}
+
+.gc-remove-btn:hover { background: #fee2e2; color: #e41e3f; }
+
+/* ── Member search results ────────────────────────────── */
+.gc-member-results {
+  margin-top: 6px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #e4e6eb;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
+
+.gc-member-results:empty { display: none; }
+
+.gc-member-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background .15s;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.gc-member-item:hover { background: #f0f2f5; }
+
+.gc-member-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ── Selected member chips ────────────────────────────── */
+.gc-selected-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.gc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #e7f3ff;
+  color: #0084ff;
+  border-radius: 16px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.gc-chip button {
+  background: none;
+  border: none;
+  color: #0084ff;
+  cursor: pointer;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.gc-chip button:hover { color: #e41e3f; }
+
+/* ── Create group modal body ──────────────────────────── */
+.gc-create-modal { width: 460px; max-height: 85vh; }
+
+.gc-create-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+.gc-field { display: flex; flex-direction: column; gap: 6px; }
+
+.gc-field-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #050505;
+}
+
+.gc-field-input {
+  padding: 10px 14px;
+  border: 1.5px solid #e4e6eb;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color .2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.gc-field-input:focus { border-color: #0084ff; }
+
+.gc-field-textarea { resize: none; min-height: 64px; }
+
+.gc-create-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid #e4e6eb;
+  margin-top: 4px;
+}
+
+.messenger-modal-close-btn {
+  padding: 10px 20px;
+  background: #e4e6eb;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+
+.messenger-modal-close-btn:hover { background: #d8dadf; }
+
+.gc-create-submit-btn {
+  padding: 10px 22px;
+  background: #0084ff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+
+.gc-create-submit-btn:hover { background: #0073e6; }
+.gc-create-submit-btn:active { transform: scale(.97); }
+
+/* ── Typing indicator with name ───────────────────────── */
+#gcTypingIndicator {
+  flex-direction: row;
+  align-items: center;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 767px) {
+  .gc-create-modal { width: calc(100vw - 32px); }
+  .gc-members-list { max-height: 200px; }
+}

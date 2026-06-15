@@ -881,3 +881,8 @@
     position: absolute;
   }
 }
+
+/* ── Reel bookmark button ──────────────────────────── */
+.reel-bookmark-btn { color: rgba(255,255,255,.9); }
+.reel-bookmark-btn.bookmarked { color: #a5b4fc; }
+.reel-bookmark-btn:hover { background: rgba(165,180,252,.18) !important; }

@@ -1,0 +1,385 @@
+<% content_for :title, "#{@group_chat.name} – Sangam" %>
+<% content_for :head do %>
+  <meta name="turbo-visit-control" content="reload">
+  <meta name="turbo-cache-control" content="no-cache">
+<% end %>
+
+<%= render 'shared/header' %>
+
+<div class="messenger-layout" id="messengerLayout">
+  <!-- Sidebar: group list -->
+  <div class="messenger-sidebar" id="messengerSidebar">
+    <div class="messenger-sidebar-header">
+      <h1 class="messenger-title">Group Chats</h1>
+      <button class="messenger-icon-btn" title="New Group Chat"
+              onclick="document.getElementById('newGroupModal').style.display='flex'">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M9 9a3 3 0 116 0 3 3 0 01-6 0zM3 9a3 3 0 116 0 3 3 0 01-6 0zM9 17a6 6 0 0112 0H9zm-6 0a6 6 0 0112 0H3z"/>
+          <path d="M16 6a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V6z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="gc-tab-bar">
+      <%= link_to conversations_path, class: 'gc-tab' do %>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 2C5.313 2 1.5 5.438 1.5 9.688c0 2.414 1.203 4.562 3.094 5.969V19l3.594-1.969A9.458 9.458 0 0010 17.5c4.687 0 8.5-3.438 8.5-7.688S14.687 2 10 2z"/>
+        </svg>
+        Direct
+      <% end %>
+      <%= link_to group_chats_path, class: 'gc-tab gc-tab--active' do %>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M9 9a3 3 0 116 0 3 3 0 01-6 0zM3 9a3 3 0 116 0 3 3 0 01-6 0zM9 17a6 6 0 0112 0H9zm-6 0a6 6 0 0112 0H3z"/>
+        </svg>
+        Groups
+      <% end %>
+    </div>
+
+    <div class="messenger-conversations-list">
+      <% current_user.group_chats.includes(:owner).recent_activity.each do |gc| %>
+        <% last = gc.last_message %>
+        <%= link_to group_chat_path(gc),
+              class: "messenger-conversation-item #{'active' if gc.id == @group_chat.id}",
+              data: { turbo: false } do %>
+          <div class="messenger-avatar-wrapper">
+            <% if gc.avatar.attached? %>
+              <%= image_tag url_for(gc.avatar), class: 'messenger-avatar', alt: gc.name %>
+            <% else %>
+              <div class="messenger-avatar-placeholder gc-avatar-placeholder">
+                <%= gc.name&.first&.upcase || 'G' %>
+              </div>
+            <% end %>
+          </div>
+          <div class="messenger-conversation-info">
+            <div class="messenger-conversation-top">
+              <span class="messenger-conversation-name"><%= gc.name %></span>
+              <span class="messenger-conversation-time">
+                <%= last ? time_ago_in_words(last.created_at) : '' %>
+              </span>
+            </div>
+            <div class="messenger-conversation-bottom">
+              <span class="messenger-last-message">
+                <% if last %>
+                  <% if last.deleted %><em>Message deleted</em>
+                  <% elsif last.message_type != 'text' %>📎 <%= last.message_type.capitalize %>
+                  <% else %><strong><%= last.user.name.split(' ').first %>:</strong> <%= truncate(last.body, length: 26) %>
+                  <% end %>
+                <% else %>
+                  <%= gc.members_count %> member<%= gc.members_count == 1 ? '' : 's' %>
+                <% end %>
+              </span>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Main chat window -->
+  <div class="messenger-main" id="messengerMain">
+    <!-- Header -->
+    <div class="messenger-chat-header">
+      <button class="messenger-back-btn" onclick="history.back()">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M12.5 15L7.5 10l5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <div class="messenger-chat-user" onclick="toggleGcInfoPanel()">
+        <div class="messenger-avatar-wrapper">
+          <% if @group_chat.avatar.attached? %>
+            <%= image_tag url_for(@group_chat.avatar), class: 'messenger-avatar', alt: @group_chat.name %>
+          <% else %>
+            <div class="messenger-avatar-placeholder gc-avatar-placeholder">
+              <%= @group_chat.name&.first&.upcase || 'G' %>
+            </div>
+          <% end %>
+        </div>
+        <div class="messenger-chat-user-info">
+          <span class="messenger-chat-user-name"><%= @group_chat.name %></span>
+          <span class="messenger-chat-user-status">
+            <%= @group_chat.members_count %> member<%= @group_chat.members_count == 1 ? '' : 's' %>
+          </span>
+        </div>
+      </div>
+
+      <div class="messenger-call-actions">
+        <button class="messenger-call-btn" onclick="toggleGcInfoPanel()" title="Group info">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            <path d="M10 9v5M10 7v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="messenger-messages-area" id="gcMessagesArea">
+      <div class="messenger-load-more" id="gcLoadMoreBtn" style="display:none;">
+        <button onclick="gcApp.loadMore()">Load earlier messages</button>
+      </div>
+      <div class="messenger-messages-list" id="gcMessagesList">
+        <% @messages.each do |msg| %>
+          <%= render partial: 'group_chats/message', locals: { msg: msg } %>
+        <% end %>
+      </div>
+      <div class="messenger-typing-indicator" id="gcTypingIndicator" style="display:none;">
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+        <span id="gcTypingName" style="font-size:12px;color:#65676b;margin-left:6px;"></span>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="messenger-input-area">
+      <div class="messenger-attachment-preview" id="gcAttachPreview" style="display:none;">
+        <div class="attachment-preview-inner" id="gcAttachPreviewInner"></div>
+        <button class="attachment-remove-btn" onclick="gcApp.clearAttachment()">✕</button>
+      </div>
+      <div class="messenger-input-row">
+        <button class="messenger-attach-btn" onclick="document.getElementById('gcImageInput').click()" title="Send image">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            <circle cx="7" cy="8.5" r="1.5" fill="currentColor"/>
+            <path d="M2 14l4-4 3 3 3-3 4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <input type="file" id="gcImageInput" style="display:none;" accept="image/*,video/*"
+               onchange="gcApp.handleAttachment(this)">
+        <div class="messenger-text-input-wrapper">
+          <textarea id="gcMessageInput" class="messenger-text-input" placeholder="Message <%= @group_chat.name %>..." rows="1"></textarea>
+        </div>
+        <button class="messenger-send-btn" id="gcSendBtn" onclick="gcApp.sendMessage()">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+            <path d="M2 10l16-8-8 16v-8L2 10z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info panel -->
+  <div class="messenger-info-panel" id="gcInfoPanel" style="display:none;">
+    <div class="info-panel-header">
+      <button class="messenger-icon-btn" onclick="toggleGcInfoPanel()">✕</button>
+      <h3>Group Info</h3>
+    </div>
+    <div class="info-panel-content">
+      <div class="info-user-section">
+        <% if @group_chat.avatar.attached? %>
+          <%= image_tag url_for(@group_chat.avatar), class: 'info-user-avatar', alt: @group_chat.name %>
+        <% else %>
+          <div class="info-user-avatar-placeholder gc-avatar-placeholder info-gc-avatar">
+            <%= @group_chat.name&.first&.upcase || 'G' %>
+          </div>
+        <% end %>
+        <h4><%= @group_chat.name %></h4>
+        <% if @group_chat.description.present? %>
+          <p class="info-user-status"><%= @group_chat.description %></p>
+        <% end %>
+        <p class="info-user-status">
+          <%= @group_chat.members_count %> members ·
+          Created by <%= @group_chat.owner.name %>
+        </p>
+      </div>
+
+      <!-- Members list -->
+      <div class="info-section">
+        <h5>Members (<%= @group_chat.members_count %>)</h5>
+        <div class="gc-members-list">
+          <% @members.each do |gcm| %>
+            <div class="gc-member-row" id="gc-member-<%= gcm.user.id %>">
+              <div class="gc-member-mini-avatar">
+                <% if gcm.user.avatar.attached? %>
+                  <%= image_tag url_for(gcm.user.avatar), alt: gcm.user.name %>
+                <% else %>
+                  <%= gcm.user.name&.first&.upcase || 'U' %>
+                <% end %>
+              </div>
+              <div class="gc-member-info">
+                <span class="gc-member-name"><%= gcm.user.name %></span>
+                <% if gcm.role == 'admin' %>
+                  <span class="gc-admin-badge">Admin</span>
+                <% end %>
+              </div>
+              <% if @group_chat.admin?(current_user) && gcm.user != @group_chat.owner && gcm.user != current_user %>
+                <%= button_to remove_member_group_chat_path(@group_chat),
+                      method: :delete,
+                      params: { user_id: gcm.user.id },
+                      class: 'gc-remove-btn',
+                      data: { turbo: false },
+                      form: { onsubmit: "return confirm('Remove #{gcm.user.name}?')" } do %>
+                  ✕
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Add member (admin only) -->
+      <% if @group_chat.admin?(current_user) %>
+        <div class="info-section">
+          <h5>Add Member</h5>
+          <input type="text" id="gcAddMemberSearch" class="messenger-friend-search"
+                 placeholder="Search friends..." autocomplete="off">
+          <div id="gcAddMemberResults" class="gc-member-results"></div>
+        </div>
+      <% end %>
+
+      <!-- Leave / Delete -->
+      <div class="info-section info-danger-section">
+        <% if @group_chat.owner == current_user %>
+          <%= button_to group_chat_path(@group_chat), method: :delete,
+                class: 'info-delete-chat-btn',
+                data: { turbo: false },
+                form: { onsubmit: "return confirm('Delete this group chat? This cannot be undone.')" } do %>
+            🗑 Delete Group
+          <% end %>
+        <% else %>
+          <%= button_to leave_group_chat_path(@group_chat), method: :delete,
+                class: 'info-delete-chat-btn',
+                data: { turbo: false },
+                form: { onsubmit: "return confirm('Leave this group?')" } do %>
+            🚪 Leave Group
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- New Group Modal (same as index page) -->
+<div class="messenger-modal-overlay" id="newGroupModal" style="display:none;"
+     onclick="if(event.target===this)this.style.display='none'">
+  <div class="messenger-modal gc-create-modal">
+    <div class="messenger-modal-header">
+      <h3>New Group Chat</h3>
+      <button class="messenger-modal-close" onclick="document.getElementById('newGroupModal').style.display='none'">✕</button>
+    </div>
+    <%= form_with url: group_chats_path, method: :post do |f| %>
+      <div class="gc-create-body">
+        <div class="gc-field">
+          <label class="gc-field-label">Group name *</label>
+          <%= f.text_field :name, placeholder: 'Group name', class: 'gc-field-input', required: true %>
+        </div>
+        <div class="gc-field">
+          <label class="gc-field-label">Add members</label>
+          <input type="text" id="gcMemberSearch2" class="gc-field-input"
+                 placeholder="Search friends..." autocomplete="off">
+          <div id="gcMemberResults2" class="gc-member-results"></div>
+          <div id="gcSelectedMembers2" class="gc-selected-chips"></div>
+          <div id="gcMemberIdInputs2"></div>
+        </div>
+        <div class="gc-create-footer">
+          <button type="button" onclick="document.getElementById('newGroupModal').style.display='none'"
+                  class="messenger-modal-close-btn">Cancel</button>
+          <%= f.submit 'Create Group', class: 'gc-create-submit-btn' %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  window.GC_DATA = {
+    groupChatId:     <%= @group_chat.id %>,
+    currentUserId:   <%= current_user.id %>,
+    currentUserName: "<%= j current_user.name %>",
+    messagesPath:    "<%= group_chat_group_chat_messages_path(@group_chat) %>",
+    isAdmin:         <%= @group_chat.admin?(current_user) %>,
+    addMemberPath:   "<%= add_member_group_chat_path(@group_chat) %>"
+  };
+
+  document.querySelector('.messenger-layout')?.classList.add('chat-open');
+  document.dispatchEvent(new Event('gc:data-ready'));
+
+  // Info panel toggle
+  function toggleGcInfoPanel() {
+    const panel = document.getElementById('gcInfoPanel');
+    panel.style.display = panel.style.display === 'none' ? '' : 'none';
+  }
+
+  // Add member search (in info panel)
+  (function() {
+    const input   = document.getElementById('gcAddMemberSearch');
+    const results = document.getElementById('gcAddMemberResults');
+    if (!input) return;
+    let timer;
+    input.addEventListener('input', function() {
+      clearTimeout(timer);
+      const q = this.value.trim();
+      if (q.length < 2) { results.innerHTML = ''; return; }
+      timer = setTimeout(() => searchForAdd(q), 280);
+    });
+    async function searchForAdd(q) {
+      const res  = await fetch(`/profiles/search?q=${encodeURIComponent(q)}`, { headers: { Accept: 'application/json' } });
+      const data = await res.json();
+      results.innerHTML = data.slice(0, 6).map(u => `
+        <div class="gc-member-item" onclick="addMemberToGroup(${u.id}, '${u.name.replace(/'/g,"\\'")}')">
+          <div class="gc-member-avatar">${u.name[0]}</div><span>${u.name}</span>
+        </div>`).join('');
+    }
+    window.addMemberToGroup = async function(userId, name) {
+      const res  = await fetch('<%= add_member_group_chat_path(@group_chat) %>', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content, Accept: 'application/json' },
+        body: JSON.stringify({ user_id: userId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        results.innerHTML = '';
+        input.value = '';
+        // Add member row to list
+        const list = document.querySelector('.gc-members-list');
+        if (list) {
+          list.insertAdjacentHTML('beforeend', `<div class="gc-member-row" id="gc-member-${userId}">
+            <div class="gc-member-mini-avatar">${name[0]}</div>
+            <div class="gc-member-info"><span class="gc-member-name">${name}</span></div>
+          </div>`);
+        }
+      }
+    };
+  })();
+
+  // Member search for new group modal (2nd instance on show page)
+  (function() {
+    const input     = document.getElementById('gcMemberSearch2');
+    const results   = document.getElementById('gcMemberResults2');
+    const chips     = document.getElementById('gcSelectedMembers2');
+    const hiddenDiv = document.getElementById('gcMemberIdInputs2');
+    if (!input) return;
+    const selected = new Map();
+    let timer;
+    input.addEventListener('input', function() {
+      clearTimeout(timer);
+      const q = this.value.trim();
+      if (q.length < 2) { results.innerHTML = ''; return; }
+      timer = setTimeout(async () => {
+        const res = await fetch(`/profiles/search?q=${encodeURIComponent(q)}`, { headers: { Accept: 'application/json' } });
+        const data = await res.json();
+        results.innerHTML = data.slice(0, 8).map(u => `
+          <div class="gc-member-item" onclick="selectMember2(${u.id},'${u.name.replace(/'/g,"\\'")}')">
+            <div class="gc-member-avatar">${u.name[0]}</div><span>${u.name}</span>
+          </div>`).join('');
+      }, 280);
+    });
+    window.selectMember2 = function(id, name) {
+      if (selected.has(id)) return;
+      selected.set(id, name);
+      results.innerHTML = ''; input.value = '';
+      const chip = document.createElement('span'); chip.className = 'gc-chip';
+      chip.innerHTML = `${name} <button type="button" onclick="removeMember2(${id},this.parentNode)">×</button>`;
+      chips.appendChild(chip);
+      const inp = document.createElement('input'); inp.type = 'hidden';
+      inp.name = 'member_ids[]'; inp.value = id; inp.id = `mid2_${id}`;
+      hiddenDiv.appendChild(inp);
+    };
+    window.removeMember2 = function(id, chip) {
+      selected.delete(id); chip.remove(); document.getElementById(`mid2_${id}`)?.remove();
+    };
+  })();
+</script>
+
+<%= stylesheet_link_tag 'chat/messenger', 'data-turbo-track': 'reload' %>
+<%= stylesheet_link_tag 'chat/group_chat', 'data-turbo-track': 'reload' %>
+<%= javascript_include_tag 'chat/group_chat_app', 'data-turbo-track': 'reload' %>

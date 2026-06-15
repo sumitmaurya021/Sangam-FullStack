@@ -1,0 +1,67 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <main class="feed-main">
+
+      <div class="page-header-card">
+        <div style="display:flex;align-items:center;gap:12px">
+          <%= link_to bookmark_collections_path, class: 'btn-secondary btn-sm' do %>
+            ← Back
+          <% end %>
+          <div>
+            <h1 class="page-title">📂 <%= @collection.name %></h1>
+            <p class="page-subtitle"><%= @bookmarks.total_count %> item<%= @bookmarks.total_count == 1 ? '' : 's' %></p>
+          </div>
+        </div>
+      </div>
+
+      <% if @bookmarks.any? %>
+        <% posts = @bookmarks.select { |b| b.bookmarkable_type == 'Post' }.map(&:bookmarkable).compact %>
+        <% reels = @bookmarks.select { |b| b.bookmarkable_type == 'Reel' }.map(&:bookmarkable).compact %>
+
+        <% if posts.any? %>
+          <div class="posts-feed">
+            <%= render partial: 'posts/post_card', collection: posts, as: :post %>
+          </div>
+        <% end %>
+        <% if reels.any? %>
+          <div class="bookmarks-reels-grid" style="margin-top:16px">
+            <% reels.each do |reel| %>
+              <div class="bookmarks-reel-card">
+                <%= link_to reels_path(anchor: "reel-#{reel.id}"), class: 'bookmarks-reel-card__thumb' do %>
+                  <% if reel.thumbnail.attached? %>
+                    <%= image_tag reel.thumbnail, alt: reel.caption.to_s.truncate(40) %>
+                  <% else %>
+                    <div class="bookmarks-reel-card__placeholder">▶</div>
+                  <% end %>
+                <% end %>
+                <div class="bookmarks-reel-card__info">
+                  <span class="bookmarks-reel-card__name"><%= reel.user.name %></span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        <% if @bookmarks.next_page %>
+          <div class="pagination-wrapper">
+            <%= link_to 'Load More', bookmark_collection_path(@collection, page: @bookmarks.next_page), class: 'btn-load-more' %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="bookmarks-empty">
+          <div class="bookmarks-empty__icon">📂</div>
+          <h3>Collection is empty</h3>
+          <p>Save posts and reels, then move them here.</p>
+          <%= link_to 'Browse Feed', posts_path, class: 'bookmarks-empty__btn' %>
+        </div>
+      <% end %>
+
+    </main>
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'posts/post_card',   'data-turbo-track': 'reload' %>
+<%= stylesheet_link_tag 'posts/feed',        'data-turbo-track': 'reload' %>
+<%= stylesheet_link_tag 'bookmarks/bookmarks','data-turbo-track': 'reload' %>
+<%= stylesheet_link_tag 'shared/collections','data-turbo-track': 'reload' %>

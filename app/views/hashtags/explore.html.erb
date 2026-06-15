@@ -24,50 +24,36 @@
           <%= link_to post_path(post), class: 'explore-grid-item' do %>
             <% if post.images.attached? && post.images.count > 0 %>
               <%= image_tag post.images.first, alt: 'Post image' %>
-              
               <% if post.images.count > 1 %>
                 <div class="multiple-images-icon">📷</div>
               <% end %>
-              
               <div class="explore-grid-overlay">
-                <div class="explore-grid-stat">
-                  <span>❤️</span>
-                  <span><%= post.likes_count || 0 %></span>
-                </div>
-                <div class="explore-grid-stat">
-                  <span>💬</span>
-                  <span><%= post.comments_count || 0 %></span>
-                </div>
+                <div class="explore-grid-stat"><span>❤️</span><span><%= post.likes_count || 0 %></span></div>
+                <div class="explore-grid-stat"><span>💬</span><span><%= post.comments_count || 0 %></span></div>
               </div>
-            <% elsif post.video.attached? %>
-              <%= video_tag post.video, alt: 'Post video', muted: true, autoplay: false %>
-              <div class="video-icon">▶️</div>
-              
+
+            <% elsif post.image.attached? %>
+              <%= image_tag post.image, alt: 'Post image' %>
               <div class="explore-grid-overlay">
-                <div class="explore-grid-stat">
-                  <span>❤️</span>
-                  <span><%= post.likes_count || 0 %></span>
-                </div>
-                <div class="explore-grid-stat">
-                  <span>💬</span>
-                  <span><%= post.comments_count || 0 %></span>
-                </div>
+                <div class="explore-grid-stat"><span>❤️</span><span><%= post.likes_count || 0 %></span></div>
+                <div class="explore-grid-stat"><span>💬</span><span><%= post.comments_count || 0 %></span></div>
               </div>
+
+            <% elsif post.has_link_preview? && post.link_image_url.present? %>
+              <img src="<%= post.link_image_url %>" alt="Link preview" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">
+              <div class="multiple-images-icon" style="background:#1877f2">🔗</div>
+              <div class="explore-grid-overlay">
+                <div class="explore-grid-stat"><span>❤️</span><span><%= post.likes_count || 0 %></span></div>
+                <div class="explore-grid-stat"><span>💬</span><span><%= post.comments_count || 0 %></span></div>
+              </div>
+
             <% else %>
-              <!-- Placeholder for text-only posts -->
-              <div style="background: linear-gradient(45deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: bold; padding: 2rem; text-align: center;">
-                <%= truncate(post.content, length: 50) %>
+              <div style="background: linear-gradient(45deg, #667eea, #764ba2); width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:white; font-size:1rem; font-weight:600; padding:1rem; text-align:center;">
+                <%= truncate(post.content.to_s, length: 60) %>
               </div>
-              
               <div class="explore-grid-overlay">
-                <div class="explore-grid-stat">
-                  <span>❤️</span>
-                  <span><%= post.likes_count || 0 %></span>
-                </div>
-                <div class="explore-grid-stat">
-                  <span>💬</span>
-                  <span><%= post.comments_count || 0 %></span>
-                </div>
+                <div class="explore-grid-stat"><span>❤️</span><span><%= post.likes_count || 0 %></span></div>
+                <div class="explore-grid-stat"><span>💬</span><span><%= post.comments_count || 0 %></span></div>
               </div>
             <% end %>
           <% end %>

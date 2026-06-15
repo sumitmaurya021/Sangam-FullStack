@@ -385,3 +385,64 @@
     }
   }
 </script>
+
+/* ─── Edit Profile — New Feature Fields ──────────────────────── */
+
+/* Toggle switch (dark mode checkbox) */
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary, #050505);
+  user-select: none;
+}
+.toggle-checkbox { display: none; }
+.toggle-slider {
+  width: 44px;
+  height: 24px;
+  background: var(--border-color, #e4e6ea);
+  border-radius: 12px;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.toggle-slider::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,.2);
+}
+.toggle-checkbox:checked + .toggle-slider { background: #667eea; }
+.toggle-checkbox:checked + .toggle-slider::after { transform: translateX(20px); }
+
+/* Form row flex */
+.form-row {
+  display: flex;
+  gap: 16px;
+}
+.form-row .form-group { flex: 1; }
+
+/* Dark mode edit profile */
+body.dark-mode .edit-profile-container { background: var(--bg-primary); }
+body.dark-mode .edit-profile-content { background: var(--bg-card); border-color: var(--border-color); }
+body.dark-mode .form-section { background: var(--bg-card); }
+body.dark-mode .section-title { color: var(--text-primary); }
+body.dark-mode .section-subtitle { color: var(--text-secondary); }
+body.dark-mode .tfa-settings-card { background: var(--bg-card); border-color: var(--border-color); }
+body.dark-mode .tfa-settings-info h3 { color: var(--text-primary); }
+body.dark-mode .tfa-settings-desc { color: var(--text-secondary); }
+body.dark-mode .danger-zone { border-color: var(--border-color); }
+body.dark-mode .danger-zone h3 { color: #fca5a5; }
+body.dark-mode .danger-zone p { color: var(--text-secondary); }
+body.dark-mode .toggle-label { color: var(--text-primary); }
+body.dark-mode .toggle-slider { background: var(--bg-input); }
+body.dark-mode .help-text { color: var(--text-tertiary); }

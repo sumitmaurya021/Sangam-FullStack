@@ -183,17 +183,37 @@ export class ChatApp {
     const headerDot = document.getElementById("headerOnlineDot");
     const infoPanelStatus = document.getElementById("infoPanelStatus");
 
+    // Build the status text — use real last_seen_at timestamp when offline
+    let statusText;
+    if (data.online) {
+      statusText = '<span class="status-online">Active now</span>';
+    } else if (data.last_seen_at) {
+      statusText = `Active ${this._timeAgo(new Date(data.last_seen_at))} ago`;
+    } else {
+      statusText = 'Offline';
+    }
+
     if (statusEl) {
-      statusEl.innerHTML = data.online
-        ? '<span class="status-online">Active now</span>'
-        : 'Active recently';
+      statusEl.innerHTML = statusText;
     }
     if (headerDot) {
       headerDot.className = `messenger-online-dot ${data.online ? 'online' : 'offline'}`;
     }
     if (infoPanelStatus) {
-      infoPanelStatus.textContent = data.online ? 'Active now' : 'Active recently';
+      infoPanelStatus.innerHTML = statusText;
     }
+  }
+
+  // Returns a human-readable relative time string (e.g. "5 minutes", "2 hours")
+  _timeAgo(date) {
+    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (seconds < 60)  return 'a few seconds';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60)  return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24)    return `${hours} hour${hours !== 1 ? 's' : ''}`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days !== 1 ? 's' : ''}`;
   }
 
   // ─── Notification (UserChatChannel) ───────────────────────────────────────

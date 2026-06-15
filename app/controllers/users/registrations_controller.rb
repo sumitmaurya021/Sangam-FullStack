@@ -21,7 +21,10 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   # If you have extra params to permit, append them to the sanitizer.
   def configure_account_update_params
-    devise_parameter_sanitizer.permit(:account_update, keys: [:name, :bio, :avatar, :cover_photo])
+    devise_parameter_sanitizer.permit(:account_update, keys: [
+      :name, :bio, :avatar, :cover_photo,
+      :website_url, :birthday, :location, :dark_mode
+    ])
   end
 
   # Allow profile fields and images to update without requiring the current

@@ -1,0 +1,112 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <main class="feed-main marketplace-page">
+
+      <!-- Header -->
+      <div class="page-header-card">
+        <div class="marketplace-header">
+          <div>
+            <h1 class="page-title">
+              🛍️ Marketplace
+            </h1>
+            <p class="page-subtitle">Buy and sell in your community</p>
+          </div>
+          <%= link_to new_marketplace_listing_path, class: 'btn-primary' do %>
+            + Create Listing
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Search & Filters -->
+      <%= form_with url: marketplace_listing_index_path, method: :get, local: true, class: 'marketplace-filters' do |f| %>
+        <div class="marketplace-search-row">
+          <%= f.text_field :q, placeholder: 'Search listings...', value: params[:q], class: 'marketplace-search-input' %>
+          <%= f.submit 'Search', class: 'btn-primary btn-sm' %>
+        </div>
+        <div class="marketplace-filter-row">
+          <select name="category" class="marketplace-select" onchange="this.form.submit()">
+            <option value="">All Categories</option>
+            <% MarketplaceListing::CATEGORIES.each do |cat| %>
+              <option value="<%= cat %>" <%= 'selected' if params[:category] == cat %>>
+                <%= cat.humanize %>
+              </option>
+            <% end %>
+          </select>
+          <select name="condition" class="marketplace-select" onchange="this.form.submit()">
+            <option value="">Any Condition</option>
+            <% MarketplaceListing::CONDITIONS.each do |cond| %>
+              <option value="<%= cond %>" <%= 'selected' if params[:condition] == cond %>>
+                <%= cond.humanize %>
+              </option>
+            <% end %>
+          </select>
+          <input type="number" name="min_price" placeholder="Min $" value="<%= params[:min_price] %>" class="marketplace-price-input" onchange="this.form.submit()">
+          <input type="number" name="max_price" placeholder="Max $" value="<%= params[:max_price] %>" class="marketplace-price-input" onchange="this.form.submit()">
+        </div>
+      <% end %>
+
+      <!-- Listings Grid -->
+      <% if @listings.any? %>
+        <div class="marketplace-grid">
+          <% @listings.each do |listing| %>
+            <%= link_to marketplace_listing_path(listing), class: 'marketplace-card' do %>
+              <!-- Image -->
+              <div class="marketplace-card__image">
+                <% if listing.images.attached? %>
+                  <%= image_tag listing.images.first, alt: listing.title %>
+                <% else %>
+                  <div class="marketplace-card__no-image">
+                    <span>🖼️</span>
+                  </div>
+                <% end %>
+                <% if listing.status == 'sold' %>
+                  <div class="marketplace-card__sold-badge">SOLD</div>
+                <% end %>
+              </div>
+              <!-- Info -->
+              <div class="marketplace-card__info">
+                <h3 class="marketplace-card__title"><%= listing.title.truncate(50) %></h3>
+                <p class="marketplace-card__price"><%= listing.formatted_price %></p>
+                <div class="marketplace-card__meta">
+                  <span class="marketplace-card__category"><%= listing.category.humanize %></span>
+                  <span class="marketplace-card__condition"><%= listing.condition.humanize %></span>
+                </div>
+                <% if listing.location_name.present? %>
+                  <p class="marketplace-card__location">📍 <%= listing.location_name %></p>
+                <% end %>
+                <div class="marketplace-card__seller">
+                  <div class="marketplace-card__avatar">
+                    <% if listing.user.avatar.attached? %>
+                      <%= image_tag listing.user.avatar, alt: listing.user.name %>
+                    <% else %>
+                      <%= listing.user.name&.first&.upcase %>
+                    <% end %>
+                  </div>
+                  <span><%= listing.user.name %></span>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+
+        <!-- Pagination -->
+        <% if @listings.next_page %>
+          <div class="pagination-wrapper">
+            <%= link_to 'Load More', marketplace_listing_index_path(params.permit(:q, :category, :condition, :min_price, :max_price).merge(page: @listings.next_page)), class: 'btn-load-more' %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="bookmarks-empty">
+          <div class="bookmarks-empty__icon">🛍️</div>
+          <h3>No listings yet</h3>
+          <p>Be the first to list something!</p>
+          <%= link_to 'Create Listing', new_marketplace_listing_path, class: 'bookmarks-empty__btn' %>
+        </div>
+      <% end %>
+
+    </main>
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'shared/marketplace', 'data-turbo-track': 'reload' %>

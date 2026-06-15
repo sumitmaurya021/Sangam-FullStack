@@ -15,6 +15,7 @@ class PremiumHeader {
     this.initSearch();
     this.initClickOutside();
     this.initNotifications();
+    this.initDarkModeToggle();
   }
 
   // ==================== DROPDOWNS ====================
@@ -372,6 +373,109 @@ class PremiumHeader {
         });
       }
     });
+  }
+
+  // ==================== DARK MODE TOGGLE ====================
+
+  initDarkModeToggle() {
+    // Desktop toggle
+    const desktopCheckbox = document.getElementById('darkModeCheckbox');
+    if (desktopCheckbox) {
+      desktopCheckbox.addEventListener('change', () => {
+        this.toggleDarkMode(desktopCheckbox.checked);
+      });
+    }
+
+    // Mobile toggle
+    const mobileCheckbox = document.getElementById('mobileDarkModeCheckbox');
+    if (mobileCheckbox) {
+      mobileCheckbox.addEventListener('change', () => {
+        this.toggleDarkMode(mobileCheckbox.checked);
+      });
+    }
+  }
+
+  toggleDarkMode(isDark) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    if (!csrfToken) return;
+
+    // Immediate UI update for smooth transition
+    document.documentElement.classList.toggle('dark-mode', isDark);
+    document.body.classList.toggle('dark-mode', isDark);
+    document.body.dataset.darkMode = isDark ? 'true' : 'false';
+
+    // Update icons and labels on both toggles
+    this.updateDarkModeUI(isDark);
+
+    // Persist to server
+    fetch('/profiles/toggle_dark_mode', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ dark_mode: isDark })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (!data.success) {
+        console.error('Dark mode toggle failed:', data);
+        // Revert on error
+        document.documentElement.classList.toggle('dark-mode', !isDark);
+        document.body.classList.toggle('dark-mode', !isDark);
+        document.body.dataset.darkMode = isDark ? 'false' : 'true';
+        this.updateDarkModeUI(!isDark);
+      }
+    })
+    .catch(err => {
+      console.error('Dark mode toggle error:', err);
+      // Revert on error
+      document.documentElement.classList.toggle('dark-mode', !isDark);
+      document.body.classList.toggle('dark-mode', !isDark);
+      document.body.dataset.darkMode = isDark ? 'false' : 'true';
+      this.updateDarkModeUI(!isDark);
+    });
+  }
+
+  updateDarkModeUI(isDark) {
+    // Desktop icon & label
+    const desktopIcon = document.getElementById('darkModeIcon');
+    const desktopLabel = document.getElementById('darkModeLabel');
+    const desktopCheckbox = document.getElementById('darkModeCheckbox');
+
+    if (desktopIcon) {
+      desktopIcon.innerHTML = isDark
+        ? `<circle cx="10" cy="10" r="3" fill="currentColor"/><path d="M10 1v2m0 14v2M4.22 4.22l1.42 1.42m8.72 8.72l1.42 1.42M1 10h2m14 0h2M4.22 15.78l1.42-1.42m8.72-8.72l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>`
+        : `<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>`;
+    }
+
+    if (desktopLabel) {
+      desktopLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+    }
+
+    if (desktopCheckbox) {
+      desktopCheckbox.checked = isDark;
+    }
+
+    // Mobile icon & label
+    const mobileIcon = document.getElementById('mobileDarkModeIcon');
+    const mobileLabel = document.getElementById('mobileDarkModeLabel');
+    const mobileCheckbox = document.getElementById('mobileDarkModeCheckbox');
+
+    if (mobileIcon) {
+      mobileIcon.innerHTML = isDark
+        ? `<circle cx="10" cy="10" r="3" fill="currentColor"/><path d="M10 1v2m0 14v2M4.22 4.22l1.42 1.42m8.72 8.72l1.42 1.42M1 10h2m14 0h2M4.22 15.78l1.42-1.42m8.72-8.72l1.42-1.42" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>`
+        : `<path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>`;
+    }
+
+    if (mobileLabel) {
+      mobileLabel.textContent = isDark ? 'Light Mode' : 'Dark Mode';
+    }
+
+    if (mobileCheckbox) {
+      mobileCheckbox.checked = isDark;
+    }
   }
 }
 

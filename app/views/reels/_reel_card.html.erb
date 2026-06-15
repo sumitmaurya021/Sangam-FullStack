@@ -100,6 +100,24 @@
     </div>
     <% end %>
 
+    <!-- Bookmark -->
+    <div class="reel-action-item">
+      <button class="reel-action-btn reel-bookmark-btn <%= reel.bookmarked_by?(current_user) ? 'bookmarked' : '' %>"
+              id="reel-bookmark-btn-<%= reel.id %>"
+              data-reel-id="<%= reel.id %>"
+              data-bookmarked="<%= reel.bookmarked_by?(current_user) %>"
+              onclick="toggleReelBookmark(<%= reel.id %>, this)"
+              title="<%= reel.bookmarked_by?(current_user) ? 'Remove from saved' : 'Save reel' %>">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="<%= reel.bookmarked_by?(current_user) ? 'currentColor' : 'none' %>"
+             stroke="currentColor" stroke-width="2" id="reel-bookmark-icon-<%= reel.id %>">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+        </svg>
+      </button>
+      <span class="reel-action-count" id="reel-bookmark-label-<%= reel.id %>">
+        <%= reel.bookmarked_by?(current_user) ? 'Saved' : 'Save' %>
+      </span>
+    </div>
+
   </div>
 
   <!-- Bottom overlay: user info + caption + music + hashtags -->

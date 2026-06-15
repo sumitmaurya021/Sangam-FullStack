@@ -92,6 +92,8 @@
       <button class="story-tab active" onclick="switchStoryTab('image', this)">📷 Photo</button>
       <button class="story-tab" onclick="switchStoryTab('video', this)">🎥 Video</button>
       <button class="story-tab" onclick="switchStoryTab('text', this)">✏️ Text</button>
+      <button class="story-tab" onclick="switchStoryTab('poll', this)">📊 Poll</button>
+      <button class="story-tab" onclick="switchStoryTab('qa', this)">❓ Q&amp;A</button>
     </div>
 
     <%= form_with url: stories_path, method: :post, multipart: true, id: 'create-story-form', class: 'create-story-form' do |f| %>
@@ -132,6 +134,29 @@
       <!-- Caption (for photo/video) -->
       <div id="story-caption-section">
         <%= f.text_field :caption, placeholder: 'Add a caption...', class: 'story-caption-input', maxlength: 200 %>
+      </div>
+
+      <!-- Poll Sticker section -->
+      <div id="story-poll-section" style="display:none;">
+        <div class="story-sticker-card">
+          <div class="story-sticker-card__icon">📊</div>
+          <h4>Poll Sticker</h4>
+          <input type="text" name="story[poll_question]" placeholder="Ask a question..." maxlength="80" class="form-control story-sticker-input">
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <input type="text" name="story[poll_option_a]" placeholder="Option A" maxlength="30" class="form-control story-sticker-input" style="flex:1">
+            <input type="text" name="story[poll_option_b]" placeholder="Option B" maxlength="30" class="form-control story-sticker-input" style="flex:1">
+          </div>
+        </div>
+      </div>
+
+      <!-- Q&A Sticker section -->
+      <div id="story-qa-section" style="display:none;">
+        <div class="story-sticker-card">
+          <div class="story-sticker-card__icon">❓</div>
+          <h4>Ask Me Anything</h4>
+          <input type="text" name="story[qa_question]" placeholder="Ask me anything..." maxlength="100" class="form-control story-sticker-input">
+          <p class="form-hint" style="margin-top:6px">Followers can reply to your question privately.</p>
+        </div>
       </div>
 
       <!-- Hidden fields for text story -->

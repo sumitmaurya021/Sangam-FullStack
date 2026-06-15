@@ -2,13 +2,28 @@ class ProfilesController < ApplicationController
   before_action :set_user, except: [:friends_list, :search]
 
   def show
-    @posts = @user.posts.includes(:likes, :comments, :shares).order(created_at: :desc)
-    @friends_count = @user.all_friends.count
-    @posts_count = @user.posts.count
+    @posts           = @user.posts.published
+                             .includes(:likes, :comments, :shares, :post_collaborators => :user)
+                             .order(created_at: :desc)
+    @friends_count   = @user.all_friends.count
+    @posts_count     = @user.posts.published.count
+    @followers_count = @user.followers_count
+    @following_count = @user.following_count
+    @highlights      = @user.profile_highlights.ordered
+    @mutual_friends  = current_user == @user ? [] : current_user.mutual_friends_with(@user).first(6)
+    @is_close_friend = current_user != @user && current_user.close_friends_with?(@user)
   end
 
   def friends
     @friends = @user.all_friends
+  end
+
+  def following
+    @following = @user.following.order('follows.created_at DESC').page(params[:page]).per(20)
+  end
+
+  def followers
+    @followers = @user.followers.order('follows.created_at DESC').page(params[:page]).per(20)
   end
 
   # JSON endpoint for chat new message modal
@@ -66,6 +81,15 @@ class ProfilesController < ApplicationController
     end
 
     render json: results
+  end
+
+  # Toggle dark mode via AJAX
+  def toggle_dark_mode
+    dark_mode = params[:dark_mode] == true || params[:dark_mode] == "true"
+    current_user.update_column(:dark_mode, dark_mode)
+    render json: { success: true, dark_mode: current_user.dark_mode }
+  rescue => e
+    render json: { success: false, error: e.message }, status: :unprocessable_entity
   end
 
   private

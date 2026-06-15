@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html class="<%= 'dark-mode' if user_signed_in? && current_user.dark_mode %>">
   <head>
     <title><%= content_for(:title) || "Sangam" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -28,6 +28,7 @@
     <%# Core stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag 'shared/header',                  'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'shared/dark_mode',               'data-turbo-track': 'reload' %>
     <%= stylesheet_link_tag 'chat/messenger',                 'data-turbo-track': 'reload' %>
     <%= stylesheet_link_tag 'chat/chat_widget',               'data-turbo-track': 'reload' %>
     <%= stylesheet_link_tag 'notifications/notifications',    'data-turbo-track': 'reload' %>
@@ -36,11 +37,13 @@
     <%= stylesheet_link_tag 'events/events',                  'data-turbo-track': 'reload' %>
     <%= stylesheet_link_tag 'search/search',                  'data-turbo-track': 'reload' %>
     <%= stylesheet_link_tag 'bookmarks/bookmarks',            'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'shared/collections',             'data-turbo-track': 'reload' %>
     <%= yield :head %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body class="<%= 'dark-mode' if user_signed_in? && current_user.dark_mode %>"
+        data-dark-mode="<%= user_signed_in? && current_user.dark_mode ? 'true' : 'false' %>">
     <%= yield %>
     <%= render 'shared/chat_widget' if user_signed_in? %>
   </body>

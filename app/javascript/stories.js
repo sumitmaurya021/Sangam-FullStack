@@ -114,6 +114,35 @@ function showCurrentStory() {
     txt.style.background = story.background_color || '#1a1a2e';
     txt.style.color      = story.text_color || '#fff';
     txt.textContent      = story.caption || '';
+  } else if (story.story_type === 'shared_post' && story.shared_post) {
+    // Render shared post card inline
+    const sp = story.shared_post;
+    txt.style.display    = 'flex';
+    txt.style.flexDirection = 'column';
+    txt.style.alignItems = 'flex-start';
+    txt.style.padding    = '24px';
+    txt.style.background = story.background_color || '#1a1a2e';
+    txt.style.color      = story.text_color || '#fff';
+    txt.style.fontSize   = '14px';
+    txt.style.fontWeight = '400';
+    txt.style.textAlign  = 'left';
+
+    const authorAvatar = sp.author.avatar
+      ? `<img src="${sp.author.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
+      : `<span style="font-weight:700;">${(sp.author.name || '?')[0].toUpperCase()}</span>`;
+
+    txt.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.2);
+                    display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">
+          ${authorAvatar}
+        </div>
+        <span style="font-weight:700;font-size:14px;">${escHtml(sp.author.name)}</span>
+      </div>
+      ${sp.content ? `<p style="margin:0 0 12px;line-height:1.5;opacity:.92;">${escHtml(sp.content)}</p>` : ''}
+      ${sp.image_url ? `<img src="${sp.image_url}" style="width:100%;border-radius:12px;object-fit:cover;max-height:220px;">` : ''}
+      ${story.caption ? `<p style="margin-top:12px;font-style:italic;opacity:.8;">"${escHtml(story.caption)}"</p>` : ''}
+    `;
   } else if (story.media_url) {
     img.src = story.media_url;
     img.style.display = 'block';
@@ -122,6 +151,48 @@ function showCurrentStory() {
   // Caption
   document.getElementById('storyViewerCaption').textContent =
     (story.story_type !== 'text' && story.caption) ? story.caption : '';
+
+  // Poll sticker
+  const existingSticker = document.getElementById('story-viewer-sticker');
+  if (existingSticker) existingSticker.remove();
+
+  if (story.poll_question && story.poll_option_a && story.poll_option_b) {
+    const stickerEl = document.createElement('div');
+    stickerEl.id = 'story-viewer-sticker';
+    stickerEl.className = 'story-poll-sticker';
+    const totalVotes = (story.poll_votes_a || 0) + (story.poll_votes_b || 0);
+    const pctA = totalVotes ? Math.round(((story.poll_votes_a||0)/totalVotes)*100) : 50;
+    const pctB = 100 - pctA;
+    stickerEl.innerHTML = `
+      <div class="story-poll-question">${escHtml(story.poll_question)}</div>
+      <div class="story-poll-options" id="story-poll-${story.id}">
+        <button class="story-poll-option" data-option="a" onclick="voteStoryPoll(${story.id},'a')">
+          <span>${escHtml(story.poll_option_a)}</span>
+          <div class="story-poll-bar"><div class="story-poll-bar__fill" id="poll-bar-a-${story.id}" style="width:${pctA}%"></div></div>
+          <span id="poll-count-a-${story.id}">${pctA}%</span>
+        </button>
+        <button class="story-poll-option" data-option="b" onclick="voteStoryPoll(${story.id},'b')">
+          <span>${escHtml(story.poll_option_b)}</span>
+          <div class="story-poll-bar"><div class="story-poll-bar__fill" id="poll-bar-b-${story.id}" style="width:${pctB}%"></div></div>
+          <span id="poll-count-b-${story.id}">${pctB}%</span>
+        </button>
+      </div>
+    `;
+    document.getElementById('storyViewer').appendChild(stickerEl);
+  } else if (story.qa_question) {
+    const stickerEl = document.createElement('div');
+    stickerEl.id = 'story-viewer-sticker';
+    stickerEl.className = 'story-qa-sticker';
+    stickerEl.innerHTML = `
+      <div class="story-qa-label">❓ Ask me anything</div>
+      <div class="story-qa-question">${escHtml(story.qa_question)}</div>
+      <div class="story-qa-input-row">
+        <input type="text" class="story-qa-input" placeholder="Type your answer..." maxlength="300" id="qa-input-${story.id}">
+        <button class="story-qa-send" onclick="submitStoryQA(${story.id}, document.getElementById('qa-input-${story.id}'))">Send</button>
+      </div>
+    `;
+    document.getElementById('storyViewer').appendChild(stickerEl);
+  }
 
   // Progress bars
   renderProgressBars(group.stories.length, currentStoryIndex);
@@ -245,16 +316,31 @@ window.switchStoryTab = function(type, btn) {
   const mediaSection   = document.getElementById('story-media-section');
   const textSection    = document.getElementById('story-text-section');
   const captionSection = document.getElementById('story-caption-section');
+  const pollSection    = document.getElementById('story-poll-section');
+  const qaSection      = document.getElementById('story-qa-section');
+
+  // Hide all first
+  [mediaSection, textSection, captionSection, pollSection, qaSection].forEach(el => {
+    if (el) el.style.display = 'none';
+  });
 
   if (type === 'text') {
-    mediaSection.style.display   = 'none';
-    textSection.style.display    = 'block';
-    captionSection.style.display = 'none';
+    if (textSection) textSection.style.display = 'block';
+  } else if (type === 'poll') {
+    if (mediaSection) mediaSection.style.display = 'block';
+    if (pollSection)  pollSection.style.display  = 'block';
+    document.getElementById('story-type-input').value = 'image'; // poll is on image type
+  } else if (type === 'qa') {
+    if (mediaSection) mediaSection.style.display = 'block';
+    if (qaSection)    qaSection.style.display    = 'block';
+    document.getElementById('story-type-input').value = 'image'; // qa is on image type
   } else {
-    mediaSection.style.display   = 'block';
-    textSection.style.display    = 'none';
-    captionSection.style.display = 'block';
-    document.getElementById('story-media-input').accept = type === 'video' ? 'video/*' : 'image/*';
+    if (mediaSection)   mediaSection.style.display   = 'block';
+    if (captionSection) captionSection.style.display = 'block';
+    if (mediaSection) {
+      const mediaInput = document.getElementById('story-media-input');
+      if (mediaInput) mediaInput.accept = type === 'video' ? 'video/*' : 'image/*';
+    }
   }
 };
 
@@ -302,3 +388,21 @@ function timeAgo(isoStr) {
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
   return `${Math.floor(seconds / 3600)}h ago`;
 }
+
+// ── Share-to-Story Modal ────────────────────────────────────
+// The modal is rendered inline in the post card partial.
+// openStsModal() just makes the already-present overlay visible.
+window.openStsModal = function(postId) {
+  const overlay = document.getElementById(`sts-overlay-${postId}`);
+  if (!overlay) return;
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeStsModal = function(postId) {
+  const overlay = document.getElementById(`sts-overlay-${postId}`);
+  if (overlay) {
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+};

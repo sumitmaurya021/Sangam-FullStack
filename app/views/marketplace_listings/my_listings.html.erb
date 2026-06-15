@@ -1,0 +1,73 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+  <div class="feed-layout">
+    <main class="feed-main marketplace-page">
+
+      <div class="page-header-card">
+        <div class="marketplace-header">
+          <div>
+            <h1 class="page-title">🛍️ My Listings</h1>
+            <p class="page-subtitle"><%= @listings.total_count %> listing<%= @listings.total_count == 1 ? '' : 's' %></p>
+          </div>
+          <div style="display:flex;gap:10px">
+            <%= link_to marketplace_listing_index_path, class: 'btn-secondary btn-sm' do %>← Browse<% end %>
+            <%= link_to new_marketplace_listing_path, class: 'btn-primary' do %>+ New Listing<% end %>
+          </div>
+        </div>
+      </div>
+
+      <% if @listings.any? %>
+        <div class="marketplace-grid">
+          <% @listings.each do |listing| %>
+            <div class="marketplace-card" style="text-decoration:none;color:inherit">
+              <div class="marketplace-card__image">
+                <% if listing.images.attached? %>
+                  <%= image_tag listing.images.first, alt: listing.title %>
+                <% else %>
+                  <div class="marketplace-card__no-image"><span>🖼️</span></div>
+                <% end %>
+                <div class="marketplace-card__sold-badge" style="background:<%= listing.status == 'sold' ? '#e41e3f' : listing.status == 'reserved' ? '#f59e0b' : '#1a7f37' %>">
+                  <%= listing.status.upcase %>
+                </div>
+              </div>
+              <div class="marketplace-card__info">
+                <h3 class="marketplace-card__title"><%= listing.title.truncate(50) %></h3>
+                <p class="marketplace-card__price"><%= listing.formatted_price %></p>
+                <div class="marketplace-card__meta">
+                  <span class="marketplace-card__category"><%= listing.category.humanize %></span>
+                  <span class="marketplace-card__views">👁 <%= listing.views_count %></span>
+                </div>
+                <div class="marketplace-detail__actions" style="margin-top:8px">
+                  <%= link_to marketplace_listing_path(listing), class: 'btn-secondary btn-sm' do %>View<% end %>
+                  <%= link_to edit_marketplace_listing_path(listing), class: 'btn-secondary btn-sm' do %>Edit<% end %>
+                  <% if listing.status == 'active' %>
+                    <%= button_to mark_sold_marketplace_listing_path(listing), method: :patch, class: 'btn-sm btn-danger' do %>Sold<% end %>
+                  <% end %>
+                  <%= button_to marketplace_listing_path(listing), method: :delete,
+                        class: 'btn-sm btn-danger',
+                        data: { confirm: 'Delete this listing?' } do %>🗑<% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <% if @listings.next_page %>
+          <div class="pagination-wrapper">
+            <%= link_to 'Load More', my_listings_marketplace_listing_index_path(page: @listings.next_page), class: 'btn-load-more' %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="bookmarks-empty">
+          <div class="bookmarks-empty__icon">🛍️</div>
+          <h3>No listings yet</h3>
+          <p>Start selling by creating your first listing.</p>
+          <%= link_to 'Create Listing', new_marketplace_listing_path, class: 'bookmarks-empty__btn' %>
+        </div>
+      <% end %>
+
+    </main>
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'shared/marketplace', 'data-turbo-track': 'reload' %>

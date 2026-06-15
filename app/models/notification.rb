@@ -16,6 +16,16 @@ class Notification < ApplicationRecord
     group_invite
     event_invite
     story_view
+    follow
+    birthday
+    memory
+    collab_invite
+    collab_accepted
+    marketplace_inquiry
+    fundraiser_donation
+    story_poll_vote
+    story_qa_reply
+    event_reminder
   ].freeze
 
   validates :notification_type, inclusion: { in: TYPES }
@@ -70,6 +80,26 @@ class Notification < ApplicationRecord
       "#{actor_name} invited you to an event"
     when 'story_view'
       "#{actor_name} viewed your story"
+    when 'follow'
+      "#{actor_name} started following you"
+    when 'birthday'
+      "Today is #{actor_name}'s birthday! 🎂"
+    when 'memory'
+      "You have a memory from #{actor_name} years ago"
+    when 'collab_invite'
+      "#{actor_name} invited you to collaborate on a post"
+    when 'collab_accepted'
+      "#{actor_name} accepted your collaboration invite"
+    when 'marketplace_inquiry'
+      "#{actor_name} is interested in your listing"
+    when 'fundraiser_donation'
+      "#{actor_name} donated to your fundraiser"
+    when 'story_poll_vote'
+      "#{actor_name} voted on your story poll"
+    when 'story_qa_reply'
+      "#{actor_name} replied to your story Q&A"
+    when 'event_reminder'
+      "Reminder: #{message.presence || 'An event is coming up'}"
     else
       "#{actor_name} interacted with you"
     end
@@ -88,6 +118,7 @@ class Notification < ApplicationRecord
     when 'group_invite' then 'group'
     when 'event_invite' then 'event'
     when 'story_view'   then 'story'
+    when 'follow'       then 'friend'
     else 'bell'
     end
   end
@@ -99,6 +130,8 @@ class Notification < ApplicationRecord
       post = notifiable.is_a?(Post) ? notifiable : notifiable.try(:post)
       post ? routes.post_path(post) : routes.posts_path
     when 'friend_request', 'friend_accepted'
+      routes.profile_path(actor)
+    when 'follow'
       routes.profile_path(actor)
     else
       routes.posts_path

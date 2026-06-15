@@ -67,6 +67,33 @@
           <%= f.text_area :bio, class: 'form-textarea', rows: 4, placeholder: 'Tell us about yourself...' %>
         </div>
 
+        <!-- New Profile Fields -->
+        <div class="form-grid">
+          <div class="form-group">
+            <%= f.label :location, "📍 Location" %>
+            <%= f.text_field :location, class: 'form-input', placeholder: 'City, Country' %>
+          </div>
+          <div class="form-group">
+            <%= f.label :website_url, "🔗 Website / Link in Bio" %>
+            <%= f.url_field :website_url, class: 'form-input', placeholder: 'https://yourwebsite.com' %>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <%= f.label :birthday, "🎂 Birthday" %>
+            <%= f.date_field :birthday, class: 'form-input' %>
+            <span class="help-text">Shown on your profile · friends will be notified</span>
+          </div>
+          <div class="form-group" style="display:flex;align-items:center;gap:12px;padding-top:28px">
+            <%= f.label :dark_mode, class: 'toggle-label' do %>
+              <%= f.check_box :dark_mode, class: 'toggle-checkbox', id: 'dark-mode-checkbox' %>
+              <span class="toggle-slider"></span>
+              <span>🌙 Dark Mode</span>
+            <% end %>
+          </div>
+        </div>
+
         <div class="form-divider"></div>
 
         <h3 class="section-title">Change Password</h3>
@@ -99,6 +126,82 @@
           <%= f.submit "Save Changes", class: 'btn-primary' %>
           <%= link_to "Cancel", profile_path(current_user), class: 'btn-secondary' %>
         </div>
+      </div>
+
+      <!-- Two-Factor Authentication -->
+      <div class="tfa-settings-card">
+        <div class="tfa-settings-card__header">
+          <div class="tfa-settings-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <% if current_user.two_factor_enabled? %>
+                <path d="M9 12l2 2 4-4" stroke="#10b981" stroke-width="2.5"/>
+              <% end %>
+            </svg>
+          </div>
+          <div class="tfa-settings-info">
+            <h3>Two-Factor Authentication (2FA)</h3>
+            <% if current_user.two_factor_enabled? %>
+              <span class="tfa-badge tfa-badge--on">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="6" cy="6" r="6"/></svg>
+                Enabled
+              </span>
+            <% else %>
+              <span class="tfa-badge tfa-badge--off">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="6" cy="6" r="6"/></svg>
+                Not enabled
+              </span>
+            <% end %>
+          </div>
+        </div>
+
+        <% if current_user.two_factor_enabled? %>
+          <p class="tfa-settings-desc">
+            Your account is protected with an authenticator app.
+            To disable, enter your current 6-digit code.
+          </p>
+
+          <%# Show backup codes once after enabling %>
+          <% if flash[:backup_codes].present? %>
+            <div class="tfa-backup-codes">
+              <h4>Save your backup codes</h4>
+              <p>Each code can only be used once. Store them somewhere safe.</p>
+              <div class="tfa-backup-grid">
+                <% flash[:backup_codes].each do |code| %>
+                  <code class="tfa-backup-code"><%= code %></code>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+
+          <%= form_with url: disable_two_factor_auth_path, method: :delete,
+                        html: { class: 'tfa-disable-form' } do |f| %>
+            <div class="tfa-disable-row">
+              <%= f.text_field :otp_code,
+                    placeholder: 'Enter 6-digit code to disable',
+                    class: 'form-input tfa-inline-input',
+                    maxlength: 7,
+                    inputmode: 'numeric',
+                    autocomplete: 'off',
+                    required: true %>
+              <%= f.submit 'Disable 2FA',
+                    class: 'btn-danger-outline',
+                    data: { confirm: 'Disable Two-Factor Authentication?' } %>
+            </div>
+          <% end %>
+
+        <% else %>
+          <p class="tfa-settings-desc">
+            Add an extra layer of security. Once enabled, you'll need your
+            authenticator app every time you sign in.
+          </p>
+          <%= link_to setup_two_factor_auth_path, class: 'btn-tfa-enable' do %>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Enable 2FA
+          <% end %>
+        <% end %>
       </div>
 
       <!-- Danger Zone -->

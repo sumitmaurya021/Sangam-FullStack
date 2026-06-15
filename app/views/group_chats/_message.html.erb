@@ -1,0 +1,64 @@
+<%# Renders a single group chat message bubble.
+    `msg` is a GroupChatMessage instance.
+    Used both server-side and injected by JS (via as_json_payload + buildMsgHtml). %>
+
+<div class="message-wrapper <%= msg.user_id == current_user.id ? 'mine' : 'theirs' %>"
+     id="gc-msg-<%= msg.id %>">
+
+  <% unless msg.user_id == current_user.id %>
+    <div class="message-avatar-wrapper">
+      <% if msg.user.avatar.attached? %>
+        <%= image_tag url_for(msg.user.avatar), class: 'message-avatar', alt: msg.user.name %>
+      <% else %>
+        <div class="message-avatar-placeholder"><%= msg.user.name&.first&.upcase || 'U' %></div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="message-content-wrapper">
+    <%# Show sender name for group context (not for own messages) %>
+    <% unless msg.user_id == current_user.id %>
+      <span class="gc-msg-sender-name"><%= msg.user.name %></span>
+    <% end %>
+
+    <div class="message-bubble <%= 'deleted' if msg.deleted %>">
+      <% if msg.deleted %>
+        <span class="message-deleted-text">Message deleted</span>
+      <% elsif msg.message_type == 'image' && msg.attachment.attached? %>
+        <div class="message-image-wrapper">
+          <%= image_tag url_for(msg.attachment), class: 'message-image', alt: 'Image' %>
+        </div>
+      <% elsif msg.message_type == 'file' && msg.attachment.attached? %>
+        <div class="message-file-wrapper">
+          <span class="message-file-icon">📎</span>
+          <div class="message-file-info">
+            <div class="message-file-name"><%= msg.attachment.filename %></div>
+          </div>
+          <%= link_to url_for(msg.attachment), class: 'message-file-download',
+                      download: msg.attachment.filename, target: '_blank', rel: 'noopener' do %>
+            ⬇
+          <% end %>
+        </div>
+      <% else %>
+        <p class="message-text"><%= msg.body %></p>
+      <% end %>
+    </div>
+
+    <div class="message-meta">
+      <span class="message-time"><%= msg.created_at.strftime('%H:%M') %></span>
+    </div>
+
+    <%# Delete action — own messages or group admins %>
+    <% if !msg.deleted && (msg.user_id == current_user.id || @group_chat&.admin?(current_user)) %>
+      <div class="message-actions">
+        <button class="message-action-btn delete-message-btn"
+                onclick="gcApp.deleteMessage(<%= msg.id %>)"
+                title="Delete message">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M6.5 1.5h3a.5.5 0 010 1h-3a.5.5 0 010-1zM2 3.5h12l-.9 9.5a1 1 0 01-1 .9H3.9a1 1 0 01-1-.9L2 3.5z"/>
+          </svg>
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>

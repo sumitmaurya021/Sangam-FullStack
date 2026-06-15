@@ -1,0 +1,9 @@
+<%# Replace the follow button with "Follow" state %>
+<%= turbo_stream.replace "follow_btn_#{@followee.id}" do %>
+  <%= render 'follows/button', user: @followee %>
+<% end %>
+
+<%# Update follower count on profile page if present %>
+<%= turbo_stream.replace "followers_count_#{@followee.id}" do %>
+  <span id="followers_count_<%= @followee.id %>"><%= @followee.reload.followers_count %></span>
+<% end %>

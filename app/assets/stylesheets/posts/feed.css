@@ -747,3 +747,87 @@
     transform: translateX(0);
   }
 }
+
+/* ─── Post Form — New Feature Styles ─────────────────────────── */
+
+/* Location & Schedule builder cards in post form */
+.location-builder-card {
+  background: var(--bg-input, #f0f2f5);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin: 6px 0;
+  border: 1.5px solid var(--border-color, #e4e6ea);
+}
+.location-builder__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.location-builder__row > span { font-size: 18px; flex-shrink: 0; }
+
+/* Post option buttons — ensure new ones match existing */
+.post-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary, #65676b);
+  transition: background 0.15s;
+}
+.post-option:hover { background: var(--bg-hover, #f2f3f5); }
+
+/* Scheduled post indicator in post card */
+.scheduled-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #667eea;
+  font-weight: 600;
+  background: rgba(102,126,234,0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 6px;
+}
+
+/* Post visibility — close_friends */
+.post-visibility-badge {
+  font-size: 13px;
+  margin-left: 4px;
+}
+
+/* Post form hint text */
+.form-hint {
+  font-size: 12px;
+  color: var(--text-tertiary, #8a8d91);
+  margin-top: 4px;
+}
+
+/* Dark mode feed */
+body.dark-mode .feed-container { background: var(--bg-primary, #18191a); }
+body.dark-mode .create-post-wrapper,
+body.dark-mode .create-post-form {
+  background: var(--bg-card, #242526);
+  border-color: var(--border-color, #3a3b3c);
+}
+body.dark-mode .location-builder-card { background: var(--bg-input); border-color: var(--border-color); }
+body.dark-mode .poll-builder-card { background: var(--bg-input); }
+body.dark-mode .poll-builder-header { border-color: var(--border-color); color: var(--text-primary); }
+body.dark-mode .poll-builder-input {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+body.dark-mode .poll-builder-input::placeholder { color: var(--placeholder); }
+body.dark-mode .poll-builder-label { color: var(--text-secondary); }
+body.dark-mode .visibility-select {
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
