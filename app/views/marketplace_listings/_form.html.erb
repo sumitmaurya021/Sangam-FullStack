@@ -1,4 +1,4 @@
-<%= form_with model: listing, url: listing.new_record? ? marketplace_listing_index_path : marketplace_listing_path(listing), class: 'marketplace-form' do |f| %>
+<%= form_with model: listing, url: listing.new_record? ? marketplace_listing_index_path : marketplace_listing_path(listing), class: 'market-form', html: { multipart: true } do |f| %>
 
   <% if listing.errors.any? %>
     <div class="form-errors">
@@ -8,55 +8,85 @@
     </div>
   <% end %>
 
-  <div class="form-group">
-    <%= f.label :title, 'Title *' %>
-    <%= f.text_field :title, placeholder: 'What are you selling?', class: 'form-control', required: true %>
+  <div class="premium-form-group">
+    <%= f.label :title, 'Title *', class: 'premium-form-label' %>
+    <%= f.text_field :title, placeholder: 'What are you selling?', class: 'premium-form-input', required: true %>
   </div>
 
-  <div class="form-group">
-    <%= f.label :description, 'Description' %>
-    <%= f.text_area :description, placeholder: 'Describe your item...', rows: 4, class: 'form-control' %>
+  <div class="premium-form-group">
+    <%= f.label :description, 'Description', class: 'premium-form-label' %>
+    <%= f.text_area :description, placeholder: 'Describe your item in detail...', rows: 5, class: 'premium-form-input', style: 'resize: vertical;' %>
   </div>
 
-  <div class="form-row">
-    <div class="form-group">
-      <%= f.label :price, 'Price ($)' %>
-      <%= f.number_field :price, placeholder: '0.00', step: '0.01', min: 0, class: 'form-control' %>
+  <div class="premium-form-row">
+    <div class="premium-form-group">
+      <%= f.label :price, 'Price ($)', class: 'premium-form-label' %>
+      <div style="position: relative;">
+        <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--market-text-sub); font-weight: 800; pointer-events: none;">$</span>
+        <%= f.number_field :price, placeholder: '0.00', step: '0.01', min: 0, class: 'premium-form-input', style: 'padding-left: 36px;' %>
+      </div>
     </div>
-    <div class="form-group">
-      <%= f.label :price_negotiable, class: 'checkbox-label' do %>
-        <%= f.check_box :price_negotiable %>
+    
+    <div class="premium-form-group" style="display: flex; align-items: center; padding-top: 24px;">
+      <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; color: var(--market-text-main); font-weight: 600;">
+        <%= f.check_box :price_negotiable, style: 'width: 20px; height: 20px; accent-color: var(--market-primary);' %>
         Price Negotiable (OBO)
-      <% end %>
+      </label>
     </div>
   </div>
 
-  <div class="form-row">
-    <div class="form-group">
-      <%= f.label :category, 'Category *' %>
-      <%= f.select :category, MarketplaceListing::CATEGORIES.map { |c| [c.humanize, c] },
-            { prompt: 'Select category' }, class: 'form-select', required: true %>
+  <div class="premium-form-row">
+    <div class="premium-form-group">
+      <%= f.label :category, 'Category *', class: 'premium-form-label' %>
+      <div style="position: relative;">
+        <svg style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--market-text-sub); pointer-events: none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        <%= f.select :category, MarketplaceListing::CATEGORIES.map { |c| [c.humanize, c] }, { prompt: 'Select category' }, class: 'premium-form-input', required: true, style: 'appearance: none; -webkit-appearance: none; padding-right: 40px;' %>
+      </div>
     </div>
-    <div class="form-group">
-      <%= f.label :condition, 'Condition *' %>
-      <%= f.select :condition, MarketplaceListing::CONDITIONS.map { |c| [c.humanize, c] },
-            { prompt: 'Select condition' }, class: 'form-select', required: true %>
+    <div class="premium-form-group">
+      <%= f.label :condition, 'Condition *', class: 'premium-form-label' %>
+      <div style="position: relative;">
+        <svg style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--market-text-sub); pointer-events: none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        <%= f.select :condition, MarketplaceListing::CONDITIONS.map { |c| [c.humanize, c] }, { prompt: 'Select condition' }, class: 'premium-form-input', required: true, style: 'appearance: none; -webkit-appearance: none; padding-right: 40px;' %>
+      </div>
     </div>
   </div>
 
-  <div class="form-group">
-    <%= f.label :location_name, 'Location' %>
-    <%= f.text_field :location_name, placeholder: 'City, Area...', class: 'form-control' %>
+  <div class="premium-form-group">
+    <%= f.label :location_name, 'Location', class: 'premium-form-label' %>
+    <div style="position: relative;">
+      <svg style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--market-text-sub); pointer-events: none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+      <%= f.text_field :location_name, placeholder: 'City, Neighborhood, etc.', class: 'premium-form-input', style: 'padding-left: 44px;' %>
+    </div>
   </div>
 
-  <div class="form-group">
-    <%= f.label :images, 'Photos (up to 10)' %>
-    <%= f.file_field :images, multiple: true, accept: 'image/*', class: 'form-file-input' %>
-    <p class="form-hint">First photo will be the cover image</p>
+  <div class="premium-form-group">
+    <%= f.label :images, 'Photos (up to 10)', class: 'premium-form-label' %>
+    
+    <div style="border: 2px dashed rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 32px 16px; text-align: center; background: rgba(16, 185, 129, 0.05); transition: all 0.3s ease;">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--market-primary); margin-bottom: 12px;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+      <div style="margin-bottom: 16px; color: var(--market-text-main); font-weight: 600;">Drag and drop or click to upload</div>
+      <%= f.file_field :images, multiple: true, accept: 'image/*', class: 'premium-form-input', style: 'padding: 12px; cursor: pointer;' %>
+    </div>
+    
+    <% if listing.images.attached? %>
+      <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+        <% listing.images.each do |img| %>
+          <div style="width: 64px; height: 64px; border-radius: 8px; overflow: hidden; border: 1px solid var(--market-glass-border);">
+            <%= image_tag img, style: 'width:100%; height:100%; object-fit:cover;' %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    
+    <p style="margin-top: 8px; font-size: 13px; color: var(--market-text-sub);">* The first photo will be used as the cover image.</p>
   </div>
 
-  <div class="form-actions">
-    <%= f.submit listing.new_record? ? 'Post Listing' : 'Update Listing', class: 'btn-primary btn-lg' %>
-    <%= link_to 'Cancel', marketplace_listing_index_path, class: 'btn-secondary' %>
+  <div class="premium-form-actions">
+    <%= link_to 'Cancel', marketplace_listing_index_path, class: 'btn-market-action btn-market-secondary', style: 'width: auto; padding: 14px 24px;' %>
+    <%= f.button type: 'submit', class: 'btn-market-action btn-market-primary', style: 'width: auto; padding: 14px 32px;' do %>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      <%= listing.new_record? ? 'Publish Listing' : 'Save Changes' %>
+    <% end %>
   </div>
 <% end %>

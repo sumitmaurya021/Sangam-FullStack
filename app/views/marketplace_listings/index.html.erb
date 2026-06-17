@@ -1,112 +1,131 @@
-<div class="feed-container">
+<div class="marketplace-page">
   <%= render 'shared/header' %>
-  <div class="feed-layout">
-    <main class="feed-main marketplace-page">
 
-      <!-- Header -->
-      <div class="page-header-card">
-        <div class="marketplace-header">
-          <div>
-            <h1 class="page-title">
-              🛍️ Marketplace
-            </h1>
-            <p class="page-subtitle">Buy and sell in your community</p>
-          </div>
-          <%= link_to new_marketplace_listing_path, class: 'btn-primary' do %>
-            + Create Listing
+  <div class="market-hero">
+    <div class="market-hero-content">
+      <h1 class="market-hero-title">Discover the Marketplace</h1>
+      <p class="market-hero-subtitle">Buy, sell, and trade futuristic goods in your premium community.</p>
+    </div>
+  </div>
+
+  <!-- Search & Filters -->
+  <div class="market-filters-wrapper">
+    <%= form_with url: marketplace_listing_index_path, method: :get, local: true, class: 'market-search-form' do |f| %>
+      
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--market-text-sub); flex-shrink: 0;">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <%= f.text_field :q, placeholder: 'Search for anything...', value: params[:q], class: 'market-search-input', style: 'background-color: transparent !important; border: none !important; box-shadow: none !important; width: 100%;' %>
+      
+      <div class="market-filter-divider"></div>
+
+      <div class="market-select-wrapper">
+        <select name="category" class="market-select" onchange="this.form.submit()" style="background-color: transparent !important; border: none !important; box-shadow: none !important;">
+          <option value="">All Categories</option>
+          <% MarketplaceListing::CATEGORIES.each do |cat| %>
+            <option value="<%= cat %>" <%= 'selected' if params[:category] == cat %>><%= cat.humanize %></option>
           <% end %>
-        </div>
+        </select>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
       </div>
 
-      <!-- Search & Filters -->
-      <%= form_with url: marketplace_listing_index_path, method: :get, local: true, class: 'marketplace-filters' do |f| %>
-        <div class="marketplace-search-row">
-          <%= f.text_field :q, placeholder: 'Search listings...', value: params[:q], class: 'marketplace-search-input' %>
-          <%= f.submit 'Search', class: 'btn-primary btn-sm' %>
-        </div>
-        <div class="marketplace-filter-row">
-          <select name="category" class="marketplace-select" onchange="this.form.submit()">
-            <option value="">All Categories</option>
-            <% MarketplaceListing::CATEGORIES.each do |cat| %>
-              <option value="<%= cat %>" <%= 'selected' if params[:category] == cat %>>
-                <%= cat.humanize %>
-              </option>
-            <% end %>
-          </select>
-          <select name="condition" class="marketplace-select" onchange="this.form.submit()">
-            <option value="">Any Condition</option>
-            <% MarketplaceListing::CONDITIONS.each do |cond| %>
-              <option value="<%= cond %>" <%= 'selected' if params[:condition] == cond %>>
-                <%= cond.humanize %>
-              </option>
-            <% end %>
-          </select>
-          <input type="number" name="min_price" placeholder="Min $" value="<%= params[:min_price] %>" class="marketplace-price-input" onchange="this.form.submit()">
-          <input type="number" name="max_price" placeholder="Max $" value="<%= params[:max_price] %>" class="marketplace-price-input" onchange="this.form.submit()">
-        </div>
-      <% end %>
+      <div class="market-filter-divider"></div>
 
-      <!-- Listings Grid -->
-      <% if @listings.any? %>
-        <div class="marketplace-grid">
-          <% @listings.each do |listing| %>
-            <%= link_to marketplace_listing_path(listing), class: 'marketplace-card' do %>
-              <!-- Image -->
-              <div class="marketplace-card__image">
-                <% if listing.images.attached? %>
-                  <%= image_tag listing.images.first, alt: listing.title %>
-                <% else %>
-                  <div class="marketplace-card__no-image">
-                    <span>🖼️</span>
-                  </div>
-                <% end %>
-                <% if listing.status == 'sold' %>
-                  <div class="marketplace-card__sold-badge">SOLD</div>
-                <% end %>
-              </div>
-              <!-- Info -->
-              <div class="marketplace-card__info">
-                <h3 class="marketplace-card__title"><%= listing.title.truncate(50) %></h3>
-                <p class="marketplace-card__price"><%= listing.formatted_price %></p>
-                <div class="marketplace-card__meta">
-                  <span class="marketplace-card__category"><%= listing.category.humanize %></span>
-                  <span class="marketplace-card__condition"><%= listing.condition.humanize %></span>
+      <div class="market-select-wrapper">
+        <select name="condition" class="market-select" onchange="this.form.submit()" style="background-color: transparent !important; border: none !important; box-shadow: none !important;">
+          <option value="">Any Condition</option>
+          <% MarketplaceListing::CONDITIONS.each do |cond| %>
+            <option value="<%= cond %>" <%= 'selected' if params[:condition] == cond %>><%= cond.humanize %></option>
+          <% end %>
+        </select>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+
+      <div class="market-filter-divider"></div>
+
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <input type="number" name="min_price" placeholder="Min $" value="<%= params[:min_price] %>" class="market-price-input" onchange="this.form.submit()" style="background-color: transparent !important; border: none !important; box-shadow: none !important;">
+        <span style="color: var(--market-text-sub); font-weight: 800;">-</span>
+        <input type="number" name="max_price" placeholder="Max $" value="<%= params[:max_price] %>" class="market-price-input" onchange="this.form.submit()" style="background-color: transparent !important; border: none !important; box-shadow: none !important;">
+      </div>
+      
+      <!-- Hidden submit for enter key -->
+      <%= f.submit '', style: 'display:none;' %>
+    <% end %>
+
+    <%= link_to new_marketplace_listing_path, class: 'btn-market-create' do %>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      Create
+    <% end %>
+  </div>
+
+  <main>
+    <% if @listings.any? %>
+      <div class="market-grid">
+        <% @listings.each do |listing| %>
+          <%= link_to marketplace_listing_path(listing), class: 'market-card' do %>
+            <div class="market-card-image-wrap">
+              <% if listing.status == 'sold' %>
+                <div class="market-badge sold">SOLD OUT</div>
+              <% elsif listing.status == 'reserved' %>
+                <div class="market-badge reserved">RESERVED</div>
+              <% end %>
+              
+              <% if listing.images.attached? %>
+                <%= image_tag listing.images.first, class: 'market-card-image', alt: listing.title %>
+              <% else %>
+                <div class="market-card-placeholder">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
                 </div>
-                <% if listing.location_name.present? %>
-                  <p class="marketplace-card__location">📍 <%= listing.location_name %></p>
-                <% end %>
-                <div class="marketplace-card__seller">
-                  <div class="marketplace-card__avatar">
+              <% end %>
+            </div>
+
+            <div class="market-card-body">
+              <h3 class="market-card-price"><%= listing.formatted_price %></h3>
+              <h4 class="market-card-title"><%= listing.title.truncate(60) %></h4>
+              
+              <div class="market-card-footer">
+                <div class="market-card-location">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  <%= listing.location_name.presence || 'Anywhere' %>
+                </div>
+                <div class="market-card-seller">
+                  <div class="market-seller-avatar">
                     <% if listing.user.avatar.attached? %>
                       <%= image_tag listing.user.avatar, alt: listing.user.name %>
                     <% else %>
-                      <%= listing.user.name&.first&.upcase %>
+                      <%= listing.user.name&.first&.upcase || 'U' %>
                     <% end %>
                   </div>
-                  <span><%= listing.user.name %></span>
                 </div>
               </div>
-            <% end %>
+            </div>
           <% end %>
-        </div>
-
-        <!-- Pagination -->
-        <% if @listings.next_page %>
-          <div class="pagination-wrapper">
-            <%= link_to 'Load More', marketplace_listing_index_path(params.permit(:q, :category, :condition, :min_price, :max_price).merge(page: @listings.next_page)), class: 'btn-load-more' %>
-          </div>
         <% end %>
-      <% else %>
-        <div class="bookmarks-empty">
-          <div class="bookmarks-empty__icon">🛍️</div>
-          <h3>No listings yet</h3>
-          <p>Be the first to list something!</p>
-          <%= link_to 'Create Listing', new_marketplace_listing_path, class: 'bookmarks-empty__btn' %>
+      </div>
+
+      <% if @listings.next_page %>
+        <div class="pagination-wrapper" style="margin-top: 40px;">
+          <%= link_to 'Load More', marketplace_listing_index_path(params.permit(:q, :category, :condition, :min_price, :max_price).merge(page: @listings.next_page)), class: 'btn-market-create', style: 'background: var(--market-glass-bg); color: var(--market-text-main); backdrop-filter: blur(20px); border: 1px solid var(--market-glass-border);' %>
         </div>
       <% end %>
-
-    </main>
-  </div>
+    <% else %>
+      <div class="market-empty-state">
+        <div class="market-empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        </div>
+        <h3>No items found</h3>
+        <p>There are currently no listings matching your criteria. Try adjusting your filters or be the first to sell something amazing.</p>
+        <%= link_to new_marketplace_listing_path, class: 'btn-market-create' do %>
+          Post an Item
+        <% end %>
+      </div>
+    <% end %>
+  </main>
 </div>
 
 <%= stylesheet_link_tag 'shared/marketplace', 'data-turbo-track': 'reload' %>

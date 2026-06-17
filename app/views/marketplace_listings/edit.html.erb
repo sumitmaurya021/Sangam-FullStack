@@ -1,12 +1,12 @@
-<div class="feed-container">
+<div class="marketplace-page">
   <%= render 'shared/header' %>
-  <div class="feed-layout">
-    <main class="feed-main">
-      <div class="page-header-card">
-        <h1 class="page-title">✏️ Edit Listing</h1>
-      </div>
+  
+  <div class="market-form-wrapper">
+    <div class="market-form-card">
+      <h2 style="font-size: 32px; font-weight: 800; color: var(--market-text-main); margin-bottom: 32px;">Edit Listing</h2>
       <%= render 'form', listing: @listing %>
-    </main>
+    </div>
   </div>
 </div>
+
 <%= stylesheet_link_tag 'shared/marketplace', 'data-turbo-track': 'reload' %>
