@@ -1,71 +1,83 @@
-<div class="explore-page">
+<div class="explore-page-wrapper">
   <%= render 'shared/header' %>
   
-  <div class="explore-layout">
+  <div class="explore-container">
+    
+
+
     <!-- Trending Hashtags Chips -->
     <% if @trending_hashtags.present? %>
-      <div class="trending-hashtags-section">
-        <div class="trending-hashtags-scroll">
+      <div class="explore-trending-section">
+        <div class="explore-trending-scroll">
           <% @trending_hashtags.first(10).each_with_index do |hashtag, index| %>
-            <%= link_to hashtag_path(hashtag.name), class: 'trending-hashtag-chip' do %>
-              <span class="hashtag-chip-rank">#<%= index + 1 %></span>
+            <%= link_to hashtag_path(hashtag.name), class: 'trending-pill' do %>
+              <div class="trending-pill-icon"><%= index + 1 %></div>
               <span>#<%= hashtag.name %></span>
-              <span class="hashtag-chip-count"><%= hashtag.posts_count %></span>
+              <span class="trending-pill-count"><%= number_to_human(hashtag.posts_count, format: '%n%u', units: { thousand: 'K', million: 'M' }) %></span>
             <% end %>
           <% end %>
         </div>
       </div>
     <% end %>
 
-    <!-- Instagram-style Grid -->
+    <!-- Masonry Grid -->
     <% if @recent_posts.present? %>
-      <div class="explore-grid">
+      <div class="explore-masonry">
         <% @recent_posts.each do |post| %>
-          <%= link_to post_path(post), class: 'explore-grid-item' do %>
+          <% next unless post.images.attached? || post.image.attached? || (post.has_link_preview? && post.link_image_url.present?) %>
+          <%= link_to post_path(post), class: 'explore-card' do %>
             <% if post.images.attached? && post.images.count > 0 %>
-              <%= image_tag post.images.first, alt: 'Post image' %>
-              <% if post.images.count > 1 %>
-                <div class="multiple-images-icon">📷</div>
-              <% end %>
-              <div class="explore-grid-overlay">
-                <div class="explore-grid-stat"><span>❤️</span><span><%= post.likes_count || 0 %></span></div>
-                <div class="explore-grid-stat"><span>💬</span><span><%= post.comments_count || 0 %></span></div>
+              <div class="explore-card-media">
+                <%= image_tag post.images.first, alt: 'Post image', loading: 'lazy' %>
+                <% if post.images.count > 1 %>
+                  <div class="explore-media-indicator">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                  </div>
+                <% end %>
               </div>
-
+              
             <% elsif post.image.attached? %>
-              <%= image_tag post.image, alt: 'Post image' %>
-              <div class="explore-grid-overlay">
-                <div class="explore-grid-stat"><span>❤️</span><span><%= post.likes_count || 0 %></span></div>
-                <div class="explore-grid-stat"><span>💬</span><span><%= post.comments_count || 0 %></span></div>
+              <div class="explore-card-media">
+                <%= image_tag post.image, alt: 'Post image', loading: 'lazy' %>
               </div>
 
             <% elsif post.has_link_preview? && post.link_image_url.present? %>
-              <img src="<%= post.link_image_url %>" alt="Link preview" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'">
-              <div class="multiple-images-icon" style="background:#1877f2">🔗</div>
-              <div class="explore-grid-overlay">
-                <div class="explore-grid-stat"><span>❤️</span><span><%= post.likes_count || 0 %></span></div>
-                <div class="explore-grid-stat"><span>💬</span><span><%= post.comments_count || 0 %></span></div>
+              <div class="explore-card-media">
+                <img src="<%= post.link_image_url %>" alt="Link preview" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'" loading="lazy">
+                <div class="explore-media-indicator" style="background: rgba(59, 130, 246, 0.8);">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                </div>
               </div>
 
-            <% else %>
-              <div style="background: linear-gradient(45deg, #667eea, #764ba2); width:100%; height:100%; display:flex; align-items:center; justify-content:center; color:white; font-size:1rem; font-weight:600; padding:1rem; text-align:center;">
-                <%= truncate(post.content.to_s, length: 60) %>
-              </div>
-              <div class="explore-grid-overlay">
-                <div class="explore-grid-stat"><span>❤️</span><span><%= post.likes_count || 0 %></span></div>
-                <div class="explore-grid-stat"><span>💬</span><span><%= post.comments_count || 0 %></span></div>
-              </div>
             <% end %>
+
+            <!-- Hover Overlay -->
+            <div class="explore-card-overlay">
+              <div class="explore-card-stats">
+                <div class="explore-stat-badge">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                  <span><%= post.likes_count || 0 %></span>
+                </div>
+                <div class="explore-stat-badge">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                  <span><%= post.comments_count || 0 %></span>
+                </div>
+              </div>
+            </div>
+
           <% end %>
         <% end %>
       </div>
     <% else %>
-      <div class="explore-empty">
-        <div class="explore-empty-icon">🔍</div>
+      <div class="explore-empty-state">
+        <div class="explore-empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
         <h3>No posts yet</h3>
-        <p>Be the first to share something amazing!</p>
+        <p>Be the first to share something amazing and start trending!</p>
       </div>
     <% end %>
+
   </div>
 </div>
 
