@@ -237,12 +237,77 @@ function toggleReplies(commentId) {
   }
 }
 
-// Open Image Gallery (placeholder - implement modal later)
-function openImageGallery(postId, imageIndex) {
-  console.log(`Opening gallery for post ${postId}, image ${imageIndex}`);
-  // TODO: Implement image gallery modal
-  alert('Image gallery feature - coming soon!');
-}
+// Lightbox State
+let currentGalleryUrls = [];
+let currentGalleryIndex = 0;
+
+// Open Image Gallery
+window.openImageGallery = function(postId, imageIndex) {
+  const container = document.getElementById(`post-images-${postId}`);
+  if (!container) return;
+
+  const rawUrls = container.getAttribute('data-urls');
+  if (!rawUrls) return;
+
+  try {
+    currentGalleryUrls = JSON.parse(rawUrls);
+    currentGalleryIndex = imageIndex;
+    
+    if (currentGalleryUrls.length > 0) {
+      window.updateLightboxImage();
+      document.getElementById('imageLightbox').classList.add('show');
+      document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+  } catch (e) {
+    console.error("Failed to parse image URLs:", e);
+  }
+};
+
+// Close Image Gallery
+window.closeImageGallery = function() {
+  document.getElementById('imageLightbox').classList.remove('show');
+  document.body.style.overflow = '';
+};
+
+// Change Image (Prev/Next)
+window.changeLightboxImage = function(direction) {
+  currentGalleryIndex += direction;
+  
+  if (currentGalleryIndex >= currentGalleryUrls.length) {
+    currentGalleryIndex = 0; // wrap to first
+  } else if (currentGalleryIndex < 0) {
+    currentGalleryIndex = currentGalleryUrls.length - 1; // wrap to last
+  }
+  
+  window.updateLightboxImage();
+};
+
+// Update Image Source
+window.updateLightboxImage = function() {
+  const imgElement = document.getElementById('lightboxImg');
+  const captionElement = document.getElementById('lightboxCaption');
+  
+  if (imgElement && currentGalleryUrls.length > 0) {
+    imgElement.src = currentGalleryUrls[currentGalleryIndex];
+    if (captionElement) {
+      captionElement.textContent = `Image ${currentGalleryIndex + 1} of ${currentGalleryUrls.length}`;
+    }
+  }
+};
+
+// Close on escape key and handle arrow keys
+document.addEventListener('keydown', function(event) {
+  const lightbox = document.getElementById('imageLightbox');
+  if (lightbox && lightbox.classList.contains('show')) {
+    if (event.key === "Escape") {
+      window.closeImageGallery();
+    } else if (event.key === "ArrowLeft") {
+      window.changeLightboxImage(-1);
+    } else if (event.key === "ArrowRight") {
+      window.changeLightboxImage(1);
+    }
+  }
+});
 
 // Toggle Comments Section
 function toggleComments(postId) {

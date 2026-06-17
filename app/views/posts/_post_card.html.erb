@@ -111,7 +111,9 @@
     <!-- Multiple Images Grid -->
     <% if post.images.attached? && post.images.any? %>
       <% total = post.total_images_count %>
-      <div class="post-images-grid grid-<%= [total, 5].min %>">
+      <div class="post-images-grid grid-<%= [total, 5].min %>" 
+           id="post-images-<%= post.id %>" 
+           data-urls="<%= post.images.map { |img| url_for(img) }.to_json %>">
         <% post.display_images(5).each_with_index do |image, index| %>
           <% is_last = (index == 4) && (total > 5) %>
           <div class="post-image-item <%= 'image-overlay' if is_last %>" onclick="openImageGallery(<%= post.id %>, <%= index %>)">
@@ -123,7 +125,11 @@
         <% end %>
       </div>
     <% elsif post.image.attached? %>
-      <div class="post-single-image">
+      <div class="post-single-image" 
+           id="post-images-<%= post.id %>" 
+           data-urls="<%= [url_for(post.image)].to_json %>"
+           onclick="openImageGallery(<%= post.id %>, 0)"
+           style="cursor: pointer;">
         <%= image_tag post.image, alt: 'Post image', loading: "lazy" %>
       </div>
     <% end %>

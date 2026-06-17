@@ -38,6 +38,7 @@
     <%= stylesheet_link_tag 'search/search',                  'data-turbo-track': 'reload' %>
     <%= stylesheet_link_tag 'bookmarks/bookmarks',            'data-turbo-track': 'reload' %>
     <%= stylesheet_link_tag 'shared/collections',             'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'shared/lightbox',                'data-turbo-track': 'reload' %>
     <%= yield :head %>
     <%= javascript_importmap_tags %>
   </head>
@@ -46,5 +47,6 @@
         data-dark-mode="<%= user_signed_in? && current_user.dark_mode ? 'true' : 'false' %>">
     <%= yield %>
     <%= render 'shared/chat_widget' if user_signed_in? %>
+    <%= render 'shared/lightbox' %>
   </body>
 </html>
