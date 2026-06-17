@@ -13,8 +13,18 @@
   animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   animation-fill-mode: both;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Inner clip container to preserve rounded corners while allowing reaction picker to overflow */
+.post-card > .post-header:first-child {
+  border-radius: 16px 16px 0 0;
+}
+
+.post-card > .post-content .post-single-image,
+.post-card > .post-content .post-images-grid {
+  overflow: hidden;
 }
 
 .post-card:hover {
@@ -396,6 +406,7 @@
   padding: 8px 16px;
   border-bottom: 1px solid #e4e6eb;
   position: relative;
+  overflow: visible;
 }
 
 .post-actions-bar > form,
@@ -411,6 +422,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: visible;
 }
 
 .action-btn,
@@ -480,8 +492,8 @@
 .reaction-picker {
   position: absolute;
   bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  transform: none;
   background: #ffffff;
   backdrop-filter: none;
   border: 1px solid #e4e6eb;
@@ -509,19 +521,19 @@
 @keyframes reactionSlideUp {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(12px) scale(0.9);
+    transform: translateY(12px) scale(0.9);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
+    transform: translateY(0) scale(1);
   }
 }
 
 .reaction-bar {
   position: absolute;
   bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  transform: none;
   background: white;
   border-radius: 50px;
   padding: 8px 12px;
@@ -539,7 +551,7 @@
   display: flex;
   opacity: 1;
   visibility: visible;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 .reaction-picker-wrapper:hover .reaction-bar {
