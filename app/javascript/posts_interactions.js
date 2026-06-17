@@ -1,3 +1,17 @@
+// Helper: hide a picker then clear inline styles so CSS :hover can re-trigger
+function hidePicker(picker) {
+  if (!picker) return;
+  picker.style.display = 'none';
+  picker.style.opacity = '0';
+  picker.style.pointerEvents = 'none';
+  // Remove inline styles after transition so CSS hover rules work again
+  setTimeout(() => {
+    picker.style.removeProperty('display');
+    picker.style.removeProperty('opacity');
+    picker.style.removeProperty('pointer-events');
+  }, 350);
+}
+
 // Reaction Picker Toggle (fallback for mobile/touch devices)
 // On desktop, hover handles it via CSS
 function toggleReactionPicker(postId) {
@@ -6,14 +20,13 @@ function toggleReactionPicker(postId) {
   
   if (!picker) return;
 
-  const isVisible = picker.style.display === 'flex';
+  const isVisible = picker.style.display === 'flex' || picker.classList.contains('picker-open');
 
   // Close all other pickers
   allPickers.forEach(p => {
     if (p.id !== `reaction-picker-${postId}`) {
-      p.style.display = 'none';
-      p.style.opacity = '0';
-      p.style.pointerEvents = 'none';
+      p.classList.remove('picker-open');
+      hidePicker(p);
     }
   });
   
@@ -22,10 +35,10 @@ function toggleReactionPicker(postId) {
     picker.style.display = 'flex';
     picker.style.opacity = '1';
     picker.style.pointerEvents = 'all';
+    picker.classList.add('picker-open');
   } else {
-    picker.style.display = 'none';
-    picker.style.opacity = '0';
-    picker.style.pointerEvents = 'none';
+    picker.classList.remove('picker-open');
+    hidePicker(picker);
   }
 }
 
@@ -51,9 +64,8 @@ document.addEventListener('DOMContentLoaded', function() {
       } else if (!e.target.closest('.action-btn-wrapper') && !e.target.closest('.reaction-picker')) {
         // Clicked outside — close all pickers
         document.querySelectorAll('.reaction-picker').forEach(picker => {
-          picker.style.display = 'none';
-          picker.style.opacity = '0';
-          picker.style.pointerEvents = 'none';
+          picker.classList.remove('picker-open');
+          hidePicker(picker);
         });
       }
     });
@@ -91,6 +103,10 @@ async function reactToPost(postId, reactionType) {
     const emoji = reactionEmojis[reactionType] || '👍';
     const label = reactionType.charAt(0).toUpperCase() + reactionType.slice(1);
     likeText.innerHTML = `${emoji} ${label}`;
+    
+    // Hide the SVG like icon when reacting (only show emoji)
+    const likeIcon = document.getElementById(`like-icon-${postId}`) || likeBtn.querySelector('.action-icon');
+    if (likeIcon) likeIcon.style.display = 'none';
   }
   
   if (likesCount) {
@@ -98,11 +114,10 @@ async function reactToPost(postId, reactionType) {
     likesCount.textContent = wasActive ? currentCount : currentCount + 1;
   }
   
-  // Hide picker immediately
+  // Hide picker immediately, then clear inline styles for CSS hover
   if (picker) {
-    picker.style.opacity = '0';
-    picker.style.display = 'none';
-    picker.style.pointerEvents = 'none';
+    picker.classList.remove('picker-open');
+    hidePicker(picker);
   }
   
   // ===== Background server request =====
@@ -265,9 +280,8 @@ document.addEventListener('click', function(event) {
   if (isTouchDevice) {
     if (!event.target.closest('.action-btn-wrapper') && !event.target.closest('.reaction-picker')) {
       document.querySelectorAll('.reaction-picker').forEach(picker => {
-        picker.style.display = 'none';
-        picker.style.opacity = '0';
-        picker.style.pointerEvents = 'none';
+        picker.classList.remove('picker-open');
+        hidePicker(picker);
       });
     }
   }

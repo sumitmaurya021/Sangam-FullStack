@@ -510,6 +510,16 @@
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Invisible bridge to cover the gap between picker and button — prevents hover break */
+.reaction-picker::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 0;
+  width: 100%;
+  height: 12px;
+}
+
 .reaction-picker-wrapper:hover .reaction-picker,
 .action-btn-wrapper:hover .reaction-picker {
   display: flex;
@@ -545,6 +555,16 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
   white-space: nowrap;
+}
+
+/* Invisible bridge for reaction-bar too */
+.reaction-bar::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 0;
+  width: 100%;
+  height: 12px;
 }
 
 .reaction-bar.show {
@@ -835,6 +855,10 @@
     border-radius: 14px;
   }
 
+  .post-card > .post-header:first-child {
+    border-radius: 14px 14px 0 0;
+  }
+
   .post-header {
     padding: 18px 20px 0 20px;
   }
@@ -852,6 +876,7 @@
   .post-actions-bar {
     padding: 6px 12px;
     gap: 6px;
+    overflow: visible;
   }
 
   .action-btn,
@@ -876,6 +901,11 @@
   .post-actions-bar {
     padding: 6px 10px;
     gap: 4px;
+    overflow: visible;
+  }
+
+  .action-btn-wrapper {
+    overflow: visible;
   }
 
   .action-btn,
@@ -894,6 +924,8 @@
   .reaction-bar {
     padding: 7px 11px;
     gap: 5px;
+    left: 0;
+    transform: none;
   }
 
   .reaction-btn {
@@ -912,6 +944,10 @@
   .post-card {
     border-radius: 12px;
     margin-bottom: 12px;
+  }
+
+  .post-card > .post-header:first-child {
+    border-radius: 12px 12px 0 0;
   }
 
   .post-header {
@@ -964,6 +1000,11 @@
   .post-actions-bar {
     padding: 5px 8px;
     gap: 3px;
+    overflow: visible;
+  }
+
+  .action-btn-wrapper {
+    overflow: visible;
   }
 
   .action-btn,
@@ -1012,6 +1053,8 @@
   .reaction-bar {
     padding: 6px 10px;
     gap: 4px;
+    left: 0;
+    transform: none;
   }
 
   .reaction-btn {
@@ -1030,6 +1073,10 @@
   .post-card {
     border-radius: 10px;
     margin-bottom: 10px;
+  }
+
+  .post-card > .post-header:first-child {
+    border-radius: 10px 10px 0 0;
   }
 
   .post-header {
@@ -1057,6 +1104,11 @@
   .post-actions-bar {
     padding: 4px 6px;
     gap: 2px;
+    overflow: visible;
+  }
+
+  .action-btn-wrapper {
+    overflow: visible;
   }
 
   .action-btn,
@@ -1084,6 +1136,8 @@
   .reaction-bar {
     padding: 5px 9px;
     gap: 3px;
+    left: 0;
+    transform: none;
   }
 
   .reaction-btn {
@@ -1102,6 +1156,10 @@
   .post-card {
     border-radius: 8px;
     margin-bottom: 8px;
+  }
+
+  .post-card > .post-header:first-child {
+    border-radius: 8px 8px 0 0;
   }
 
   .post-header {
@@ -1160,6 +1218,11 @@
   .post-actions-bar {
     padding: 3px 4px;
     gap: 1px;
+    overflow: visible;
+  }
+
+  .action-btn-wrapper {
+    overflow: visible;
   }
 
   .action-btn,
@@ -1237,6 +1300,8 @@
     padding: 4px 8px;
     gap: 2px;
     bottom: calc(100% + 6px);
+    left: 0;
+    transform: none;
   }
 
   .reaction-btn {
@@ -1256,6 +1321,10 @@
 
 /* Very Small Screens (below 375px) */
 @media (max-width: 374px) {
+  .post-card > .post-header:first-child {
+    border-radius: 8px 8px 0 0;
+  }
+
   .post-header {
     padding: 8px 10px 0 10px;
   }
@@ -1289,6 +1358,11 @@
   .post-actions-bar {
     padding: 2px 3px;
     gap: 1px;
+    overflow: visible;
+  }
+
+  .action-btn-wrapper {
+    overflow: visible;
   }
 
   .action-btn,
@@ -1305,6 +1379,8 @@
   .reaction-bar {
     padding: 3px 6px;
     gap: 1px;
+    left: 0;
+    transform: none;
   }
 
   .reaction-btn {
