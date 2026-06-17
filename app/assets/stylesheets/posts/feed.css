@@ -832,6 +832,52 @@ body.dark-mode .visibility-select {
   border-color: var(--border-color);
 }
 
+/* ==================== DARK MODE FEED SIDEBARS ==================== */
+body.dark-mode .sidebar-section {
+  background: var(--bg-card, #242526);
+  border-color: var(--border-color, #3a3b3c);
+}
+
+body.dark-mode .sidebar-section h3 {
+  color: var(--text-primary, #e4e6eb);
+  -webkit-text-fill-color: var(--text-primary, #e4e6eb);
+  background: none;
+}
+
+body.dark-mode .empty-state {
+  color: var(--text-secondary, #b0b3b8);
+}
+
+body.dark-mode .friend-request-item,
+body.dark-mode .suggested-friend {
+  border-bottom-color: var(--border-subtle, rgba(255,255,255,0.08));
+}
+
+body.dark-mode .friend-info span,
+body.dark-mode .friend-name {
+  color: var(--text-primary, #e4e6eb);
+}
+
+body.dark-mode .friend-meta {
+  color: var(--text-secondary, #b0b3b8);
+}
+
+body.dark-mode .btn-add-friend {
+  background: var(--bg-input, #3a3b3c);
+  border-color: var(--border-color, #3a3b3c);
+  color: var(--text-primary, #e4e6eb);
+}
+
+body.dark-mode .btn-add-friend:hover {
+  background: var(--bg-hover, #4e4f50);
+  border-color: var(--border-color, #3a3b3c);
+}
+
+body.dark-mode .create-post-card {
+  background: var(--bg-card, #242526);
+  border-color: var(--border-color, #3a3b3c);
+}
+
 /* ==================== SKELETON LOADING ==================== */
 
 .skeleton-post-card {

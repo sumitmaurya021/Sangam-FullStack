@@ -1736,3 +1736,113 @@ html {
   .poll-card { margin: 0 16px 14px; padding: 14px 14px; }
   .poll-builder-datetime { max-width: 100%; }
 }
+
+/* ==================== DARK MODE OVERRIDES ==================== */
+
+body.dark-mode .post-card {
+  background: var(--bg-card, #242526);
+  border-color: var(--border-color, #3a3b3c);
+  color: var(--text-primary, #e4e6eb);
+}
+
+body.dark-mode .author-name { color: var(--text-primary, #e4e6eb); }
+body.dark-mode .author-link:hover .author-name { color: #8a9af8; }
+
+body.dark-mode .post-time,
+body.dark-mode .post-visibility-badge,
+body.dark-mode .post-edited-badge {
+  color: var(--text-tertiary, #8a8d91);
+}
+
+body.dark-mode .post-menu-btn { color: var(--text-secondary, #b0b3b8); }
+body.dark-mode .post-menu-btn:hover {
+  background: rgba(102, 126, 234, 0.15);
+  color: #8a9af8;
+}
+
+body.dark-mode .post-dropdown {
+  background: var(--bg-card, #242526);
+  border-color: var(--border-color, #3a3b3c);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .dropdown-item { color: var(--text-primary, #e4e6eb); }
+body.dark-mode .dropdown-item:hover { background: var(--bg-hover, #3a3b3c); }
+
+body.dark-mode .post-content,
+body.dark-mode .post-content p { color: var(--text-primary, #e4e6eb); }
+
+body.dark-mode .post-stats {
+  border-top-color: var(--border-color, #3a3b3c);
+  border-bottom-color: var(--border-color, #3a3b3c);
+}
+
+body.dark-mode .stat-item,
+body.dark-mode .stat-links span {
+  color: var(--text-secondary, #b0b3b8);
+}
+
+body.dark-mode .post-actions-bar { border-color: var(--border-color, #3a3b3c); }
+
+body.dark-mode .action-btn,
+body.dark-mode .action-btn--story,
+body.dark-mode .comment-action-btn {
+  color: var(--text-secondary, #b0b3b8);
+}
+
+body.dark-mode .action-btn:hover,
+body.dark-mode .action-btn--story:hover,
+body.dark-mode .comment-action-btn:hover {
+  background: var(--bg-hover, #3a3b3c);
+  color: var(--text-primary, #e4e6eb);
+}
+
+body.dark-mode .action-btn.active { color: #8a9af8; }
+body.dark-mode .action-btn.active:hover { background: rgba(102, 126, 234, 0.15); }
+
+body.dark-mode .reaction-picker,
+body.dark-mode .reaction-bar {
+  background: var(--bg-card, #242526);
+  border-color: var(--border-color, #3a3b3c);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .comment-input,
+body.dark-mode .poll-builder-input {
+  background: var(--bg-input, #3a3b3c);
+  border-color: var(--border-color, #3a3b3c);
+  color: var(--text-primary, #e4e6eb);
+}
+
+body.dark-mode .comment-input:focus,
+body.dark-mode .poll-builder-input:focus {
+  border-color: #667eea;
+}
+
+body.dark-mode .comment-author { color: var(--text-primary, #e4e6eb); }
+body.dark-mode .comment-bubble p { color: var(--text-primary, #e4e6eb); }
+
+body.dark-mode .btn-comment {
+  background: rgba(102, 126, 234, 0.15);
+  color: #8a9af8;
+}
+
+body.dark-mode .btn-comment:hover {
+  background: rgba(102, 126, 234, 0.25);
+}
+
+body.dark-mode .poll-card {
+  background: var(--bg-card, #242526);
+  border-color: var(--border-color, #3a3b3c);
+}
+
+body.dark-mode .poll-question { color: var(--text-primary, #e4e6eb); }
+body.dark-mode .poll-option-label { color: var(--text-primary, #e4e6eb); }
+body.dark-mode .poll-option-bar { background: var(--bg-hover, #3a3b3c); }
+
+body.dark-mode .poll-builder-header {
+  background: linear-gradient(135deg, #1e1e24, #2a2a35);
+  color: #8a9af8;
+}
+
+body.dark-mode .poll-builder-label { color: var(--text-secondary, #b0b3b8); }

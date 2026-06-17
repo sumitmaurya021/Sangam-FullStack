@@ -1,5 +1,5 @@
 class ProfilesController < ApplicationController
-  before_action :set_user, except: [:friends_list, :search]
+  before_action :set_user, except: [:friends_list, :search, :toggle_dark_mode]
 
   def show
     @posts           = @user.posts.published
