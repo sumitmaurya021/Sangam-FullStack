@@ -17,6 +17,16 @@ Rails.application.routes.draw do
 
   root to: "posts#index"
   
+  # Articles (Blogging)
+  resources :articles
+
+  # AI Features
+  namespace :api do
+    namespace :ai do
+      post 'generate_caption', to: '/ai_features#generate_caption'
+    end
+  end
+
   # Posts — with edit/update + bookmark
   resources :posts, only: [:index, :show, :create, :edit, :update, :destroy] do
     member do

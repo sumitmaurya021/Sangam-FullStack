@@ -11,6 +11,7 @@ class User < ApplicationRecord
   has_one_attached :cover_photo
 
   # Associations
+  has_many :articles, dependent: :destroy
   has_many :posts, dependent: :destroy
   has_many :reels, dependent: :destroy
   has_many :reel_likes, dependent: :destroy

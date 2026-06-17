@@ -29,3 +29,6 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
+
+import "trix"
+import "@rails/actiontext"

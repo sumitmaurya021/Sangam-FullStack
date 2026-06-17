@@ -1,0 +1,49 @@
+<%= render 'shared/header' %>
+<div class="articles-wrapper-futuristic">
+  <div class="articles-container">
+    <div class="articles-header">
+      <div>
+        <h1>Future of Writing</h1>
+        <p>Explore ideas through a premium glassmorphic lens.</p>
+      </div>
+      <div>
+        <%= link_to new_article_path, class: 'btn-neon-primary' do %>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+          Compose
+        <% end %>
+      </div>
+    </div>
+
+    <div class="articles-grid">
+      <% @articles.each do |article| %>
+        <%= link_to article_path(article), class: 'article-glass-card' do %>
+          <div class="article-cover-glass">
+            <% if article.cover_image.attached? %>
+              <%= image_tag article.cover_image, class: 'cover-img-future' %>
+            <% else %>
+              <div class="cover-placeholder-future">🌌</div>
+            <% end %>
+          </div>
+          <div class="article-glass-content">
+            <h2 class="article-glass-title"><%= article.title %></h2>
+            <p class="article-glass-snippet"><%= strip_tags(article.content.to_s).truncate(100) %></p>
+            
+            <div class="article-glass-meta">
+              <div class="author-glass">
+                <div class="author-avatar-glow"><%= article.user.name&.first&.upcase || 'U' %></div>
+                <span><%= article.user.name %></span>
+              </div>
+              <div class="stats-glass">
+                <span>👁 <%= article.views_count %></span>
+                <span>⏱ <%= time_ago_in_words(article.created_at) %></span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>
+<%= stylesheet_link_tag 'articles', 'data-turbo-track': 'reload' %>

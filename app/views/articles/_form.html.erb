@@ -1,0 +1,34 @@
+<%= form_with(model: article, class: 'form-glass-card') do |f| %>
+  <% if article.errors.any? %>
+    <div style="background: rgba(220, 38, 38, 0.2); border: 1px solid rgba(220,38,38,0.5); padding: 15px; border-radius: 12px; color: #fca5a5; margin-bottom: 25px;">
+      <h3 style="font-family:'Space Grotesk'; font-size: 16px; margin-bottom: 10px;"><%= pluralize(article.errors.count, "error") %> detected:</h3>
+      <ul style="padding-left: 20px; font-size: 14px;">
+        <% article.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group-future">
+    <%= f.label :title, "Article Title" %>
+    <%= f.text_field :title, class: 'input-glass title-glass', placeholder: 'Enter an engaging title...' %>
+  </div>
+
+  <div class="form-group-future">
+    <%= f.label :cover_image, "Hero Image (Optional)" %>
+    <%= f.file_field :cover_image, class: 'input-glass' %>
+  </div>
+
+  <div class="form-group-future">
+    <%= f.label :content, "Knowledge Core" %>
+    <div class="editor-wrapper-glass">
+      <%= f.rich_text_area :content, class: 'rich-editor-glass' %>
+    </div>
+  </div>
+
+  <div class="form-actions-future">
+    <%= f.submit article.new_record? ? 'Initialize Publish' : 'Sync Updates', class: 'btn-neon-submit' %>
+    <%= link_to 'Abort', articles_path, class: 'btn-glass-cancel' %>
+  </div>
+<% end %>

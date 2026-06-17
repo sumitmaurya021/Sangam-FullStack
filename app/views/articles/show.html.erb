@@ -1,0 +1,47 @@
+<%= render 'shared/header' %>
+
+<div class="articles-wrapper-futuristic">
+  <div class="reader-container-future">
+    
+    <div style="margin-bottom: 30px;">
+      <%= link_to articles_path, class: 'btn-neon-ghost' do %>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"></path>
+        </svg>
+        Return to Nexus
+      <% end %>
+    </div>
+
+    <div class="reader-header-glass">
+      <h1 class="reader-title-glow"><%= @article.title %></h1>
+      
+      <div class="reader-author-bar">
+        <div class="avatar-large-glow"><%= @article.user.name&.first&.upcase || 'U' %></div>
+        <div class="author-meta-glass">
+          <strong><%= @article.user.name %></strong>
+          <span>Published <%= @article.created_at.strftime('%B %d, %Y') %> &bull; <%= @article.views_count %> views</span>
+        </div>
+      </div>
+    </div>
+
+    <% if @article.cover_image.attached? %>
+      <div class="reader-hero-glass">
+        <%= image_tag @article.cover_image %>
+      </div>
+    <% end %>
+
+    <div class="reader-content-glass trix-content-future">
+      <%= @article.content %>
+    </div>
+
+    <% if current_user == @article.user %>
+      <div style="margin-top: 40px; display: flex; gap: 15px; justify-content: center;">
+        <%= link_to 'Edit Article', edit_article_path(@article), class: 'btn-neon-primary' %>
+        <%= link_to 'Delete Article', article_path(@article), data: { turbo_method: :delete, turbo_confirm: 'Erase from memory?' }, class: 'btn-glass-cancel' %>
+      </div>
+    <% end %>
+    
+  </div>
+</div>
+
+<%= stylesheet_link_tag 'articles', 'data-turbo-track': 'reload' %>

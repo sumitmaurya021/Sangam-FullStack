@@ -7,7 +7,7 @@
     </div>
   <% end %>
 
-  <div class="post-input-wrapper">
+  <div class="post-input-wrapper" data-controller="ai-caption" data-ai-caption-target="container" style="align-items: flex-start;">
     <div class="user-avatar-small">
       <% if current_user.avatar.attached? %>
         <%= image_tag current_user.avatar, alt: "Your avatar" %>
@@ -15,11 +15,23 @@
         <%= current_user.name&.first&.upcase || 'U' %>
       <% end %>
     </div>
-    <%= f.text_area :content,
-          placeholder: "What's on your mind, #{current_user.name || 'there'}?",
-          class: 'post-input',
-          rows: 3,
-          id: 'post-content-input' %>
+    <div style="flex: 1; display: flex; flex-direction: column; position: relative;" class="caption-input-container">
+      <%= f.text_area :content,
+            placeholder: "What's on your mind, #{current_user.name || 'there'}?",
+            class: 'post-input',
+            rows: 3,
+            id: 'post-content-input',
+            data: { "ai-caption-target": "textarea" } %>
+      
+      <div class="ai-action-bar">
+        <button type="button" class="btn-futuristic-ai" data-action="click->ai-caption#generate" data-ai-caption-target="button">
+          <svg class="ai-icon" viewBox="0 0 24 24">
+            <path d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"/>
+          </svg>
+          <span class="ai-text">AI Magic</span>
+        </button>
+      </div>
+    </div>
   </div>
 
   <%# Link Preview Area (auto-populated by JS) %>
