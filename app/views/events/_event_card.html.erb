@@ -1,30 +1,55 @@
 <div class="event-card">
   <%= link_to event_path(event), class: 'event-card-link' do %>
-    <div class="event-card-cover">
+    
+    <div class="event-card-cover-wrapper">
       <% if event.cover_photo.attached? %>
-        <%= image_tag event.cover_photo, alt: event.title, class: 'event-cover-img' %>
+        <%= image_tag event.cover_photo, alt: event.title, class: 'event-card-cover' %>
       <% else %>
         <div class="event-cover-placeholder">
-          <span class="event-date-big"><%= event.starts_at.strftime('%d') %></span>
-          <span class="event-month-big"><%= event.starts_at.strftime('%b').upcase %></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
         </div>
       <% end %>
-    </div>
-    <div class="event-card-body">
+
+      <!-- Floating Date Badge on Image -->
       <div class="event-date-badge">
-        <span class="event-date-day"><%= event.starts_at.strftime('%a') %></span>
-        <span class="event-date-full"><%= event.starts_at.strftime('%b %d at %I:%M %p') %></span>
+        <span class="event-date-month"><%= event.starts_at.strftime('%b') %></span>
+        <span class="event-date-day"><%= event.starts_at.strftime('%d') %></span>
       </div>
-      <h3 class="event-title"><%= event.title %></h3>
+    </div>
+
+    <div class="event-card-body">
+      <h3 class="event-card-title"><%= event.title %></h3>
+      
+      <div class="event-card-time">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <%= event.starts_at.strftime('%A, %I:%M %p') %>
+      </div>
+
       <% if event.location.present? %>
-        <p class="event-location">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="vertical-align:middle;">
-            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+        <div class="event-card-location">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
           </svg>
           <%= event.location %>
-        </p>
+        </div>
       <% end %>
-      <div class="event-stats">
+
+      <div class="event-card-stats">
+        <div class="event-stats-avatars">
+          <!-- Placeholder avatars for attendees -->
+          <div class="event-stats-avatar"></div>
+          <div class="event-stats-avatar"></div>
+          <div class="event-stats-avatar"></div>
+        </div>
         <span><%= event.going_count %> going</span>
         <span>·</span>
         <span><%= event.interested_count %> interested</span>
@@ -34,13 +59,19 @@
 
   <div class="event-card-footer">
     <% response = event.user_response(current_user) %>
-    <button class="event-rsvp-btn <%= response == 'going' ? 'active' : '' %>"
+    <button class="btn-event-rsvp btn-event-going <%= response == 'going' ? 'active' : '' %>"
             onclick="rsvpEvent(<%= event.id %>, 'going', this)">
-      ✅ Going
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      Going
     </button>
-    <button class="event-rsvp-btn-secondary <%= response == 'interested' ? 'active' : '' %>"
+    <button class="btn-event-rsvp btn-event-interested <%= response == 'interested' ? 'active' : '' %>"
             onclick="rsvpEvent(<%= event.id %>, 'interested', this)">
-      ⭐ Interested
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+      </svg>
+      Interested
     </button>
   </div>
 </div>

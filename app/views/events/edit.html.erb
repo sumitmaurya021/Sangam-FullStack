@@ -1,65 +1,80 @@
-<div class="feed-container">
+<div class="events-page-wrapper">
   <%= render 'shared/header' %>
-  <div class="feed-layout">
-    <main class="feed-main" style="max-width: 600px; margin: 0 auto;">
-      <div class="create-post-card">
-        <h2 style="margin: 0 0 20px; font-size: 22px; font-weight: 700;">Edit Event</h2>
+  
+  <div class="event-form-container">
+    <h2 class="event-form-title">Edit Event</h2>
 
-        <%= form_with model: @event, url: event_path(@event), method: :patch, multipart: true, class: 'event-form' do |f| %>
-          <% if @event.errors.any? %>
-            <div class="form-errors">
-              <% @event.errors.full_messages.each do |msg| %><p><%= msg %></p><% end %>
+    <%= form_with model: @event, url: event_path(@event), method: :patch, multipart: true, class: 'event-form' do |f| %>
+      <% if @event.errors.any? %>
+        <div class="form-errors" style="background: rgba(255, 107, 107, 0.1); border-left: 4px solid #ff6b6b; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+          <% @event.errors.full_messages.each do |msg| %>
+            <p style="color: #ff6b6b; margin: 0 0 8px; font-size: 14px; font-weight: 600;"><%= msg %></p>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="premium-form-group">
+        <%= f.label :title, 'Event Name *', class: 'premium-form-label' %>
+        <%= f.text_field :title, class: 'premium-form-input', maxlength: 200 %>
+      </div>
+
+      <div class="premium-form-row">
+        <div class="premium-form-group">
+          <%= f.label :starts_at, 'Start Date & Time *', class: 'premium-form-label' %>
+          <%= f.datetime_local_field :starts_at, class: 'premium-form-input' %>
+        </div>
+        <div class="premium-form-group">
+          <%= f.label :ends_at, 'End Date & Time', class: 'premium-form-label' %>
+          <%= f.datetime_local_field :ends_at, class: 'premium-form-input' %>
+        </div>
+      </div>
+
+      <div class="premium-form-group">
+        <%= f.label :location, 'Location', class: 'premium-form-label' %>
+        <div style="position: relative;">
+          <svg style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--event-text-sub);" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          <%= f.text_field :location, class: 'premium-form-input', style: 'padding-left: 44px;' %>
+        </div>
+      </div>
+
+      <div class="premium-form-group">
+        <%= f.label :description, 'Description', class: 'premium-form-label' %>
+        <%= f.text_area :description, class: 'premium-form-input', rows: 4, style: 'resize: vertical;' %>
+      </div>
+
+      <div class="premium-form-row">
+        <div class="premium-form-group">
+          <%= f.label :privacy, 'Privacy', class: 'premium-form-label' %>
+          <%= f.select :privacy,
+              [['🌐 Public', 'public'], ['👥 Friends Only', 'friends'], ['🔒 Private', 'private']],
+              {},
+              class: 'premium-form-input' %>
+        </div>
+        <div class="premium-form-group">
+          <%= f.label :cover_photo, 'Cover Photo', class: 'premium-form-label' %>
+          
+          <% if @event.cover_photo.attached? %>
+            <div style="margin-bottom: 12px; border-radius: 12px; overflow: hidden; border: 1px solid var(--event-glass-border);">
+              <%= image_tag @event.cover_photo, style: 'width: 100%; height: 120px; object-fit: cover; display: block;' %>
             </div>
           <% end %>
 
-          <div class="form-field">
-            <%= f.label :title, 'Event Name *' %>
-            <%= f.text_field :title, class: 'form-input', maxlength: 200 %>
-          </div>
+          <%= f.file_field :cover_photo, accept: 'image/*', class: 'premium-form-input', style: 'padding: 11px 18px;' %>
+        </div>
+      </div>
 
-          <div class="form-row">
-            <div class="form-field">
-              <%= f.label :starts_at, 'Start Date & Time *' %>
-              <%= f.datetime_local_field :starts_at, class: 'form-input' %>
-            </div>
-            <div class="form-field">
-              <%= f.label :ends_at, 'End Date & Time' %>
-              <%= f.datetime_local_field :ends_at, class: 'form-input' %>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <%= f.label :location, 'Location' %>
-            <%= f.text_field :location, class: 'form-input' %>
-          </div>
-
-          <div class="form-field">
-            <%= f.label :description, 'Description' %>
-            <%= f.text_area :description, class: 'form-input', rows: 4 %>
-          </div>
-
-          <div class="form-field">
-            <%= f.label :privacy, 'Privacy' %>
-            <%= f.select :privacy,
-                [['🌐 Public', 'public'], ['👥 Friends Only', 'friends'], ['🔒 Private', 'private']],
-                {},
-                class: 'form-input' %>
-          </div>
-
-          <div class="form-field">
-            <%= f.label :cover_photo, 'Cover Photo' %>
-            <% if @event.cover_photo.attached? %>
-              <%= image_tag @event.cover_photo, style: 'width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-bottom:8px;' %>
-            <% end %>
-            <%= f.file_field :cover_photo, accept: 'image/*', class: 'form-input' %>
-          </div>
-
-          <div class="form-actions">
-            <%= link_to 'Cancel', event_path(@event), class: 'btn-cancel' %>
-            <%= f.submit 'Save Changes', class: 'btn-primary' %>
-          </div>
+      <div class="premium-form-actions">
+        <%= link_to 'Cancel', event_path(@event), class: 'btn-form-cancel' %>
+        <%= f.button type: 'submit', class: 'btn-form-submit' do %>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Save Changes
         <% end %>
       </div>
-    </main>
+    <% end %>
   </div>
 </div>

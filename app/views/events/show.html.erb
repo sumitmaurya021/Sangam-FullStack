@@ -1,108 +1,136 @@
-<div class="feed-container">
+<div class="events-page-wrapper" style="max-width: 100%; padding: 0;">
   <%= render 'shared/header' %>
-  <div class="feed-layout">
-    <main class="feed-main" style="max-width: 720px; margin: 0 auto;">
-      <div class="event-detail-card">
-        <!-- Cover -->
-        <% if @event.cover_photo.attached? %>
-          <%= image_tag @event.cover_photo, class: 'event-detail-cover', alt: @event.title %>
-        <% else %>
-          <div class="event-detail-cover event-cover-placeholder">
-            <span style="font-size:48px;">📅</span>
+
+  <div class="event-detail-hero">
+    <% if @event.cover_photo.attached? %>
+      <%= image_tag @event.cover_photo, alt: @event.title %>
+    <% else %>
+      <div style="width: 100%; height: 100%; background: linear-gradient(135deg, rgba(102,126,234,0.3), rgba(118,75,162,0.3)); display: flex; align-items: center; justify-content: center;">
+        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+      </div>
+    <% end %>
+    <div class="event-detail-hero-overlay"></div>
+  </div>
+
+  <div class="event-detail-container">
+    <main class="event-detail-main">
+      <div class="event-detail-header">
+        <h1 class="event-detail-title"><%= @event.title %></h1>
+        
+        <%= link_to profile_path(@event.organizer), class: 'event-organizer-row' do %>
+          <div class="event-organizer-avatar"><%= @event.organizer.name&.first&.upcase %></div>
+          <div class="event-organizer-info">
+            <span>Hosted by</span>
+            <strong><%= @event.organizer.name %></strong>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @event.description.present? %>
+        <div class="event-section">
+          <h3>About this event</h3>
+          <div class="event-description-text">
+            <%= simple_format(@event.description) %>
+          </div>
+        </div>
+      <% end %>
+
+      <% if @going_users.any? %>
+        <div class="event-section">
+          <h3>Going (<%= @event.going_count %>)</h3>
+          <div class="events-grid" style="grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 12px; margin-bottom: 0;">
+            <% @going_users.each do |user| %>
+              <%= link_to profile_path(user), title: user.name do %>
+                <div class="event-organizer-avatar" style="width: 52px; height: 52px; font-size: 20px;"><%= user.name&.first&.upcase %></div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </main>
+
+    <aside class="event-sidebar">
+      <div class="event-sidebar-card">
+        
+        <div class="event-info-item">
+          <div class="event-info-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="event-info-text">
+            <strong><%= @event.starts_at.strftime('%A, %B %d, %Y') %></strong>
+            <span><%= @event.starts_at.strftime('%I:%M %p') %><% if @event.ends_at %> – <%= @event.ends_at.strftime('%I:%M %p') %><% end %></span>
+          </div>
+        </div>
+
+        <% if @event.location.present? %>
+          <div class="event-info-item">
+            <div class="event-info-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+            <div class="event-info-text">
+              <strong>Location</strong>
+              <span><%= @event.location %></span>
+            </div>
           </div>
         <% end %>
 
-        <div class="event-detail-body">
-          <h1 class="event-detail-title"><%= @event.title %></h1>
-
-          <div class="event-detail-meta">
-            <div class="event-meta-item">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="#1877f2"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
-              <div>
-                <strong><%= @event.starts_at.strftime('%A, %B %d, %Y') %></strong>
-                <span><%= @event.starts_at.strftime('%I:%M %p') %><% if @event.ends_at %> – <%= @event.ends_at.strftime('%I:%M %p') %><% end %></span>
-              </div>
-            </div>
-
-            <% if @event.location.present? %>
-              <div class="event-meta-item">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="#1877f2"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
-                <div>
-                  <strong>Location</strong>
-                  <span><%= @event.location %></span>
-                </div>
-              </div>
-            <% end %>
-
-            <div class="event-meta-item">
-              <%= link_to profile_path(@event.organizer), class: 'event-organizer-link' do %>
-                <div class="event-organizer-avatar"><%= @event.organizer.name&.first&.upcase %></div>
-                <div>
-                  <strong>Organized by</strong>
-                  <span><%= @event.organizer.name %></span>
-                </div>
-              <% end %>
-            </div>
+        <div class="event-rsvp-box">
+          <h4>RSVP TO EVENT</h4>
+          <div class="event-action-buttons">
+            <button class="btn-event-rsvp btn-event-going <%= @user_response == 'going' ? 'active' : '' %>"
+                    id="rsvp-going"
+                    onclick="rsvpEvent(<%= @event.id %>, 'going', this)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              Going
+            </button>
+            <button class="btn-event-rsvp btn-event-interested <%= @user_response == 'interested' ? 'active' : '' %>"
+                    id="rsvp-interested"
+                    onclick="rsvpEvent(<%= @event.id %>, 'interested', this)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+              Interested
+            </button>
+            <button class="btn-event-rsvp btn-event-interested <%= @user_response == 'not_going' ? 'active' : '' %>"
+                    id="rsvp-not-going"
+                    onclick="rsvpEvent(<%= @event.id %>, 'not_going', this)"
+                    style="background: rgba(255, 107, 107, 0.1); color: #ff6b6b;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Can't Go
+            </button>
           </div>
-
-          <!-- RSVP Actions -->
-          <div class="event-rsvp-section">
-            <div class="event-rsvp-stats">
-              <span><strong><%= @event.going_count %></strong> going</span>
-              <span>·</span>
-              <span><strong><%= @event.interested_count %></strong> interested</span>
-            </div>
-            <div class="event-rsvp-actions">
-              <button class="event-rsvp-btn <%= @user_response == 'going' ? 'active' : '' %>"
-                      id="rsvp-going"
-                      onclick="rsvpEvent(<%= @event.id %>, 'going', this)">
-                ✅ Going
-              </button>
-              <button class="event-rsvp-btn-secondary <%= @user_response == 'interested' ? 'active' : '' %>"
-                      id="rsvp-interested"
-                      onclick="rsvpEvent(<%= @event.id %>, 'interested', this)">
-                ⭐ Interested
-              </button>
-              <button class="event-rsvp-btn-decline <%= @user_response == 'not_going' ? 'active' : '' %>"
-                      id="rsvp-not-going"
-                      onclick="rsvpEvent(<%= @event.id %>, 'not_going', this)">
-                ✕ Can't Go
-              </button>
-            </div>
-          </div>
-
-          <!-- Description -->
-          <% if @event.description.present? %>
-            <div class="event-description">
-              <h3>About this event</h3>
-              <%= simple_format(@event.description) %>
-            </div>
-          <% end %>
-
-          <!-- Going / Interested users -->
-          <% if @going_users.any? %>
-            <div class="event-attendees">
-              <h3>Going (<%= @event.going_count %>)</h3>
-              <div class="attendees-avatars">
-                <% @going_users.each do |user| %>
-                  <%= link_to profile_path(user), title: user.name do %>
-                    <div class="attendee-avatar"><%= user.name&.first&.upcase %></div>
-                  <% end %>
-                <% end %>
-              </div>
-            </div>
-          <% end %>
-
-          <!-- Admin actions -->
-          <% if @event.organizer == current_user %>
-            <div class="event-admin-actions">
-              <%= link_to 'Edit Event', edit_event_path(@event), class: 'btn-secondary' %>
-              <%= button_to 'Delete Event', event_path(@event), method: :delete,
-                    class: 'btn-danger', data: { confirm: 'Delete this event?' } %>
-            </div>
-          <% end %>
         </div>
+
+        <% if @event.organizer == current_user %>
+          <div class="event-rsvp-box" style="margin-top: 8px;">
+            <h4>ADMIN ACTIONS</h4>
+            <div class="event-action-buttons">
+              <%= link_to 'Edit Event', edit_event_path(@event), class: 'btn-event-rsvp btn-event-interested', style: 'text-decoration: none;' %>
+              <%= button_to 'Delete Event', event_path(@event), method: :delete,
+                    class: 'btn-event-rsvp btn-event-interested', style: 'width: 100%; background: rgba(255, 107, 107, 0.1); color: #ff6b6b;', data: { confirm: 'Delete this event?' } %>
+            </div>
+          </div>
+        <% end %>
+
       </div>
-    </main>
+    </aside>
   </div>
 </div>
