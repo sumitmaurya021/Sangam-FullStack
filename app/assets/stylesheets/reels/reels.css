@@ -9,20 +9,22 @@
   background: #000;
   color: #fff;
   position: relative;
+  /* Premium header is fixed, so we pad the top on desktop */
+  padding-top: 0;
+  box-sizing: border-box;
 }
 
 /* Header hidden on mobile only — show on desktop */
-.reels-page .fb-header {
-  display: none;
+.reels-page .premium-header {
+  display: none !important;
 }
 
 @media (min-width: 769px) {
-  .reels-page .fb-header {
-    display: block;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background: #fff;
+  .reels-page .premium-header {
+    display: flex !important;
+  }
+  .reels-page {
+    padding-top: var(--header-height, 64px);
   }
 }
 
@@ -37,6 +39,13 @@
   max-width: 420px;
   margin: 0 auto;
 }
+
+@media (min-width: 769px) {
+  .reels-feed {
+    height: calc(100vh - var(--header-height, 64px));
+  }
+}
+
 .reels-feed::-webkit-scrollbar { display: none; }
 
 /* ── Reel Card — full viewport ────────────────────────── */
@@ -58,7 +67,7 @@
 /* Desktop: adjust height for header */
 @media (min-width: 769px) {
   .reel-card {
-    height: calc(100vh - 60px);
+    height: calc(100vh - var(--header-height, 64px));
   }
 }
 
