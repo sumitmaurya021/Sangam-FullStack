@@ -831,3 +831,141 @@ body.dark-mode .visibility-select {
   color: var(--text-primary);
   border-color: var(--border-color);
 }
+
+/* ==================== SKELETON LOADING ==================== */
+
+.skeleton-post-card {
+  background: #ffffff;
+  border: 1px solid #e4e6eb;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.skeleton-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.skeleton-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #e4e6eb;
+  flex-shrink: 0;
+}
+
+.skeleton-header-text {
+  flex: 1;
+}
+
+.skeleton-line {
+  background: #e4e6eb;
+  border-radius: 6px;
+}
+
+.skeleton-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.skeleton-image {
+  width: 100%;
+  height: 200px;
+  background: #e4e6eb;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.skeleton-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e4e6eb;
+}
+
+.skeleton-action-btn {
+  flex: 1;
+  height: 36px;
+  background: #e4e6eb;
+  border-radius: 8px;
+}
+
+/* Shimmer / Pulse Animation */
+@keyframes skeletonPulse {
+  0% {
+    background-color: #e4e6eb;
+  }
+  50% {
+    background-color: #f0f2f5;
+  }
+  100% {
+    background-color: #e4e6eb;
+  }
+}
+
+.skeleton-pulse {
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+/* Smooth fade-in for dynamically loaded posts */
+.post-card.post-fade-in {
+  animation: postFadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes postFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode skeleton */
+body.dark-mode .skeleton-post-card {
+  background: var(--bg-card, #242526);
+  border-color: var(--border-color, #3a3b3c);
+}
+
+body.dark-mode .skeleton-avatar,
+body.dark-mode .skeleton-line,
+body.dark-mode .skeleton-image,
+body.dark-mode .skeleton-action-btn {
+  background: var(--border-color, #3a3b3c);
+}
+
+body.dark-mode .skeleton-pulse {
+  animation-name: skeletonPulseDark;
+}
+
+@keyframes skeletonPulseDark {
+  0% { background-color: #3a3b3c; }
+  50% { background-color: #4e4f50; }
+  100% { background-color: #3a3b3c; }
+}
+
+/* Responsive skeleton */
+@media (max-width: 576px) {
+  .skeleton-post-card {
+    padding: 14px 16px;
+    border-radius: 12px;
+  }
+
+  .skeleton-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .skeleton-image {
+    height: 150px;
+    border-radius: 8px;
+  }
+}

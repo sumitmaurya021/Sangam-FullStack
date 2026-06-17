@@ -196,11 +196,14 @@ document.addEventListener('change', function(e) {
     function loadNextPage() {
       const nextPage  = feed.dataset.nextPage;
       const isLoading = feed.dataset.loading === 'true';
+      const skeletonLoader = document.getElementById('posts-skeleton-loader');
 
       if (!nextPage || isLoading) return;
 
       feed.dataset.loading  = 'true';
-      spinner.style.display = 'block';
+      // Show skeleton loaders instead of just a spinner
+      if (skeletonLoader) skeletonLoader.style.display = 'block';
+      if (spinner) spinner.style.display = 'block';
 
       fetch('/posts?page=' + nextPage, {
         headers: {
@@ -213,11 +216,26 @@ document.addEventListener('change', function(e) {
           return res.json();
         })
         .then(function (data) {
-          feed.insertAdjacentHTML('beforeend', data.posts_html);
+          // Hide skeleton loaders
+          if (skeletonLoader) skeletonLoader.style.display = 'none';
+          if (spinner) spinner.style.display = 'none';
+
+          // Create a temporary container to parse the HTML
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = data.posts_html;
+
+          // Add fade-in animation to each new post card
+          const newCards = tempDiv.querySelectorAll('.post-card');
+          newCards.forEach(function(card, index) {
+            card.classList.add('post-fade-in');
+            card.style.animationDelay = (index * 0.1) + 's';
+          });
+
+          // Append animated cards to feed
+          feed.insertAdjacentHTML('beforeend', tempDiv.innerHTML);
 
           feed.dataset.nextPage = data.next_page || '';
           feed.dataset.loading  = 'false';
-          spinner.style.display = 'none';
 
           if (!data.next_page) {
             // All pages loaded — stop observing
@@ -227,7 +245,8 @@ document.addEventListener('change', function(e) {
         })
         .catch(function () {
           feed.dataset.loading  = 'false';
-          spinner.style.display = 'none';
+          if (skeletonLoader) skeletonLoader.style.display = 'none';
+          if (spinner) spinner.style.display = 'none';
         });
     }
 
