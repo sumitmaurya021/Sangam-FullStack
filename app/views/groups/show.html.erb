@@ -1,135 +1,167 @@
-<div class="feed-container">
+<div class="groups-page-wrapper" style="padding: 0; max-width: 100%;">
   <%= render 'shared/header' %>
 
-  <!-- Group Cover -->
-  <div class="group-cover-section">
+  <!-- Cinematic Cover -->
+  <div class="group-detail-hero">
     <% if @group.cover_photo.attached? %>
-      <%= image_tag @group.cover_photo, class: 'group-cover-hero', alt: @group.name %>
+      <%= image_tag @group.cover_photo, alt: @group.name %>
     <% else %>
-      <div class="group-cover-hero group-cover-hero-placeholder" style="background: linear-gradient(135deg, #667eea, #764ba2);"></div>
+      <div style="width: 100%; height: 100%; background: var(--group-gradient);"></div>
     <% end %>
+    <div class="group-detail-hero-overlay"></div>
+  </div>
 
-    <div class="group-hero-info">
-      <h1 class="group-title"><%= @group.name %></h1>
-      <div class="group-meta-row">
-        <span><%= @group.privacy == 'public' ? '🌐 Public' : '🔒 Private' %> Group</span>
-        <span>·</span>
-        <span><%= @group.members_count %> members</span>
+  <div class="group-detail-container">
+    <!-- Floating Command Center -->
+    <div class="group-command-center">
+      <div class="group-info-main">
+        <h1 class="group-detail-title"><%= @group.name %></h1>
+        <div class="group-detail-meta">
+          <span style="display: flex; align-items: center; gap: 6px;">
+            <% if @group.privacy == 'public' %>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+              </svg>
+              Public Group
+            <% else %>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              Private Group
+            <% end %>
+          </span>
+          <span>·</span>
+          <span><%= @group.members_count %> members</span>
+        </div>
+        
+        <% if @group.description.present? %>
+          <p class="group-detail-desc"><%= @group.description %></p>
+        <% end %>
       </div>
 
-      <div class="group-hero-actions">
+      <div class="group-actions-main">
         <% if @is_admin %>
-          <%= link_to 'Edit Group', edit_group_path(@group), class: 'btn-primary' %>
+          <%= link_to edit_group_path(@group), class: 'btn-command-action btn-command-secondary' do %>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            Edit Group
+          <% end %>
         <% elsif @is_member %>
-          <button class="btn-secondary" onclick="leaveGroup(<%= @group.id %>, this)">Leave Group</button>
+          <button class="btn-command-action btn-command-danger" onclick="leaveGroup(<%= @group.id %>, this)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Leave Group
+          </button>
         <% elsif current_user.group_memberships.pending.exists?(group: @group) %>
-          <button class="btn-pending-group" disabled>Request Sent</button>
+          <button class="btn-command-action btn-command-secondary" disabled style="opacity: 0.7; cursor: not-allowed;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            Request Sent
+          </button>
         <% else %>
-          <button class="btn-primary" onclick="joinGroup(<%= @group.id %>, this)">Join Group</button>
+          <button class="btn-command-action btn-command-primary" onclick="joinGroup(<%= @group.id %>, this)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+            Join Group
+          </button>
         <% end %>
       </div>
     </div>
-  </div>
 
-  <div class="feed-layout">
-    <!-- Left: About + Members -->
-    <aside class="feed-sidebar">
-      <div class="sidebar-section">
-        <h3>About</h3>
-        <% if @group.description.present? %>
-          <p class="group-about-text"><%= @group.description %></p>
-        <% else %>
-          <p class="empty-state-text">No description provided.</p>
-        <% end %>
-      </div>
-
-      <div class="sidebar-section">
-        <h3>Members (<%= @group.members_count %>)</h3>
-        <% @members.each do |membership| %>
-          <%= link_to profile_path(membership.user), class: 'friend-item' do %>
-            <div class="friend-avatar-small">
-              <%= membership.user.name&.first&.upcase || 'U' %>
-            </div>
-            <div>
-              <div style="font-size:13px;font-weight:600;"><%= membership.user.name %></div>
-              <% if membership.role == 'admin' || membership.role == 'owner' %>
-                <div style="font-size:11px;color:#1877f2;">Admin</div>
-              <% end %>
-            </div>
-          <% end %>
-        <% end %>
-      </div>
-
-      <!-- Pending requests (admins only) -->
-      <% if @is_admin && @pending_members&.any? %>
-        <div class="sidebar-section">
-          <h3>Pending Requests (<%= @pending_members.count %>)</h3>
-          <% @pending_members.each do |membership| %>
-            <div class="friend-request-item">
-              <div class="friend-info">
-                <div class="friend-avatar"><%= membership.user.name&.first&.upcase || 'U' %></div>
-                <span><%= membership.user.name %></span>
+    <!-- Feed Layout -->
+    <div class="feed-layout" style="margin-top: 32px; padding-top: 0;">
+      <!-- Left: About + Members -->
+      <aside class="feed-sidebar">
+        
+        <div class="sidebar-section" style="background: var(--group-glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--group-glass-border); border-radius: 20px; box-shadow: var(--group-card-shadow);">
+          <h3 style="font-weight: 800; color: var(--group-text-main);">Members (<%= @group.members_count %>)</h3>
+          <% @members.each do |membership| %>
+            <%= link_to profile_path(membership.user), class: 'friend-item', style: 'padding: 8px; border-radius: 12px; transition: var(--group-transition);' do %>
+              <div class="friend-avatar-small" style="background: var(--group-gradient); color: #fff;">
+                <%= membership.user.name&.first&.upcase || 'U' %>
               </div>
-              <div class="friend-actions">
-                <button class="btn-accept" onclick="approveMember(<%= @group.id %>, <%= membership.user_id %>, this)">✓</button>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      <% end %>
-    </aside>
-
-    <!-- Main: Posts -->
-    <main class="feed-main">
-      <!-- Create post in group (members only) -->
-      <% if @is_member %>
-        <div class="create-post-card">
-          <%= form_with model: @new_post, url: posts_path, class: 'create-post-form' do |f| %>
-            <%= f.hidden_field :group_id, value: @group.id %>
-            <div class="post-input-wrapper">
-              <div class="user-avatar-small">
-                <% if current_user.avatar.attached? %>
-                  <%= image_tag current_user.avatar, alt: "Your avatar" %>
-                <% else %>
-                  <%= current_user.name&.first&.upcase || 'U' %>
+              <div>
+                <div style="font-size:14px;font-weight:700; color: var(--group-text-main);"><%= membership.user.name %></div>
+                <% if membership.role == 'admin' || membership.role == 'owner' %>
+                  <div style="font-size:12px; font-weight: 600; color: var(--group-primary);">Admin</div>
                 <% end %>
               </div>
-              <%= f.text_area :content, placeholder: "Write something in #{@group.name}...", class: 'post-input', rows: 3 %>
-            </div>
-            <div class="post-actions">
-              <div class="post-options">
-                <label class="post-option">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="#45bd62">
-                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/>
-                  </svg>
-                  <span>Photos</span>
-                  <%= f.file_field :images, class: 'file-input', accept: 'image/*', multiple: true %>
-                </label>
-              </div>
-              <%= f.submit 'Post', class: 'btn-post' %>
-            </div>
+            <% end %>
           <% end %>
         </div>
-      <% end %>
 
-      <!-- Group Posts -->
-      <% if @posts.empty? %>
-        <div class="empty-state-card">
-          <div class="empty-state-icon">📝</div>
-          <h3>No posts yet</h3>
-          <p>Be the first to post in this group!</p>
-        </div>
-      <% else %>
-        <div class="posts-feed">
-          <%= render partial: 'posts/post_card', collection: @posts, as: :post %>
-        </div>
-        <% if @posts.next_page %>
-          <div class="pagination-wrapper">
-            <%= link_to 'Load More', group_path(@group, page: @posts.next_page), class: 'btn-load-more' %>
+        <!-- Pending requests (admins only) -->
+        <% if @is_admin && @pending_members&.any? %>
+          <div class="sidebar-section" style="background: var(--group-glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--group-glass-border); border-radius: 20px; box-shadow: var(--group-card-shadow);">
+            <h3 style="font-weight: 800; color: var(--group-text-main);">Pending Requests (<%= @pending_members.count %>)</h3>
+            <% @pending_members.each do |membership| %>
+              <div class="friend-request-item">
+                <div class="friend-info">
+                  <div class="friend-avatar" style="background: var(--group-gradient); color: #fff;"><%= membership.user.name&.first&.upcase || 'U' %></div>
+                  <span style="font-weight: 600; color: var(--group-text-main);"><%= membership.user.name %></span>
+                </div>
+                <div class="friend-actions">
+                  <button class="btn-accept" style="background: var(--group-primary);" onclick="approveMember(<%= @group.id %>, <%= membership.user_id %>, this)">✓</button>
+                </div>
+              </div>
+            <% end %>
           </div>
         <% end %>
-      <% end %>
-    </main>
+      </aside>
+
+      <!-- Main: Posts -->
+      <main class="feed-main">
+        <!-- Create post in group (members only) -->
+        <% if @is_member %>
+          <div class="create-post-card" style="background: var(--group-glass-bg); backdrop-filter: blur(20px); border: 1px solid var(--group-glass-border); border-radius: 20px; box-shadow: var(--group-card-shadow);">
+            <%= form_with model: @new_post, url: posts_path, class: 'create-post-form' do |f| %>
+              <%= f.hidden_field :group_id, value: @group.id %>
+              <div class="post-input-wrapper">
+                <div class="user-avatar-small">
+                  <% if current_user.avatar.attached? %>
+                    <%= image_tag current_user.avatar, alt: "Your avatar" %>
+                  <% else %>
+                    <%= current_user.name&.first&.upcase || 'U' %>
+                  <% end %>
+                </div>
+                <%= f.text_area :content, placeholder: "Write something in #{@group.name}...", class: 'post-input', rows: 3, style: 'background: rgba(255,255,255,0.2); border: 1px solid var(--group-glass-border); color: var(--group-text-main);' %>
+              </div>
+              <div class="post-actions">
+                <div class="post-options">
+                  <label class="post-option">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--group-primary)">
+                      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/>
+                    </svg>
+                    <span style="color: var(--group-text-main); font-weight: 600;">Photos</span>
+                    <%= f.file_field :images, class: 'file-input', accept: 'image/*', multiple: true %>
+                  </label>
+                </div>
+                <%= f.submit 'Post', class: 'btn-command-action btn-command-primary', style: 'padding: 8px 24px; border-radius: 12px;' %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        <!-- Group Posts -->
+        <% if @posts.empty? %>
+          <div class="groups-empty-state" style="margin-top: 0; padding: 40px 24px;">
+            <div class="empty-state-icon-wrapper" style="width: 72px; height: 72px; margin-bottom: 16px;">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </div>
+            <h3>No posts yet</h3>
+            <p style="margin-bottom: 0;">Be the first to post in this futuristic community!</p>
+          </div>
+        <% else %>
+          <div class="posts-feed">
+            <%= render partial: 'posts/post_card', collection: @posts, as: :post %>
+          </div>
+          <% if @posts.next_page %>
+            <div class="pagination-wrapper">
+              <%= link_to 'Load More', group_path(@group, page: @posts.next_page), class: 'btn-hero-glass', style: 'color: var(--group-text-main);' %>
+            </div>
+          <% end %>
+        <% end %>
+      </main>
+    </div>
   </div>
 </div>
 

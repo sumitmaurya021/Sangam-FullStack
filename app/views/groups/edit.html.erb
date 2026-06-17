@@ -1,49 +1,64 @@
-<div class="feed-container">
+<div class="groups-page-wrapper">
   <%= render 'shared/header' %>
-  <div class="feed-layout">
-    <main class="feed-main" style="max-width: 600px; margin: 0 auto;">
-      <div class="create-post-card">
-        <h2 style="margin: 0 0 20px; font-size: 22px; font-weight: 700;">Edit Group</h2>
+  
+  <div class="group-form-container">
+    <h2 class="group-form-title">Edit Group</h2>
 
-        <%= form_with model: @group, url: group_path(@group), method: :patch, multipart: true, class: 'group-form' do |f| %>
-          <% if @group.errors.any? %>
-            <div class="form-errors">
-              <% @group.errors.full_messages.each do |msg| %><p><%= msg %></p><% end %>
-            </div>
+    <%= form_with model: @group, url: group_path(@group), method: :patch, multipart: true, class: 'group-form' do |f| %>
+      <% if @group.errors.any? %>
+        <div class="form-errors">
+          <% @group.errors.full_messages.each do |msg| %>
+            <p><%= msg %></p>
           <% end %>
+        </div>
+      <% end %>
 
-          <div class="form-field">
-            <%= f.label :name, 'Group Name *' %>
-            <%= f.text_field :name, class: 'form-input', maxlength: 100 %>
-          </div>
+      <div class="premium-form-group">
+        <%= f.label :name, 'Group Name *', class: 'premium-form-label' %>
+        <%= f.text_field :name, class: 'premium-form-input', maxlength: 100 %>
+      </div>
 
-          <div class="form-field">
-            <%= f.label :description, 'Description' %>
-            <%= f.text_area :description, class: 'form-input', rows: 3, maxlength: 500 %>
-          </div>
+      <div class="premium-form-group">
+        <%= f.label :description, 'Description', class: 'premium-form-label' %>
+        <%= f.text_area :description, class: 'premium-form-input', rows: 4, maxlength: 500, style: 'resize: vertical;' %>
+      </div>
 
-          <div class="form-field">
-            <%= f.label :privacy, 'Privacy' %>
+      <div class="premium-form-row">
+        <div class="premium-form-group">
+          <%= f.label :privacy, 'Privacy', class: 'premium-form-label' %>
+          <div style="position: relative;">
+            <svg style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--group-text-sub); pointer-events: none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
             <%= f.select :privacy,
                 [['🌐 Public', 'public'], ['🔒 Private', 'private'], ['🕵️ Secret', 'secret']],
                 {},
-                class: 'form-input' %>
+                class: 'premium-form-input', style: 'appearance: none; -webkit-appearance: none; padding-right: 40px;' %>
           </div>
+        </div>
 
-          <div class="form-field">
-            <%= f.label :cover_photo, 'Cover Photo' %>
-            <% if @group.cover_photo.attached? %>
-              <%= image_tag @group.cover_photo, style: 'width:100%;max-height:180px;object-fit:cover;border-radius:8px;margin-bottom:8px;' %>
-            <% end %>
-            <%= f.file_field :cover_photo, accept: 'image/*', class: 'form-input' %>
-          </div>
+        <div class="premium-form-group">
+          <%= f.label :cover_photo, 'Cover Photo', class: 'premium-form-label' %>
+          
+          <% if @group.cover_photo.attached? %>
+            <div style="margin-bottom: 16px; border-radius: 16px; overflow: hidden; border: 1px solid var(--group-glass-border); box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
+              <%= image_tag @group.cover_photo, style: 'width: 100%; height: 160px; object-fit: cover; display: block;' %>
+            </div>
+          <% end %>
 
-          <div class="form-actions">
-            <%= link_to 'Cancel', group_path(@group), class: 'btn-cancel' %>
-            <%= f.submit 'Save Changes', class: 'btn-primary' %>
-          </div>
+          <%= f.file_field :cover_photo, accept: 'image/*', class: 'premium-form-input', style: 'padding: 13px 16px;' %>
+        </div>
+      </div>
+
+      <div class="premium-form-actions">
+        <%= link_to 'Cancel', group_path(@group), class: 'btn-command-action btn-command-secondary' %>
+        <%= f.button type: 'submit', class: 'btn-command-action btn-command-primary' do %>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Save Changes
         <% end %>
       </div>
-    </main>
+    <% end %>
   </div>
 </div>

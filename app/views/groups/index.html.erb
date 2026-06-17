@@ -1,70 +1,66 @@
-<div class="feed-container">
+<div class="groups-page-wrapper">
   <%= render 'shared/header' %>
-  <div class="feed-layout">
-    <!-- Groups Sidebar -->
-    <aside class="feed-sidebar">
-      <div class="sidebar-section">
-        <div class="sidebar-header">
-          <h3>Groups</h3>
-          <%= link_to new_group_path, class: 'btn-sidebar-action' do %>
-            + Create Group
+
+  <div class="groups-hero">
+    <div class="groups-hero-content">
+      <h1 class="groups-hero-title">Discover Communities</h1>
+      <p class="groups-hero-subtitle">Join vibrant communities, share your passion, and connect with people who inspire you.</p>
+      <%= link_to new_group_path, class: 'btn-hero-glass' do %>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Create Group
+      <% end %>
+    </div>
+  </div>
+
+  <main>
+    <!-- Your Groups -->
+    <div id="your-groups">
+      <div class="groups-section-header">
+        <h2 class="groups-section-title">Your Groups</h2>
+      </div>
+
+      <% if @my_groups.empty? %>
+        <div class="groups-empty-state">
+          <div class="empty-state-icon-wrapper">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <h3>You haven't joined any groups yet</h3>
+          <p>Groups are where you connect with people who share your interests. Discover amazing communities below!</p>
+        </div>
+      <% else %>
+        <div class="groups-grid">
+          <% @my_groups.each do |group| %>
+            <%= render 'groups/group_card', group: group %>
           <% end %>
         </div>
+      <% end %>
+    </div>
 
-        <div class="sidebar-nav">
-          <a href="#your-groups" class="sidebar-nav-item active">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/></svg>
-            Your Groups
-          </a>
-          <a href="#discover" class="sidebar-nav-item">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg>
-            Discover
-          </a>
-        </div>
-      </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="feed-main">
-      <!-- Your Groups -->
-      <div id="your-groups">
-        <div class="section-header">
-          <h2>Your Groups</h2>
-        </div>
-
-        <% if @my_groups.empty? %>
-          <div class="empty-state-card">
-            <div class="empty-state-icon">👥</div>
-            <h3>You haven't joined any groups yet</h3>
-            <p>Groups are where you connect with people who share your interests.</p>
-          </div>
-        <% else %>
-          <div class="groups-grid">
-            <% @my_groups.each do |group| %>
-              <%= render 'groups/group_card', group: group %>
-            <% end %>
-          </div>
-        <% end %>
+    <!-- Discover Groups -->
+    <div id="discover">
+      <div class="groups-section-header">
+        <h2 class="groups-section-title">Discover Groups</h2>
       </div>
 
-      <!-- Discover Groups -->
-      <div id="discover" style="margin-top: 24px;">
-        <div class="section-header">
-          <h2>Discover Groups</h2>
+      <% if @suggested_groups.empty? %>
+        <div class="groups-empty-state">
+          <p>No new groups to discover right now.</p>
         </div>
-
-        <% if @suggested_groups.empty? %>
-          <p class="empty-state-text">No groups to discover right now.</p>
-        <% else %>
-          <div class="groups-grid">
-            <% @suggested_groups.each do |group| %>
-              <%= render 'groups/group_card', group: group, show_join: true %>
-            <% end %>
-          </div>
-        <% end %>
-      </div>
-    </main>
-  </div>
+      <% else %>
+        <div class="groups-grid">
+          <% @suggested_groups.each do |group| %>
+            <%= render 'groups/group_card', group: group, show_join: true %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </main>
 </div>
-
-<%= stylesheet_link_tag 'groups/groups', 'data-turbo-track': 'reload' %>

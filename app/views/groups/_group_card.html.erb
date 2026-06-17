@@ -1,43 +1,70 @@
 <% show_join ||= false %>
-<div class="group-card" id="group-<%= group.id %>">
-  <div class="group-card-cover">
-    <% if group.cover_photo.attached? %>
-      <%= image_tag group.cover_photo, alt: group.name, class: 'group-cover-img' %>
-    <% else %>
-      <div class="group-cover-placeholder" style="background: linear-gradient(135deg, #667eea, #764ba2);">
-        <span><%= group.name.first.upcase %></span>
+<%= link_to group_path(group), class: 'group-card-link' do %>
+  <div class="group-card" id="group-<%= group.id %>">
+    
+    <div class="group-card-cover-wrapper">
+      <% if group.cover_photo.attached? %>
+        <%= image_tag group.cover_photo, alt: group.name, class: 'group-card-cover' %>
+      <% else %>
+        <div class="group-cover-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+      <% end %>
+      
+      <div class="group-privacy-badge">
+        <% if group.privacy == 'public' %>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          Public
+        <% else %>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Private
+        <% end %>
       </div>
-    <% end %>
-    <span class="group-privacy-badge">
-      <%= group.privacy == 'public' ? '🌐 Public' : '🔒 Private' %>
-    </span>
-  </div>
+    </div>
 
-  <div class="group-card-body">
-    <%= link_to group_path(group), class: 'group-name-link' do %>
-      <h3 class="group-name"><%= group.name %></h3>
-    <% end %>
-    <p class="group-meta">
-      <span><%= group.members_count %> members</span>
-      <span>·</span>
-      <span><%= group.posts_count %> posts</span>
-    </p>
-    <% if group.description.present? %>
-      <p class="group-description"><%= group.description.truncate(80) %></p>
-    <% end %>
-  </div>
+    <div class="group-card-body">
+      <h3 class="group-card-title"><%= group.name %></h3>
+      
+      <div class="group-card-stats">
+        <span><%= group.members_count %> members</span>
+        <span>·</span>
+        <span><%= group.posts_count %> posts</span>
+      </div>
 
-  <div class="group-card-footer">
-    <% if current_user.groups.include?(group) %>
-      <%= link_to 'View Group', group_path(group), class: 'btn-view-group' %>
-    <% elsif current_user.group_memberships.pending.exists?(group: group) %>
-      <button class="btn-pending-group" disabled>Request Sent</button>
-    <% elsif show_join %>
-      <button class="btn-join-group"
-              onclick="joinGroup(<%= group.id %>, this)"
-              data-group-id="<%= group.id %>">
-        Join Group
-      </button>
-    <% end %>
+      <% if group.description.present? %>
+        <p class="group-card-desc"><%= group.description %></p>
+      <% end %>
+    </div>
+
+    <div class="group-card-footer">
+      <% if current_user.groups.include?(group) %>
+        <div class="btn-group-action btn-group-view">
+          View Group
+        </div>
+      <% elsif current_user.group_memberships.pending.exists?(group: group) %>
+        <div class="btn-group-action btn-group-pending">
+          Request Sent
+        </div>
+      <% elsif show_join %>
+        <button class="btn-group-action btn-group-join"
+                onclick="event.preventDefault(); joinGroup(<%= group.id %>, this)"
+                data-group-id="<%= group.id %>">
+          Join Group
+        </button>
+      <% end %>
+    </div>
+
   </div>
-</div>
+<% end %>

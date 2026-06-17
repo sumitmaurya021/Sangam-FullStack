@@ -1,48 +1,60 @@
-<div class="feed-container">
+<div class="groups-page-wrapper">
   <%= render 'shared/header' %>
-  <div class="feed-layout">
-    <main class="feed-main" style="max-width: 600px; margin: 0 auto;">
-      <div class="create-post-card">
-        <h2 style="margin: 0 0 20px; font-size: 22px; font-weight: 700;">Create Group</h2>
+  
+  <div class="group-form-container">
+    <h2 class="group-form-title">Create New Group</h2>
 
-        <%= form_with model: @group, url: groups_path, method: :post, multipart: true, class: 'group-form' do |f| %>
-          <% if @group.errors.any? %>
-            <div class="form-errors">
-              <% @group.errors.full_messages.each do |msg| %><p><%= msg %></p><% end %>
-            </div>
+    <%= form_with model: @group, url: groups_path, method: :post, multipart: true, class: 'group-form' do |f| %>
+      <% if @group.errors.any? %>
+        <div class="form-errors">
+          <% @group.errors.full_messages.each do |msg| %>
+            <p><%= msg %></p>
           <% end %>
+        </div>
+      <% end %>
 
-          <div class="form-field">
-            <%= f.label :name, 'Group Name *' %>
-            <%= f.text_field :name, placeholder: 'Enter group name', class: 'form-input', maxlength: 100 %>
-          </div>
+      <div class="premium-form-group">
+        <%= f.label :name, 'Group Name *', class: 'premium-form-label' %>
+        <%= f.text_field :name, placeholder: 'Enter group name', class: 'premium-form-input', maxlength: 100 %>
+      </div>
 
-          <div class="form-field">
-            <%= f.label :description, 'Description' %>
-            <%= f.text_area :description, placeholder: 'What is this group about?', class: 'form-input', rows: 3, maxlength: 500 %>
-          </div>
+      <div class="premium-form-group">
+        <%= f.label :description, 'Description', class: 'premium-form-label' %>
+        <%= f.text_area :description, placeholder: 'What is this group about?', class: 'premium-form-input', rows: 4, maxlength: 500, style: 'resize: vertical;' %>
+      </div>
 
-          <div class="form-field">
-            <%= f.label :privacy, 'Privacy' %>
+      <div class="premium-form-row">
+        <div class="premium-form-group">
+          <%= f.label :privacy, 'Privacy', class: 'premium-form-label' %>
+          <div style="position: relative;">
+            <svg style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--group-text-sub); pointer-events: none;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
             <%= f.select :privacy,
                 [['🌐 Public — Anyone can find and join', 'public'],
                  ['🔒 Private — Members must be approved', 'private'],
                  ['🕵️ Secret — Not discoverable', 'secret']],
                 {},
-                class: 'form-input' %>
+                class: 'premium-form-input', style: 'appearance: none; -webkit-appearance: none; padding-right: 40px;' %>
           </div>
+        </div>
 
-          <div class="form-field">
-            <%= f.label :cover_photo, 'Cover Photo' %>
-            <%= f.file_field :cover_photo, accept: 'image/*', class: 'form-input' %>
-          </div>
+        <div class="premium-form-group">
+          <%= f.label :cover_photo, 'Cover Photo', class: 'premium-form-label' %>
+          <%= f.file_field :cover_photo, accept: 'image/*', class: 'premium-form-input', style: 'padding: 13px 16px;' %>
+        </div>
+      </div>
 
-          <div class="form-actions">
-            <%= link_to 'Cancel', groups_path, class: 'btn-cancel' %>
-            <%= f.submit 'Create Group', class: 'btn-primary' %>
-          </div>
+      <div class="premium-form-actions">
+        <%= link_to 'Cancel', groups_path, class: 'btn-command-action btn-command-secondary' %>
+        <%= f.button type: 'submit', class: 'btn-command-action btn-command-primary' do %>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Create Group
         <% end %>
       </div>
-    </main>
+    <% end %>
   </div>
 </div>
