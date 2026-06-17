@@ -193,6 +193,20 @@
           </svg>
         </button>
       </div>
+
+      <!-- GIF Picker -->
+      <div class="gif-picker-modal" id="gifPickerModal" style="display:none;">
+        <div class="gif-picker-header">
+          <input type="text" placeholder="Search GIFs..." id="gifSearchInput" class="gif-search-input">
+          <button id="closeGifPicker">✕</button>
+        </div>
+        <div class="gif-grid" id="gifGrid"><div class="gif-loading">Loading GIFs...</div></div>
+      </div>
+
+      <!-- Emoji Picker -->
+      <div class="emoji-picker" id="emojiPicker" style="display:none;">
+        <div class="emoji-grid" id="emojiGrid"></div>
+      </div>
     </div>
   </div>
 
@@ -236,19 +250,6 @@
   </div>
 </div>
 
-<!-- GIF Picker -->
-<div class="gif-picker-modal" id="gifPickerModal" style="display:none;">
-  <div class="gif-picker-header">
-    <input type="text" placeholder="Search GIFs..." id="gifSearchInput" class="gif-search-input">
-    <button id="closeGifPicker">✕</button>
-  </div>
-  <div class="gif-grid" id="gifGrid"><div class="gif-loading">Loading GIFs...</div></div>
-</div>
-
-<!-- Emoji Picker -->
-<div class="emoji-picker" id="emojiPicker" style="display:none;">
-  <div class="emoji-grid" id="emojiGrid"></div>
-</div>
 
 <!-- Call Modal -->
 <div class="call-modal-overlay" id="callModal" style="display:none;">
