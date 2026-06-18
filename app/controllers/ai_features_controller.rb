@@ -53,4 +53,21 @@ class AiFeaturesController < ApplicationController
       render json: { error: "Failed to generate article content" }, status: :unprocessable_entity
     end
   end
+
+  def auto_fill_listing
+    image_data_url = params[:image_data_url]
+    
+    if image_data_url.blank?
+      return render json: { error: "Image data URL is required" }, status: :unprocessable_entity
+    end
+
+    service = AiMarketplaceAutoFillService.new(image_data_url)
+    result = service.generate
+
+    if result[:success]
+      render json: result[:data]
+    else
+      render json: { error: result[:error] || "Failed to auto-fill listing" }, status: :unprocessable_entity
+    end
+  end
 end

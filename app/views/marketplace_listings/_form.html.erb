@@ -69,6 +69,14 @@
       <%= f.file_field :images, multiple: true, accept: 'image/*', class: 'premium-form-input', style: 'padding: 12px; cursor: pointer;' %>
     </div>
     
+    <div id="aiAutoFillWrapper" style="display: none; margin-top: 16px; text-align: center;">
+      <button type="button" id="aiAutoFillBtn" class="ai-autofill-btn">
+        <span class="btn-text">✨ Auto-fill Listing from Photo</span>
+        <span class="btn-loader" style="display: none;">✨ Analyzing Photo...</span>
+      </button>
+      <div id="aiAutoFillError" class="ai-autofill-error" style="display: none; color: #ef4444; font-size: 13px; margin-top: 8px;"></div>
+    </div>
+    
     <% if listing.images.attached? %>
       <div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
         <% listing.images.each do |img| %>
@@ -90,3 +98,104 @@
     <% end %>
   </div>
 <% end %>
+
+<script>
+  document.addEventListener("turbo:load", function() {
+    const fileInput = document.getElementById("marketplace_listing_images");
+    const autoFillWrapper = document.getElementById("aiAutoFillWrapper");
+    const autoFillBtn = document.getElementById("aiAutoFillBtn");
+    const errorDiv = document.getElementById("aiAutoFillError");
+    
+    // Form fields
+    const titleInput = document.getElementById("marketplace_listing_title");
+    const descInput = document.getElementById("marketplace_listing_description");
+    const catInput = document.getElementById("marketplace_listing_category");
+
+    if (!fileInput || !autoFillBtn) return;
+
+    let selectedImageDataUrl = null;
+
+    fileInput.addEventListener("change", function(e) {
+      if (e.target.files && e.target.files[0]) {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        
+        reader.onload = function(event) {
+          selectedImageDataUrl = event.target.result;
+          autoFillWrapper.style.display = "block";
+          errorDiv.style.display = "none";
+        };
+        
+        reader.readAsDataURL(file);
+      } else {
+        autoFillWrapper.style.display = "none";
+        selectedImageDataUrl = null;
+      }
+    });
+
+    autoFillBtn.addEventListener("click", function() {
+      if (!selectedImageDataUrl) return;
+
+      const btnText = autoFillBtn.querySelector(".btn-text");
+      const btnLoader = autoFillBtn.querySelector(".btn-loader");
+      
+      autoFillBtn.disabled = true;
+      btnText.style.display = "none";
+      btnLoader.style.display = "inline-block";
+      autoFillBtn.classList.add("is-generating");
+      errorDiv.style.display = "none";
+
+      fetch("/api/ai/auto_fill_listing", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ image_data_url: selectedImageDataUrl })
+      })
+      .then(r => r.json())
+      .then(data => {
+        autoFillBtn.disabled = false;
+        btnText.style.display = "inline-block";
+        btnLoader.style.display = "none";
+        autoFillBtn.classList.remove("is-generating");
+
+        if (data.error) {
+          errorDiv.textContent = data.error;
+          errorDiv.style.display = "block";
+        } else {
+          // Pre-fill the form
+          if (data.title && titleInput) {
+            titleInput.value = data.title;
+            // Trigger animation or highlight to show it changed
+            titleInput.style.borderColor = "#10b981";
+            setTimeout(() => titleInput.style.borderColor = "", 1500);
+          }
+          if (data.description && descInput) {
+            descInput.value = data.description;
+            descInput.style.borderColor = "#10b981";
+            setTimeout(() => descInput.style.borderColor = "", 1500);
+          }
+          if (data.category && catInput) {
+            const match = Array.from(catInput.options).find(opt => opt.value === data.category.toLowerCase() || opt.text.toLowerCase() === data.category.toLowerCase());
+            if (match) {
+              catInput.value = match.value;
+              catInput.style.borderColor = "#10b981";
+              setTimeout(() => catInput.style.borderColor = "", 1500);
+            }
+          }
+        }
+      })
+      .catch(err => {
+        console.error("Auto-fill error:", err);
+        autoFillBtn.disabled = false;
+        btnText.style.display = "inline-block";
+        btnLoader.style.display = "none";
+        autoFillBtn.classList.remove("is-generating");
+        errorDiv.textContent = "Network error. Please try again.";
+        errorDiv.style.display = "block";
+      });
+    });
+  });
+</script>

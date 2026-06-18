@@ -766,3 +766,39 @@ body.dark-mode .premium-form-input { background: rgba(0, 0, 0, 0.2); }
 
 .market-empty-state h3 { font-size: 24px; font-weight: 800; color: var(--market-text-main); margin-bottom: 12px; }
 .market-empty-state p { color: var(--market-text-sub); margin-bottom: 32px; font-size: 16px; max-width: 400px; }
+
+/* ==================== AI AUTO-FILL BUTTON ==================== */
+.ai-autofill-btn {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.1));
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  color: var(--market-primary);
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-autofill-btn:hover {
+  background: rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+  transform: translateY(-2px);
+}
+
+.ai-autofill-btn.is-generating {
+  opacity: 0.9;
+  pointer-events: none;
+  animation: marketPulse 1.5s infinite;
+}
+
+@keyframes marketPulse {
+  0% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+  50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.5); }
+  100% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+}
