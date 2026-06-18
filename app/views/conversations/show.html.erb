@@ -164,6 +164,18 @@
       </div>
 
       <div class="messenger-input-row">
+        <div class="ai-tone-wrapper" style="position: relative; display: inline-block;">
+          <button class="messenger-attach-btn ai-tone-btn" id="aiToneBtn" title="Rewrite with AI">
+            🪄
+          </button>
+          <div class="ai-tone-menu" id="aiToneMenu" style="display: none;">
+            <div class="ai-tone-option" data-tone="Professional">👔 Professional</div>
+            <div class="ai-tone-option" data-tone="Funny">😂 Funny</div>
+            <div class="ai-tone-option" data-tone="Sarcastic">😈 Sarcastic</div>
+            <div class="ai-tone-option" data-tone="Romantic">❤️ Romantic</div>
+            <div class="ai-tone-option" data-tone="Friendly">😊 Friendly</div>
+          </div>
+        </div>
         <button class="messenger-attach-btn ai-smart-reply-btn" id="aiSmartReplyBtn" title="AI Smart Reply">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
@@ -332,4 +344,77 @@
   var layout = document.getElementById("messengerLayout");
   if (layout) layout.classList.add("chat-open");
   document.dispatchEvent(new Event("chat:data-ready"));
+
+  // AI Tone Rewriter Logic
+  document.addEventListener("turbo:load", function() {
+    const toneBtn = document.getElementById("aiToneBtn");
+    const toneMenu = document.getElementById("aiToneMenu");
+    const messageInput = document.getElementById("messageInput");
+
+    if (!toneBtn || !toneMenu || !messageInput) return;
+
+    // Toggle menu
+    toneBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      toneMenu.style.display = toneMenu.style.display === "none" ? "block" : "none";
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener("click", function() {
+      toneMenu.style.display = "none";
+    });
+
+    // Handle tone selection
+    toneMenu.querySelectorAll(".ai-tone-option").forEach(option => {
+      option.addEventListener("click", function(e) {
+        e.stopPropagation();
+        toneMenu.style.display = "none";
+        
+        const currentText = messageInput.value.trim();
+        if (!currentText) return; // Nothing to rewrite
+
+        const selectedTone = this.dataset.tone;
+        toneBtn.classList.add("is-generating");
+        toneBtn.style.opacity = "0.5";
+        toneBtn.style.pointerEvents = "none";
+
+        fetch("/api/ai/rewrite_message", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
+            "Accept": "application/json"
+          },
+          body: JSON.stringify({ text: currentText, tone: selectedTone })
+        })
+        .then(r => r.json())
+        .then(data => {
+          toneBtn.classList.remove("is-generating");
+          toneBtn.style.opacity = "1";
+          toneBtn.style.pointerEvents = "auto";
+          
+          if (data.text) {
+            messageInput.value = data.text;
+            // Trigger input event so the textarea resizes if needed
+            messageInput.dispatchEvent(new Event('input', { bubbles: true }));
+            
+            // Highlight animation
+            messageInput.style.backgroundColor = "rgba(16, 185, 129, 0.1)";
+            messageInput.style.transition = "background-color 0.5s ease";
+            setTimeout(() => {
+              messageInput.style.backgroundColor = "transparent";
+            }, 1000);
+          } else {
+            console.error("Rewrite failed:", data.error);
+          }
+        })
+        .catch(err => {
+          console.error("Network error:", err);
+          toneBtn.classList.remove("is-generating");
+          toneBtn.style.opacity = "1";
+          toneBtn.style.pointerEvents = "auto";
+        });
+      });
+    });
+  });
 </script>

@@ -70,4 +70,22 @@ class AiFeaturesController < ApplicationController
       render json: { error: result[:error] || "Failed to auto-fill listing" }, status: :unprocessable_entity
     end
   end
+
+  def rewrite_message
+    text = params[:text]
+    tone = params[:tone]
+
+    if text.blank? || tone.blank?
+      return render json: { error: "Text and tone are required" }, status: :unprocessable_entity
+    end
+
+    service = AiMessageRewriterService.new(text, tone)
+    result = service.generate
+
+    if result[:success]
+      render json: { text: result[:text] }
+    else
+      render json: { error: result[:error] || "Failed to rewrite message" }, status: :unprocessable_entity
+    end
+  end
 end

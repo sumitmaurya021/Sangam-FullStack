@@ -27,6 +27,7 @@ Rails.application.routes.draw do
       post "generate_smart_replies", to: "/ai_features#generate_smart_replies"
       post 'generate_article_content', to: '/ai_features#generate_article_content'
       post 'auto_fill_listing', to: '/ai_features#auto_fill_listing'
+      post 'rewrite_message', to: '/ai_features#rewrite_message'
     end
   end
 
