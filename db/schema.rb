@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_17_131309) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_18_065252) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -88,6 +88,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_131309) do
     t.index ["user_id", "bookmarkable_type", "bookmarkable_id"], name: "index_bookmarks_unique_per_user", unique: true
     t.index ["user_id", "post_id"], name: "index_bookmarks_on_user_id_and_post_id", unique: true
     t.index ["user_id"], name: "index_bookmarks_on_user_id"
+  end
+
+  create_table "category_tags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.string "slug"
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_category_tags_on_slug", unique: true
   end
 
   create_table "close_friends", force: :cascade do |t|
@@ -376,6 +384,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_131309) do
     t.index ["post_id"], name: "index_polls_on_post_id"
   end
 
+  create_table "post_category_tags", force: :cascade do |t|
+    t.bigint "category_tag_id", null: false
+    t.float "confidence_score"
+    t.datetime "created_at", null: false
+    t.bigint "post_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_tag_id"], name: "index_post_category_tags_on_category_tag_id"
+    t.index ["post_id"], name: "index_post_category_tags_on_post_id"
+  end
+
   create_table "post_collaborators", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.bigint "post_id", null: false
@@ -485,7 +503,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_131309) do
     t.integer "duration"
     t.text "hashtags"
     t.integer "likes_count", default: 0, null: false
-    t.string "music"
     t.string "music_artist"
     t.string "music_preview_url"
     t.string "music_title"
@@ -705,6 +722,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_131309) do
     t.index ["user_id"], name: "index_story_views_on_user_id"
   end
 
+  create_table "user_interactions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "interaction_type"
+    t.bigint "post_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["post_id"], name: "index_user_interactions_on_post_id"
+    t.index ["user_id"], name: "index_user_interactions_on_user_id"
+  end
+
+  create_table "user_tag_affinities", force: :cascade do |t|
+    t.bigint "category_tag_id", null: false
+    t.datetime "created_at", null: false
+    t.float "score"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["category_tag_id"], name: "index_user_tag_affinities_on_category_tag_id"
+    t.index ["user_id"], name: "index_user_tag_affinities_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "avatar"
     t.text "bio"
@@ -795,6 +832,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_131309) do
   add_foreign_key "poll_votes", "polls"
   add_foreign_key "poll_votes", "users"
   add_foreign_key "polls", "posts"
+  add_foreign_key "post_category_tags", "category_tags"
+  add_foreign_key "post_category_tags", "posts"
   add_foreign_key "post_collaborators", "posts"
   add_foreign_key "post_collaborators", "users"
   add_foreign_key "post_hashtags", "hashtags"
@@ -826,4 +865,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_17_131309) do
   add_foreign_key "story_qa_replies", "users"
   add_foreign_key "story_views", "stories"
   add_foreign_key "story_views", "users"
+  add_foreign_key "user_interactions", "posts"
+  add_foreign_key "user_interactions", "users"
+  add_foreign_key "user_tag_affinities", "category_tags"
+  add_foreign_key "user_tag_affinities", "users"
 end

@@ -13,6 +13,8 @@ class Post < ApplicationRecord
   has_many :hashtags, through: :post_hashtags
   has_many :post_mentions, dependent: :destroy
   has_many :mentioned_users, through: :post_mentions, source: :user
+  has_many :post_category_tags, dependent: :destroy
+  has_many :category_tags, through: :post_category_tags
   has_one  :poll, dependent: :destroy
   has_one  :fundraiser, dependent: :destroy
   has_many :post_collaborators, dependent: :destroy
@@ -83,6 +85,11 @@ class Post < ApplicationRecord
 
   after_save :process_hashtags
   after_save :process_mentions
+  after_commit :enqueue_tag_job, on: [:create, :update]
+
+  def enqueue_tag_job
+    TagPostJob.perform_later(self.id)
+  end
 
   def liked_by?(user)
     likes.exists?(user_id: user.id)

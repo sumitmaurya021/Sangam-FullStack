@@ -528,3 +528,63 @@ window.togglePostMenu = togglePostMenu;
     return d.innerHTML;
   }
 })();
+
+// ─────────────────────────────────────────────────
+// DWELL TRACKING FOR PERSONALIZED FEED
+// ─────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const dwellTimers = {};
+  
+  const trackInteraction = async (postId, type) => {
+    try {
+      const csrfToken = document.querySelector('[name="csrf-token"]')?.content;
+      if (!csrfToken) return;
+      
+      await fetch('/api/interactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify({ post_id: postId, interaction_type: type })
+      });
+    } catch (e) {
+      console.error('Failed to log interaction', e);
+    }
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const postId = entry.target.dataset.postId;
+      if (!postId) return;
+
+      if (entry.isIntersecting) {
+        // Log Impression instantly
+        trackInteraction(postId, 'impression');
+        
+        // Start Dwell timer (3 seconds)
+        dwellTimers[postId] = setTimeout(() => {
+          trackInteraction(postId, 'dwell');
+        }, 3000);
+      } else {
+        // Clear Dwell timer if they scrolled away before 3s
+        if (dwellTimers[postId]) {
+          clearTimeout(dwellTimers[postId]);
+          delete dwellTimers[postId];
+        }
+      }
+    });
+  }, { threshold: 0.5 }); // Trigger when 50% of the post is visible
+
+  // Observe all current posts
+  document.querySelectorAll('.post-card[data-post-id]').forEach(post => {
+    observer.observe(post);
+  });
+
+  // Export for turbo/dynamic loading to attach observer to new posts
+  window.observeNewPosts = function() {
+    document.querySelectorAll('.post-card[data-post-id]').forEach(post => {
+      observer.observe(post);
+    });
+  };
+});

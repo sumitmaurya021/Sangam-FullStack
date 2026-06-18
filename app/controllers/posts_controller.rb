@@ -5,19 +5,7 @@ class PostsController < ApplicationController
   POSTS_PER_PAGE = 5
 
   def index
-    friend_ids = current_user.all_friends.pluck(:id)
-
-    if friend_ids.any?
-      @posts = Post.ranked_feed(current_user)
-                   .page(params[:page])
-                   .per(POSTS_PER_PAGE)
-    else
-      @posts = Post.visible_to(current_user)
-                   .includes(:user, :likes, :comments, :shares)
-                   .order(created_at: :desc)
-                   .page(params[:page])
-                   .per(POSTS_PER_PAGE)
-    end
+    @posts = FeedRankingService.new(current_user).get_feed(params[:page], POSTS_PER_PAGE)
 
     @post  = Post.new
     @users = User.where.not(id: current_user.id).order("RANDOM()").limit(10)
