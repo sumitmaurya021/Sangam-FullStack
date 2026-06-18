@@ -20,6 +20,7 @@ class Message < ApplicationRecord
   # This ensures the record is visible to other DB connections (solid_cable polling)
   after_create :update_conversation_timestamp
   after_commit :broadcast_new_message, on: :create
+  after_commit :trigger_ai_response, on: :create
 
   def read?
     read_at.present?
@@ -48,6 +49,17 @@ class Message < ApplicationRecord
   end
 
   private
+
+  def trigger_ai_response
+    # Check if this message was sent to the AI bot by a human
+    ai_bot = User.find_by(email: 'ai@sangam.com')
+    return unless ai_bot
+
+    # If the sender is NOT the AI bot, and the conversation involves the AI bot
+    if self.user_id != ai_bot.id && conversation.other_participant(self.user).id == ai_bot.id
+      AiChatResponseJob.perform_later(self.id)
+    end
+  end
 
   def update_conversation_timestamp
     conversation.update_column(:last_message_at, created_at)

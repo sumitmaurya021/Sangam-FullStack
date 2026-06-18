@@ -138,6 +138,14 @@ class User < ApplicationRecord
     update_columns(online: false, last_seen_at: Time.current)
   end
 
+  def online?
+    is_ai? || self[:online]
+  end
+
+  def online
+    is_ai? || self[:online]
+  end
+
   def online_status
     online? ? 'online' : (last_seen_at ? "Last seen #{ActionController::Base.helpers.time_ago_in_words(last_seen_at)} ago" : 'Offline')
   end
@@ -203,5 +211,15 @@ class User < ApplicationRecord
     user.skip_confirmation! if user.respond_to?(:skip_confirmation!)
     user.save
     user
+  end
+
+  # ─── AI Assistant ─────────────────────────────────────────────────────────
+  def self.ai_bot
+    find_or_create_by!(email: 'ai@sangam.com') do |user|
+      user.name = 'AI Assistant ✨'
+      user.password = SecureRandom.hex(20)
+      user.is_ai = true
+      user.confirmed_at = Time.current
+    end
   end
 end

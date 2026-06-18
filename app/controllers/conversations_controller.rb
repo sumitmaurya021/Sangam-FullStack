@@ -3,6 +3,9 @@ class ConversationsController < ApplicationController
   before_action :set_conversation, only: [:show, :destroy]
 
   def index
+    # Ensure AI bot conversation exists for every user
+    Conversation.find_or_create_between(current_user, User.ai_bot)
+
     @conversations = current_user.conversations
                                  .includes(:sender, :recipient, messages: :user)
 
@@ -130,7 +133,7 @@ class ConversationsController < ApplicationController
       id: user.id,
       name: user.name,
       avatar: user.avatar.attached? ? url_for(user.avatar) : nil,
-      online: user.online,
+      online: user.is_ai? ? true : user.online,
       last_seen_at: user.last_seen_at&.iso8601
     }
   end
