@@ -25,6 +25,7 @@ Rails.application.routes.draw do
     namespace :ai do
       post "generate_caption", to: "/ai_features#generate_caption"
       post "generate_smart_replies", to: "/ai_features#generate_smart_replies"
+      post 'generate_article_content', to: '/ai_features#generate_article_content'
     end
   end
 

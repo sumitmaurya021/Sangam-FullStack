@@ -36,4 +36,21 @@ class AiFeaturesController < ApplicationController
       render json: { error: "Failed to generate replies" }, status: :unprocessable_entity
     end
   end
+
+  def generate_article_content
+    prompt = params[:prompt]
+    
+    if prompt.blank?
+      return render json: { error: "Prompt is required" }, status: :unprocessable_entity
+    end
+
+    service = AiArticleAssistantService.new(prompt)
+    result = service.generate
+
+    if result[:success]
+      render json: { html: result[:html] }
+    else
+      render json: { error: "Failed to generate article content" }, status: :unprocessable_entity
+    end
+  end
 end

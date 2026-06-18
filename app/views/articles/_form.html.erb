@@ -21,9 +21,14 @@
   </div>
 
   <div class="form-group-future">
-    <%= f.label :content, "Knowledge Core" %>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <%= f.label :content, "Knowledge Core", style: "margin-bottom: 0;" %>
+      <button type="button" id="aiGhostwriterBtn" class="ai-ghostwriter-btn" title="Generate with AI">
+        ✨ AI Ghostwriter
+      </button>
+    </div>
     <div class="editor-wrapper-glass">
-      <%= f.rich_text_area :content, class: 'rich-editor-glass' %>
+      <%= f.rich_text_area :content, class: 'rich-editor-glass', id: 'article_content' %>
     </div>
   </div>
 
@@ -32,3 +37,112 @@
     <%= link_to 'Abort', articles_path, class: 'btn-glass-cancel' %>
   </div>
 <% end %>
+
+<!-- AI Ghostwriter Modal -->
+<div id="aiGhostwriterModal" class="ai-ghostwriter-modal" style="display: none;">
+  <div class="ai-ghostwriter-modal-content">
+    <div class="ai-ghostwriter-header">
+      <h3>✨ AI Ghostwriter</h3>
+      <button type="button" id="closeAiModalBtn" class="ai-ghostwriter-close">✕</button>
+    </div>
+    <div class="ai-ghostwriter-body">
+      <p class="ai-ghostwriter-desc">Describe what you want to write about, and the AI will generate a complete article for you.</p>
+      <textarea id="aiPromptInput" class="ai-prompt-input" rows="4" placeholder="e.g. Write an engaging article about the basics of Ruby on Rails..."></textarea>
+      <div id="aiGhostwriterError" class="ai-ghostwriter-error" style="display: none;"></div>
+    </div>
+    <div class="ai-ghostwriter-footer">
+      <button type="button" id="generateArticleBtn" class="btn-generate-magic">
+        <span class="btn-text">Generate Magic</span>
+        <span class="btn-loader" style="display: none;">✨ Generating...</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("turbo:load", function() {
+    const openBtn = document.getElementById("aiGhostwriterBtn");
+    const modal = document.getElementById("aiGhostwriterModal");
+    const closeBtn = document.getElementById("closeAiModalBtn");
+    const generateBtn = document.getElementById("generateArticleBtn");
+    const promptInput = document.getElementById("aiPromptInput");
+    const errorDiv = document.getElementById("aiGhostwriterError");
+
+    if (!openBtn || !modal) return;
+
+    openBtn.addEventListener("click", () => {
+      modal.style.display = "flex";
+      promptInput.focus();
+      errorDiv.style.display = "none";
+    });
+
+    closeBtn.addEventListener("click", () => {
+      modal.style.display = "none";
+    });
+
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) modal.style.display = "none";
+    });
+
+    generateBtn.addEventListener("click", () => {
+      const prompt = promptInput.value.trim();
+      if (!prompt) {
+        errorDiv.textContent = "Please enter a topic or prompt.";
+        errorDiv.style.display = "block";
+        return;
+      }
+
+      errorDiv.style.display = "none";
+      const btnText = generateBtn.querySelector(".btn-text");
+      const btnLoader = generateBtn.querySelector(".btn-loader");
+
+      generateBtn.disabled = true;
+      btnText.style.display = "none";
+      btnLoader.style.display = "inline-block";
+      generateBtn.classList.add("is-generating");
+
+      fetch("/api/ai/generate_article_content", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ prompt: prompt })
+      })
+      .then(r => r.json())
+      .then(data => {
+        generateBtn.disabled = false;
+        btnText.style.display = "inline-block";
+        btnLoader.style.display = "none";
+        generateBtn.classList.remove("is-generating");
+
+        if (data.html) {
+          // Find Trix Editor and insert HTML
+          const trixEditor = document.querySelector("trix-editor");
+          if (trixEditor && trixEditor.editor) {
+            trixEditor.editor.insertHTML(data.html);
+            modal.style.display = "none";
+            promptInput.value = ""; // clear for next time
+          } else {
+            errorDiv.textContent = "Could not find the rich text editor.";
+            errorDiv.style.display = "block";
+          }
+        } else {
+          errorDiv.textContent = data.error || "Failed to generate content.";
+          errorDiv.style.display = "block";
+        }
+      })
+      .catch(err => {
+        console.error("AI Ghostwriter Error:", err);
+        generateBtn.disabled = false;
+        btnText.style.display = "inline-block";
+        btnLoader.style.display = "none";
+        generateBtn.classList.remove("is-generating");
+        
+        errorDiv.textContent = "Network error. Please try again.";
+        errorDiv.style.display = "block";
+      });
+    });
+  });
+</script>

@@ -29,7 +29,7 @@ class AiSmartReplyService
     request["Content-Type"] = "application/json"
 
     request.body = JSON.dump({
-      "model" => "llama3-8b-8192",
+      "model" => "llama-3.1-8b-instant",
       "messages" => messages,
       "temperature" => 0.6,
       "max_completion_tokens" => 150

@@ -30,7 +30,7 @@ class AiCaptionGeneratorService
         role: "user",
         content: "Generate a creative, engaging, and slightly futuristic social media caption for a random post. Include some relevant hashtags. Write at least 50 words. VERY IMPORTANT: Output ONLY the caption and hashtags. Do not include any conversational text, quotes, introductions, or explanations."
       }
-      model = "llama3-8b-8192"
+      model = "llama-3.1-8b-instant"
     end
 
     uri = URI("https://api.groq.com/openai/v1/chat/completions")
