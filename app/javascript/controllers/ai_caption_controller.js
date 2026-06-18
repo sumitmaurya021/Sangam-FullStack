@@ -21,13 +21,18 @@ export default class extends Controller {
     try {
       const csrfToken = document.querySelector('meta[name="csrf-token"]').content
       
+      const formData = new FormData()
+      const fileInput = document.querySelector('input[type="file"].file-input')
+      if (fileInput && fileInput.files.length > 0) {
+        formData.append('image', fileInput.files[0])
+      }
+      
       const response = await fetch('/api/ai/generate_caption', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
           'X-CSRF-Token': csrfToken
         },
-        body: JSON.stringify({}) // Future: send image data here
+        body: formData
       })
 
       if (!response.ok) throw new Error("Failed to generate")
