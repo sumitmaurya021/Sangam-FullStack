@@ -1159,5 +1159,66 @@ body.dark-mode .messenger-input-row { box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
   background: black;
 }
 
-.remote-video { width: 100%; border-radius: 16px; display: block; }
 .local-video { position: absolute; bottom: 16px; right: 16px; width: 100px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+
+/* ═══════════════════════════════════════════════════════
+   SMART REPLIES
+═══════════════════════════════════════════════════════ */
+.messenger-smart-replies-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 0 12px 0;
+  z-index: 10;
+}
+
+.messenger-smart-reply-pill {
+  background: var(--chat-glass-bg);
+  border: 1px solid var(--chat-glass-border);
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--chat-primary);
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: var(--chat-transition);
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.1);
+}
+
+.messenger-smart-reply-pill:hover {
+  background: var(--chat-gradient);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  border-color: transparent;
+}
+
+.messenger-smart-reply-loading {
+  font-size: 14px;
+  color: var(--chat-primary);
+  font-weight: 600;
+  animation: typing-bounce 1.5s infinite;
+  padding: 4px 8px;
+}
+
+.messenger-smart-reply-error {
+  font-size: 13px;
+  color: #ef4444;
+  font-weight: 600;
+  padding: 4px 8px;
+}
+
+.ai-smart-reply-btn {
+  color: #d946ef;
+}
+
+.ai-smart-reply-btn:hover {
+  background: rgba(217, 70, 239, 0.1);
+}
+
+.ai-smart-reply-btn.loading {
+  animation: typing-bounce 1.5s linear infinite;
+  pointer-events: none;
+  opacity: 0.7;
+}

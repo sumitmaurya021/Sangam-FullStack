@@ -61,6 +61,7 @@ export class ChatApp {
     this._scrollToBottom();
     this._checkLoadMore();
     this._setupConvLongPress();
+    this._setupSmartReplies();
 
     // Seed seen IDs from already-rendered messages
     document.querySelectorAll(".message-wrapper[data-message-id]").forEach(el => {
@@ -296,6 +297,62 @@ export class ChatApp {
 
       const btn = document.getElementById("loadMoreBtn");
       if (btn) btn.style.display = data.has_more ? "flex" : "none";
+    });
+  }
+
+  // ─── Smart Replies ─────────────────────────────────────────────────────────
+
+  _setupSmartReplies() {
+    const btn = document.getElementById("aiSmartReplyBtn");
+    const container = document.getElementById("smartRepliesContainer");
+    const input = document.getElementById("messageInput");
+    if (!btn || !container || !input) return;
+
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      
+      // Show loading state
+      btn.classList.add("loading");
+      container.innerHTML = '<div class="messenger-smart-reply-loading">✨ Generating magic replies...</div>';
+      container.style.display = "flex";
+
+      fetch(`/api/ai/generate_smart_replies?conversation_id=${this.conversationId}`, {
+        method: "POST",
+        headers: {
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
+          "Accept": "application/json"
+        }
+      })
+      .then(r => r.json())
+      .then(data => {
+        btn.classList.remove("loading");
+        if (data.replies) {
+          container.innerHTML = data.replies.map(reply => `
+            <button class="messenger-smart-reply-pill">${this._escapeHtml(reply)}</button>
+          `).join("");
+
+          // Add click handlers
+          container.querySelectorAll(".messenger-smart-reply-pill").forEach(pill => {
+            pill.addEventListener("click", () => {
+              input.value = pill.textContent;
+              input.style.height = "auto";
+              input.style.height = Math.min(input.scrollHeight, 120) + "px";
+              input.focus();
+              container.style.display = "none";
+              this._handleTypingIndicator(true);
+            });
+          });
+        } else {
+          container.innerHTML = '<div class="messenger-smart-reply-error">Failed to generate replies.</div>';
+          setTimeout(() => container.style.display = "none", 2000);
+        }
+      })
+      .catch(err => {
+        console.error("Smart replies error:", err);
+        btn.classList.remove("loading");
+        container.innerHTML = '<div class="messenger-smart-reply-error">Network error.</div>';
+        setTimeout(() => container.style.display = "none", 2000);
+      });
     });
   }
 

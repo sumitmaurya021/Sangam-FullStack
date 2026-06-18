@@ -157,7 +157,18 @@
         <div class="attachment-preview-inner" id="attachmentPreviewInner"></div>
         <button class="attachment-remove-btn" id="removeAttachment">✕</button>
       </div>
+      
+      <!-- Smart Replies Container -->
+      <div class="messenger-smart-replies-container" id="smartRepliesContainer" style="display:none;">
+        <!-- Pills will be injected here -->
+      </div>
+
       <div class="messenger-input-row">
+        <button class="messenger-attach-btn ai-smart-reply-btn" id="aiSmartReplyBtn" title="AI Smart Reply">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+          </svg>
+        </button>
         <button class="messenger-attach-btn" id="attachBtn" title="Attach file">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
             <path d="M16.5 10.5l-7 7a4.95 4.95 0 01-7-7l7.5-7.5a3.5 3.5 0 015 5L8 15.5a2 2 0 01-2.83-2.83L11 7"/>
