@@ -258,7 +258,7 @@
     </div>
     
     <%= form_with model: [post, Comment.new], class: 'comment-form', id: "comment-form-#{post.id}" do |f| %>
-      <div class="comment-input-wrapper">
+      <div class="comment-input-wrapper voice-recorder-container-<%= post.id %>">
         <div class="comment-avatar-small">
           <% if current_user.avatar.attached? %>
             <%= image_tag current_user.avatar, alt: "Your avatar" %>
@@ -266,15 +266,65 @@
             <%= current_user.name&.first&.upcase || 'U' %>
           <% end %>
         </div>
-        <%= f.text_field :content, placeholder: 'Write a comment...', class: 'comment-input', autocomplete: 'off' %>
+
+        <!-- Voice Recording UI -->
+        <div class="voice-recording-ui" style="display:none; align-items:center; flex:1; justify-content: space-between; padding: 0 10px; background: #f0f2f5; border-radius: 20px; margin-right: 8px;">
+          <div class="recording-indicator" style="display:flex; align-items:center; gap:10px; color:#ff4d4f;">
+            <div class="recording-pulse" style="width:10px; height:10px; background:#ff4d4f; border-radius:50%; animation: pulse 1s infinite;"></div>
+            <span class="recording-timer" style="font-weight:bold;">0:00</span>
+          </div>
+          <div class="recording-actions" style="display:flex; gap:10px;">
+            <button class="record-cancel-btn record-action-btn" type="button" style="color:#666; border:none; background:none; cursor:pointer;" title="Cancel">✕</button>
+            <button class="record-send-btn record-action-btn" type="button" style="color:#0084ff; border:none; background:none; cursor:pointer;" title="Send">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M2 10l16-8-8 16v-8L2 10z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="default-input-area" style="display:flex; flex:1; align-items:center; gap: 4px;">
+          <%= f.text_field :content, placeholder: 'Write a comment...', class: 'comment-input', autocomplete: 'off', style: 'flex:1;' %>
+          
+          <button type="button" class="voice-record-btn" title="Record Voice Note" style="background:none;border:none;color:#f55;cursor:pointer;padding:5px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+              <line x1="12" y1="19" x2="12" y2="22"></line>
+            </svg>
+          </button>
+
+          <%= f.file_field :attachment, id: "comment-audio-input-#{post.id}", style: "display:none;", accept: "audio/*" %>
+          <%= f.submit 'Post', class: 'btn-comment' %>
+        </div>
+
         <%= f.hidden_field :parent_id, value: nil, id: "parent-id-#{post.id}" %>
         <%= f.hidden_field :replied_to_user_id, value: nil, id: "replied-to-user-id-#{post.id}" %>
-        <%= f.submit 'Post', class: 'btn-comment' %>
       </div>
       <div class="reply-indicator" id="reply-indicator-<%= post.id %>" style="display: none;">
         Replying to <span id="reply-to-name-<%= post.id %>"></span>
         <button type="button" onclick="cancelReply(<%= post.id %>)" class="cancel-reply">✕</button>
       </div>
     <% end %>
+
+    <script>
+      (function() {
+        const container = document.querySelector('.voice-recorder-container-<%= post.id %>');
+        if (container && window.VoiceRecorder) {
+          new window.VoiceRecorder(container, (audioBlob) => {
+            const fileInput = document.getElementById('comment-audio-input-<%= post.id %>');
+            const form = document.getElementById('comment-form-<%= post.id %>');
+            if (fileInput && form) {
+              const dataTransfer = new DataTransfer();
+              dataTransfer.items.add(new File([audioBlob], `voice_comment_${Date.now()}.webm`, { type: 'audio/webm' }));
+              fileInput.files = dataTransfer.files;
+              
+              // Automatically submit the form
+              form.requestSubmit();
+            }
+          });
+        }
+      })();
+    </script>
   </div>
 </article>

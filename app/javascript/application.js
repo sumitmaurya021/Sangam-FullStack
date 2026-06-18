@@ -16,6 +16,7 @@ import "dark_mode"
 import "link_preview"
 import "collections"
 import "story_interactions"
+import "voice_notes"
 
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {

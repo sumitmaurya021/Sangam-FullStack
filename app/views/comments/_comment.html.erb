@@ -15,6 +15,13 @@
         <% end %>
         <%= comment.content %>
       </p>
+      <% if comment.attachment.attached? && comment.attachment.content_type.to_s.start_with?('audio/') %>
+        <div class="message-audio-wrapper" style="margin-top: 8px;">
+          <audio controls class="message-audio" style="height: 36px; max-width: 220px;">
+            <source src="<%= url_for(comment.attachment) %>">
+          </audio>
+        </div>
+      <% end %>
     </div>
     <div class="comment-meta">
       <span class="comment-time"><%= time_ago_in_words(comment.created_at) %> ago</span>
@@ -48,6 +55,13 @@
                   <% end %>
                   <%= reply.content %>
                 </p>
+                <% if reply.attachment.attached? && reply.attachment.content_type.to_s.start_with?('audio/') %>
+                  <div class="message-audio-wrapper" style="margin-top: 8px;">
+                    <audio controls class="message-audio" style="height: 36px; max-width: 220px;">
+                      <source src="<%= url_for(reply.attachment) %>">
+                    </audio>
+                  </div>
+                <% end %>
               </div>
               <div class="comment-meta">
                 <span class="comment-time"><%= time_ago_in_words(reply.created_at) %> ago</span>

@@ -4,7 +4,7 @@ class GroupChatMessage < ApplicationRecord
 
   has_one_attached :attachment
 
-  MESSAGE_TYPES = %w[text image file].freeze
+  MESSAGE_TYPES = %w[text image file audio].freeze
 
   validates :group_chat_id, presence: true
   validates :user_id,       presence: true

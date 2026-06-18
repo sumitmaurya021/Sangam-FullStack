@@ -135,7 +135,30 @@
         <div class="attachment-preview-inner" id="gcAttachPreviewInner"></div>
         <button class="attachment-remove-btn" onclick="gcApp.clearAttachment()">✕</button>
       </div>
-      <div class="messenger-input-row">
+      <!-- Voice Recording UI -->
+      <div class="messenger-recording-ui voice-recording-ui" style="display:none; align-items:center; flex:1; justify-content: space-between; padding: 0 10px;">
+        <div class="recording-indicator" style="display:flex; align-items:center; gap:10px; color:#ff4d4f;">
+          <div class="recording-pulse" style="width:10px; height:10px; background:#ff4d4f; border-radius:50%; animation: pulse 1s infinite;"></div>
+          <span class="recording-timer" style="font-weight:bold;">0:00</span>
+        </div>
+        <div class="recording-actions" style="display:flex; gap:10px;">
+          <button class="record-cancel-btn record-action-btn" style="color:#666; border:none; background:none; cursor:pointer;" title="Cancel">✕</button>
+          <button class="record-send-btn record-action-btn" style="color:#0084ff; border:none; background:none; cursor:pointer;" title="Send">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M2 10l16-8-8 16v-8L2 10z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="messenger-input-row default-input-area">
+        <button class="messenger-attach-btn voice-record-btn" title="Record Voice Note" style="color:#f55;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="22"></line>
+          </svg>
+        </button>
         <button class="messenger-attach-btn" onclick="document.getElementById('gcImageInput').click()" title="Send image">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
             <rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
@@ -377,6 +400,25 @@
     window.removeMember2 = function(id, chip) {
       selected.delete(id); chip.remove(); document.getElementById(`mid2_${id}`)?.remove();
     };
+  })();
+
+  // Initialize Voice Recorder with polling to wait for ES module
+  (function initVoice() {
+    if (window.VoiceRecorder) {
+      const inputArea = document.querySelector('.messenger-input-area');
+      if (inputArea && !inputArea.dataset.voiceInitialized) {
+        inputArea.dataset.voiceInitialized = 'true';
+        new window.VoiceRecorder(inputArea, (audioBlob) => {
+          const file = new File([audioBlob], `group_voice_${Date.now()}.webm`, { type: 'audio/webm' });
+          if (window.gcApp) {
+            window.gcApp._pendingAttachment = { file: file, type: 'audio' };
+            window.gcApp.sendMessage();
+          }
+        });
+      }
+    } else {
+      setTimeout(initVoice, 100);
+    }
   })();
 </script>
 

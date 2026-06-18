@@ -72,8 +72,9 @@ class GroupChatApp {
 
       if (hasFile) {
         fd.append('group_chat_message[attachment]', this._pendingAttachment.file);
+        const type = this._pendingAttachment.type;
         fd.append('group_chat_message[message_type]',
-          this._pendingAttachment.type === 'image' ? 'image' : 'file');
+          type === 'audio' ? 'audio' : (type === 'image' ? 'image' : 'file'));
         this.clearAttachment();
       } else {
         fd.append('group_chat_message[message_type]', 'text');
@@ -218,6 +219,12 @@ class GroupChatApp {
           <div class="message-file-name">${this._esc(msg.attachment_filename || 'File')}</div>
         </div>
         <a href="${msg.attachment_url}" class="message-file-download" download target="_blank" rel="noopener">⬇</a>
+      </div>`;
+    } else if (msg.message_type === 'audio' && msg.attachment_url) {
+      bubbleContent = `<div class="message-audio-wrapper">
+        <audio controls class="message-audio">
+          <source src="${msg.attachment_url}">
+        </audio>
       </div>`;
     } else {
       bubbleContent = `<p class="message-text">${this._esc(msg.body || '')}</p>`;

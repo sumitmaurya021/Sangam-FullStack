@@ -39,6 +39,12 @@
             ⬇
           <% end %>
         </div>
+      <% elsif msg.message_type == 'audio' && msg.attachment.attached? %>
+        <div class="message-audio-wrapper">
+          <audio controls class="message-audio">
+            <source src="<%= url_for(msg.attachment) %>">
+          </audio>
+        </div>
       <% else %>
         <p class="message-text"><%= msg.body %></p>
       <% end %>

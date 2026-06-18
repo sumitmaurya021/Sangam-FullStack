@@ -6,10 +6,13 @@ class Comment < ApplicationRecord
   belongs_to :parent, class_name: 'Comment', optional: true, counter_cache: :replies_count
   has_many :replies, class_name: 'Comment', foreign_key: :parent_id, dependent: :destroy
 
+  # Voice Notes
+  has_one_attached :attachment
+
   # Who this reply is directed at (for @mention display)
   belongs_to :replied_to_user, class_name: 'User', optional: true
 
-  validates :content, presence: true, length: { maximum: 1000 }
+  validates :content, presence: true, length: { maximum: 1000 }, unless: -> { attachment.attached? }
   validates :user, presence: true
   validates :post, presence: true
 
