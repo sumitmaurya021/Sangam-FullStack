@@ -5,6 +5,7 @@ class ProfilesController < ApplicationController
     @posts           = @user.posts.published
                              .includes(:likes, :comments, :shares, :post_collaborators => :user)
                              .order(created_at: :desc)
+                             .page(params[:page]).per(8)
     @friends_count   = @user.all_friends.count
     @posts_count     = @user.posts.published.count
     @followers_count = @user.followers_count
@@ -12,6 +13,17 @@ class ProfilesController < ApplicationController
     @highlights      = @user.profile_highlights.ordered
     @mutual_friends  = current_user == @user ? [] : current_user.mutual_friends_with(@user).first(6)
     @is_close_friend = current_user != @user && current_user.close_friends_with?(@user)
+
+    respond_to do |format|
+      format.html
+      format.json {
+        posts_html = render_to_string(partial: 'posts/post_card', collection: @posts, as: :post, formats: [:html])
+        render json: {
+          posts_html: posts_html,
+          next_page: @posts.next_page
+        }
+      }
+    end
   end
 
   def friends

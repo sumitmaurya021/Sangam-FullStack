@@ -1,221 +1,237 @@
 <div class="edit-profile-container">
   <%= render 'shared/header' %>
 
-  <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, multipart: true }) do |f| %>
-    <%= render "users/shared/error_messages", resource: resource %>
+  <div class="edit-profile-content-wrapper">
+    
+    <div class="edit-profile-dashboard">
+      
+      <!-- MAIN EDIT FORM COLUMN (Left side in grid) -->
+      <div class="edit-profile-main-column">
+        <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, multipart: true, class: 'main-edit-form' }) do |f| %>
+          
+          <%= render "users/shared/error_messages", resource: resource %>
 
-    <div class="edit-profile-content">
-      <!-- Cover Photo Section -->
-      <div class="cover-photo-section">
-        <div class="cover-photo-preview" id="coverPreview">
-          <% if current_user.cover_photo.attached? %>
-            <%= image_tag current_user.cover_photo, id: 'coverImage' %>
-          <% else %>
-            <div class="cover-placeholder">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-              </svg>
-              <span>Add Cover Photo</span>
-            </div>
-          <% end %>
-        </div>
-        <label class="cover-upload-btn">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
-          </svg>
-          Change Cover
-          <%= f.file_field :cover_photo, accept: 'image/*', class: 'file-input', onchange: 'previewCover(this)' %>
-        </label>
-      </div>
-
-      <!-- Avatar Section -->
-      <div class="avatar-section">
-        <div class="avatar-preview-container">
-          <div class="avatar-preview-large" id="avatarPreview">
-            <% if current_user.avatar.attached? %>
-              <%= image_tag current_user.avatar, id: 'avatarImage' %>
-            <% else %>
-              <span class="avatar-initial"><%= current_user.name&.first&.upcase || 'U' %></span>
-            <% end %>
-          </div>
-          <label class="avatar-upload-btn">
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
-            </svg>
-            <%= f.file_field :avatar, accept: 'image/*', class: 'file-input', onchange: 'previewAvatar(this)' %>
-          </label>
-        </div>
-        <h2 class="profile-name-display"><%= current_user.name || current_user.email %></h2>
-      </div>
-
-      <!-- Form Section -->
-      <div class="form-section">
-        <div class="form-grid">
-          <div class="form-group">
-            <%= f.label :name, "Display Name" %>
-            <%= f.text_field :name, class: 'form-input', placeholder: 'Your name' %>
-          </div>
-
-          <div class="form-group">
-            <%= f.label :email %>
-            <%= f.email_field :email, class: 'form-input', autocomplete: "email" %>
-          </div>
-        </div>
-
-        <div class="form-group full-width">
-          <%= f.label :bio %>
-          <%= f.text_area :bio, class: 'form-textarea', rows: 4, placeholder: 'Tell us about yourself...' %>
-        </div>
-
-        <!-- New Profile Fields -->
-        <div class="form-grid">
-          <div class="form-group">
-            <%= f.label :location, "📍 Location" %>
-            <%= f.text_field :location, class: 'form-input', placeholder: 'City, Country' %>
-          </div>
-          <div class="form-group">
-            <%= f.label :website_url, "🔗 Website / Link in Bio" %>
-            <%= f.url_field :website_url, class: 'form-input', placeholder: 'https://yourwebsite.com' %>
-          </div>
-        </div>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <%= f.label :birthday, "🎂 Birthday" %>
-            <%= f.date_field :birthday, class: 'form-input' %>
-            <span class="help-text">Shown on your profile · friends will be notified</span>
-          </div>
-          <div class="form-group" style="display:flex;align-items:center;gap:12px;padding-top:28px">
-            <%= f.label :dark_mode, class: 'toggle-label' do %>
-              <%= f.check_box :dark_mode, class: 'toggle-checkbox', id: 'dark-mode-checkbox' %>
-              <span class="toggle-slider"></span>
-              <span>🌙 Dark Mode</span>
-            <% end %>
-          </div>
-        </div>
-
-        <div class="form-divider"></div>
-
-        <h3 class="section-title">Change Password</h3>
-        <p class="section-subtitle">Leave blank if you don't want to change it</p>
-
-        <div class="form-grid">
-          <div class="form-group">
-            <%= f.label :password, "New Password" %>
-            <%= f.password_field :password, class: 'form-input', autocomplete: "new-password" %>
-            <% if @minimum_password_length %>
-              <span class="help-text"><%= @minimum_password_length %> characters minimum</span>
-            <% end %>
-          </div>
-
-          <div class="form-group">
-            <%= f.label :password_confirmation, "Confirm Password" %>
-            <%= f.password_field :password_confirmation, class: 'form-input', autocomplete: "new-password" %>
-          </div>
-        </div>
-
-        <div class="form-divider"></div>
-
-        <div class="form-group full-width">
-          <%= f.label :current_password, "Current Password" %>
-          <%= f.password_field :current_password, class: 'form-input', autocomplete: "current-password" %>
-          <span class="help-text">We need your current password to confirm your changes</span>
-        </div>
-
-        <div class="form-actions">
-          <%= f.submit "Save Changes", class: 'btn-primary' %>
-          <%= link_to "Cancel", profile_path(current_user), class: 'btn-secondary' %>
-        </div>
-      </div>
-
-      <!-- Two-Factor Authentication -->
-      <div class="tfa-settings-card">
-        <div class="tfa-settings-card__header">
-          <div class="tfa-settings-icon">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              <% if current_user.two_factor_enabled? %>
-                <path d="M9 12l2 2 4-4" stroke="#10b981" stroke-width="2.5"/>
+          <!-- Cover Photo Section -->
+          <div class="premium-glass-card cover-photo-section animate-fade-in">
+            <h3 class="card-inline-title">Cover Photo</h3>
+            <div class="cover-photo-preview" id="coverPreview">
+              <% if current_user.cover_photo.attached? %>
+                <%= image_tag current_user.cover_photo, id: 'coverImage' %>
+              <% else %>
+                <div class="cover-placeholder">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                  <span>Add a cover photo to stand out</span>
+                </div>
               <% end %>
-            </svg>
+            </div>
+            
+            <label class="cover-upload-btn-premium">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              <span>Change Cover Image</span>
+              <%= f.file_field :cover_photo, accept: 'image/*', class: 'file-input', onchange: 'previewCover(this)' %>
+            </label>
           </div>
-          <div class="tfa-settings-info">
-            <h3>Two-Factor Authentication (2FA)</h3>
-            <% if current_user.two_factor_enabled? %>
-              <span class="tfa-badge tfa-badge--on">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="6" cy="6" r="6"/></svg>
-                Enabled
-              </span>
-            <% else %>
-              <span class="tfa-badge tfa-badge--off">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor"><circle cx="6" cy="6" r="6"/></svg>
-                Not enabled
-              </span>
-            <% end %>
+
+          <!-- Avatar & Basics Section -->
+          <div class="premium-glass-card avatar-section-premium animate-fade-in delay-1">
+            <h3 class="card-inline-title">Avatar & Basics</h3>
+            <div class="avatar-setup-row">
+              <div class="avatar-preview-container">
+                <div class="avatar-preview-large" id="avatarPreview">
+                  <% if current_user.avatar.attached? %>
+                    <%= image_tag current_user.avatar, id: 'avatarImage' %>
+                  <% else %>
+                    <span class="avatar-initial"><%= current_user.name&.first&.upcase || 'U' %></span>
+                  <% end %>
+                </div>
+                <label class="avatar-upload-btn-premium">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                  <%= f.file_field :avatar, accept: 'image/*', class: 'file-input', onchange: 'previewAvatar(this)' %>
+                </label>
+              </div>
+              <div class="avatar-setup-info">
+                <h2 class="profile-name-display"><%= current_user.name || current_user.email %></h2>
+                <p class="basics-subtext">Click the camera icon to upload a square avatar image.</p>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <% if current_user.two_factor_enabled? %>
-          <p class="tfa-settings-desc">
-            Your account is protected with an authenticator app.
-            To disable, enter your current 6-digit code.
-          </p>
+          <!-- Form Details Section -->
+          <div class="premium-glass-card fields-card animate-fade-in delay-2">
+            <h3 class="card-inline-title">Profile Information</h3>
+            
+            <div class="form-grid-premium">
+              <div class="form-group-premium">
+                <%= f.label :name, "Display Name" %>
+                <%= f.text_field :name, class: 'form-input-premium', placeholder: 'Your display name' %>
+              </div>
 
-          <%# Show backup codes once after enabling %>
-          <% if flash[:backup_codes].present? %>
-            <div class="tfa-backup-codes">
-              <h4>Save your backup codes</h4>
-              <p>Each code can only be used once. Store them somewhere safe.</p>
-              <div class="tfa-backup-grid">
-                <% flash[:backup_codes].each do |code| %>
-                  <code class="tfa-backup-code"><%= code %></code>
+              <div class="form-group-premium">
+                <%= f.label :email, "Email Address" %>
+                <%= f.email_field :email, class: 'form-input-premium', autocomplete: "email" %>
+              </div>
+            </div>
+
+            <div class="form-group-premium full-width-premium">
+              <%= f.label :bio, "Short Biography" %>
+              <%= f.text_area :bio, class: 'form-textarea-premium', rows: 4, placeholder: 'Write something interesting about yourself...' %>
+            </div>
+
+            <div class="form-grid-premium">
+              <div class="form-group-premium">
+                <%= f.label :location, "📍 Location" %>
+                <%= f.text_field :location, class: 'form-input-premium', placeholder: 'City, Country' %>
+              </div>
+              <div class="form-group-premium">
+                <%= f.label :website_url, "🔗 Website Link" %>
+                <%= f.url_field :website_url, class: 'form-input-premium', placeholder: 'https://yourwebsite.com' %>
+              </div>
+            </div>
+
+            <div class="form-grid-premium">
+              <div class="form-group-premium">
+                <%= f.label :birthday, "🎂 Birthday" %>
+                <%= f.date_field :birthday, class: 'form-input-premium' %>
+                <span class="help-text">Shown on profile · friends will be notified on the day</span>
+              </div>
+              <div class="form-group-premium toggle-wrapper-premium">
+                <%= f.label :dark_mode, class: 'toggle-label-premium' do %>
+                  <%= f.check_box :dark_mode, class: 'toggle-checkbox-premium', id: 'dark-mode-checkbox' %>
+                  <span class="toggle-slider-premium"></span>
+                  <span>🌙 Dark Mode Theme</span>
                 <% end %>
               </div>
             </div>
-          <% end %>
+          </div>
 
-          <%= form_with url: disable_two_factor_auth_path, method: :delete,
-                        html: { class: 'tfa-disable-form' } do |f| %>
-            <div class="tfa-disable-row">
-              <%= f.text_field :otp_code,
-                    placeholder: 'Enter 6-digit code to disable',
-                    class: 'form-input tfa-inline-input',
-                    maxlength: 7,
-                    inputmode: 'numeric',
-                    autocomplete: 'off',
-                    required: true %>
-              <%= f.submit 'Disable 2FA',
-                    class: 'btn-danger-outline',
-                    data: { confirm: 'Disable Two-Factor Authentication?' } %>
+          <!-- Password Setup Section -->
+          <div class="premium-glass-card fields-card animate-fade-in delay-2">
+            <h3 class="card-inline-title">Security & Password</h3>
+            <p class="section-subtitle-premium">Leave password fields blank if you do not wish to change them.</p>
+
+            <div class="form-grid-premium">
+              <div class="form-group-premium">
+                <%= f.label :password, "New Password" %>
+                <%= f.password_field :password, class: 'form-input-premium', autocomplete: "new-password", placeholder: 'Min 6 characters' %>
+                <% if @minimum_password_length %>
+                  <span class="help-text"><%= @minimum_password_length %> characters minimum</span>
+                <% end %>
+              </div>
+
+              <div class="form-group-premium">
+                <%= f.label :password_confirmation, "Confirm New Password" %>
+                <%= f.password_field :password_confirmation, class: 'form-input-premium', autocomplete: "new-password", placeholder: 'Retype password' %>
+              </div>
             </div>
-          <% end %>
 
-        <% else %>
-          <p class="tfa-settings-desc">
-            Add an extra layer of security. Once enabled, you'll need your
-            authenticator app every time you sign in.
-          </p>
-          <%= link_to setup_two_factor_auth_path, class: 'btn-tfa-enable' do %>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-            Enable 2FA
-          <% end %>
+            <div class="form-divider-premium"></div>
+
+            <div class="form-group-premium full-width-premium required-confirm-group">
+              <%= f.label :current_password, "Current Password (Required)" %>
+              <%= f.password_field :current_password, class: 'form-input-premium highlighted-input', autocomplete: "current-password", placeholder: 'Confirm your current password to save changes' %>
+              <span class="help-text error">We require your current password to verify security modifications.</span>
+            </div>
+          </div>
+
+          <!-- Form Actions Card -->
+          <div class="premium-glass-card form-actions-card animate-fade-in delay-3">
+            <%= f.submit "Save Modifications", class: 'premium-btn premium-btn-primary' %>
+            <%= link_to "Cancel & Return", profile_path(current_user), class: 'premium-btn premium-btn-glass' %>
+          </div>
+
         <% end %>
       </div>
 
-      <!-- Danger Zone -->
-      <div class="danger-zone">
-        <h3>Danger Zone</h3>
-        <p>Once you delete your account, there is no going back. Please be certain.</p>
-        <%= button_to "Delete Account", registration_path(resource_name), data: { confirm: "Are you sure? This cannot be undone." }, method: :delete, class: 'btn-danger' %>
+      <!-- SIDEBAR COLUMN (Right side in grid for 2FA & Danger Zone) -->
+      <div class="edit-profile-sidebar-column">
+        
+        <!-- Two-Factor Authentication (2FA) -->
+        <div class="premium-glass-card security-setup-card animate-fade-in delay-1">
+          <div class="tfa-header-premium">
+            <div class="tfa-icon-wrapper-premium <%= 'active' if current_user.two_factor_enabled? %>">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <% if current_user.two_factor_enabled? %>
+                  <path d="M9 12l2 2 4-4" stroke="#10b981" stroke-width="2.5"/>
+                <% end %>
+              </svg>
+            </div>
+            <div class="tfa-title-info">
+              <h3 class="card-inline-title no-margin">Two-Factor Auth</h3>
+              <% if current_user.two_factor_enabled? %>
+                <span class="premium-badge-status success">Active / Enabled</span>
+              <% else %>
+                <span class="premium-badge-status off">Deactivated</span>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="tfa-body-premium">
+            <% if current_user.two_factor_enabled? %>
+              <p class="tfa-desc-text">
+                Your profile is secured using verification tokens. To disable 2FA, confirm with a 6-digit OTP code below.
+              </p>
+
+              <% if flash[:backup_codes].present? %>
+                <div class="backup-codes-premium-container">
+                  <h4>Emergency Backup Codes</h4>
+                  <p>Save these codes in a secure vault. Each can only be used once.</p>
+                  <div class="backup-codes-grid">
+                    <% flash[:backup_codes].each do |code| %>
+                      <code class="backup-code-item"><%= code %></code>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+
+              <%= form_with url: disable_two_factor_auth_path, method: :delete, html: { class: 'tfa-disable-form-premium' } do |f| %>
+                <div class="tfa-disable-layout">
+                  <%= f.text_field :otp_code,
+                        placeholder: 'OTP Code',
+                        class: 'form-input-premium tfa-otp-input',
+                        maxlength: 7,
+                        inputmode: 'numeric',
+                        autocomplete: 'off',
+                        required: true %>
+                  <%= f.submit 'Disable',
+                        class: 'premium-btn premium-btn-danger compact',
+                        data: { confirm: 'Disable Two-Factor Authentication?' } %>
+                </div>
+              <% end %>
+
+            <% else %>
+              <p class="tfa-desc-text">
+                Provide an extra lock to your account. Enter an OTP code generated by authentication apps to sign in securely.
+              </p>
+              <%= link_to setup_two_factor_auth_path, class: 'premium-btn premium-btn-success' do %>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                <span>Setup / Enable 2FA</span>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Danger Zone Card -->
+        <div class="premium-glass-card danger-zone-card animate-fade-in delay-2">
+          <div class="danger-header-premium">
+            <svg class="danger-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <h3 class="card-inline-title no-margin danger-title">Danger Zone</h3>
+          </div>
+          <div class="danger-body-premium">
+            <p class="danger-desc-text">
+              Deleting your account is permanent. All posts, stories, messages, and friendships will be removed.
+            </p>
+            <%= button_to "Delete Account Permanently", registration_path(resource_name), data: { confirm: "Are you sure? This cannot be undone." }, method: :delete, class: 'premium-btn premium-btn-danger full-width' %>
+          </div>
+        </div>
+
       </div>
+
     </div>
-  <% end %>
+  </div>
 </div>
 
 <script>
-  // Preview cover photo before upload
   function previewCover(input) {
     if (input.files && input.files[0]) {
       const reader = new FileReader();
@@ -227,7 +243,6 @@
     }
   }
 
-  // Preview avatar before upload
   function previewAvatar(input) {
     if (input.files && input.files[0]) {
       const reader = new FileReader();
