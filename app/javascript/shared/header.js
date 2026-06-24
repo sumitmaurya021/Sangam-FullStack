@@ -5,6 +5,11 @@
 
 class PremiumHeader {
   constructor() {
+    const headerEl = document.getElementById('premiumHeader');
+    if (!headerEl || headerEl.dataset.headerInitialized) {
+      return;
+    }
+    headerEl.dataset.headerInitialized = 'true';
     this.init();
   }
 
@@ -328,6 +333,9 @@ class PremiumHeader {
   // ==================== CLICK OUTSIDE ====================
 
   initClickOutside() {
+    if (window.premiumHeaderGlobalListenersInitialized) return;
+    window.premiumHeaderGlobalListenersInitialized = true;
+
     document.addEventListener('click', (e) => {
       // Close dropdowns when clicking outside
       if (!e.target.closest('.premium-dropdown') && !e.target.closest('[aria-expanded]')) {
@@ -342,7 +350,7 @@ class PremiumHeader {
       
       // Close search dropdown when clicking outside
       if (!e.target.closest('.premium-search') && !e.target.closest('.premium-search__dropdown')) {
-        this.closeSearchDropdown();
+        document.getElementById('searchDropdown')?.classList.remove('is-active');
       }
     });
     
@@ -479,14 +487,35 @@ class PremiumHeader {
   }
 }
 
-// Initialize on DOM ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    new PremiumHeader();
-  });
-} else {
+// Initialize on DOM ready and after Turbo navigations
+const initPremiumHeader = () => {
   new PremiumHeader();
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPremiumHeader);
+} else {
+  initPremiumHeader();
 }
+
+document.addEventListener('turbo:load', initPremiumHeader);
+
+// Clean up state before caching to handle Turbo preview visits correctly
+document.addEventListener('turbo:before-cache', () => {
+  // Close all active dropdowns
+  document.querySelectorAll('.premium-dropdown').forEach(dropdown => {
+    dropdown.classList.remove('is-active');
+  });
+  document.querySelectorAll('[aria-expanded]').forEach(btn => {
+    btn.setAttribute('aria-expanded', 'false');
+  });
+  
+  // Remove initialization marker so that it gets re-initialized on restore/preview
+  const headerEl = document.getElementById('premiumHeader');
+  if (headerEl) {
+    delete headerEl.dataset.headerInitialized;
+  }
+});
 
 // Export for potential module usage
 if (typeof module !== 'undefined' && module.exports) {
