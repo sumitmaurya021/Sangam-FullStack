@@ -88,4 +88,21 @@ class AiFeaturesController < ApplicationController
       render json: { error: result[:error] || "Failed to rewrite message" }, status: :unprocessable_entity
     end
   end
+
+  def search
+    query = params[:query]
+
+    if query.blank?
+      return render json: { error: "Query is required" }, status: :unprocessable_entity
+    end
+
+    service = AiSearchService.new(query, current_user)
+    result = service.generate
+
+    if result[:success]
+      render json: { answer: result[:answer], results: result[:results] }
+    else
+      render json: { error: result[:error] || "Failed to perform AI search" }, status: :unprocessable_entity
+    end
+  end
 end
