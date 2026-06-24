@@ -92,23 +92,39 @@ class Post < ApplicationRecord
   end
 
   def liked_by?(user)
-    likes.exists?(user_id: user.id)
+    if likes.loaded?
+      likes.any? { |like| like.user_id == user.id }
+    else
+      likes.exists?(user_id: user.id)
+    end
   end
   
   def user_reaction(user)
-    likes.find_by(user_id: user.id)
+    if likes.loaded?
+      likes.detect { |like| like.user_id == user.id }
+    else
+      likes.find_by(user_id: user.id)
+    end
   end
   
   def reaction_counts
-    likes.group(:reaction_type).count
+    if likes.loaded?
+      likes.each_with_object(Hash.new(0)) { |like, hash| hash[like.reaction_type] += 1 }
+    else
+      likes.group(:reaction_type).count
+    end
   end
   
   def total_images_count
-    images.count
+    images.size
   end
   
   def display_images(limit = 5)
-    images.limit(limit)
+    if images.loaded?
+      images.take(limit)
+    else
+      images.limit(limit)
+    end
   end
   
   def remaining_images_count
@@ -116,7 +132,11 @@ class Post < ApplicationRecord
   end
 
   def bookmarked_by?(user)
-    bookmarks.exists?(user_id: user.id)
+    if bookmarks.loaded?
+      bookmarks.any? { |bookmark| bookmark.user_id == user.id }
+    else
+      bookmarks.exists?(user_id: user.id)
+    end
   end
 
   def edited?

@@ -7,19 +7,29 @@ class ConversationsController < ApplicationController
     Conversation.find_or_create_between(current_user, User.ai_bot)
 
     @conversations = current_user.conversations
-                                 .includes(:sender, :recipient, messages: :user)
+                                 .includes(:sender, :recipient, :latest_message,
+                                           recipient: { avatar_attachment: :blob },
+                                           sender: { avatar_attachment: :blob })
+
+    # Batch load unread counts to prevent N+1 queries
+    @unread_counts = Message.where(conversation_id: @conversations.map(&:id))
+                            .where.not(user_id: current_user.id)
+                            .where(read_at: nil)
+                            .where(deleted: false)
+                            .group(:conversation_id)
+                            .count
 
     respond_to do |format|
       format.html
       format.json do
         render json: @conversations.map { |c|
           other = c.other_participant(current_user)
-          last  = c.last_message
+          last  = c.latest_message
           {
             id: c.id,
             other_user: user_json(other),
             last_message: last ? message_json(last) : nil,
-            unread_count: c.unread_count_for(current_user)
+            unread_count: @unread_counts[c.id] || 0
           }
         }
       end

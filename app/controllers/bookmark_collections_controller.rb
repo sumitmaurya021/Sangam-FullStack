@@ -5,15 +5,20 @@ class BookmarkCollectionsController < ApplicationController
   # GET /bookmark_collections
   def index
     @collections = current_user.bookmark_collections.ordered
-    render json: @collections.map { |c|
-      {
-        id:     c.id,
-        name:   c.name,
-        count:  c.bookmarks_count,
-        cover:  c.cover_thumbnail_url(Rails.application.routes.url_helpers),
-        default: c.is_default
-      }
-    }
+    respond_to do |format|
+      format.html # renders index.html.erb
+      format.json do
+        render json: @collections.map { |c|
+          {
+            id:     c.id,
+            name:   c.name,
+            count:  c.bookmarks_count,
+            cover:  c.cover_thumbnail_url(Rails.application.routes.url_helpers),
+            default: c.is_default
+          }
+        }
+      end
+    end
   end
 
   # GET /bookmark_collections/:id

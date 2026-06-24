@@ -3,6 +3,7 @@ class Conversation < ApplicationRecord
   belongs_to :recipient, class_name: 'User'
 
   has_many :messages, dependent: :destroy
+  has_one :latest_message, -> { where(deleted: false).order(created_at: :desc) }, class_name: 'Message'
 
   # Active Storage for message attachments (accessed via messages)
   validates :sender_id, presence: true

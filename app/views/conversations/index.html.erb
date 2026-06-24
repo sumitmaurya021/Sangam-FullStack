@@ -39,8 +39,8 @@
       <% else %>
         <% @conversations.each do |conversation| %>
           <% other = conversation.other_participant(current_user) %>
-          <% unread = conversation.unread_count_for(current_user) %>
-          <% last_msg = conversation.last_message %>
+          <% unread = @unread_counts[conversation.id] || 0 %>
+          <% last_msg = conversation.latest_message %>
           <div class="messenger-conversation-item-wrapper"
                data-conv-id="<%= conversation.id %>"
                data-conv-url="<%= conversation_path(conversation) %>">

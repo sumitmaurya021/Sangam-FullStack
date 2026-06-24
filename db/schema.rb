@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_18_072228) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -111,12 +111,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_072228) do
   create_table "comments", force: :cascade do |t|
     t.text "content"
     t.datetime "created_at", null: false
+    t.string "flag_reason"
+    t.boolean "flagged", default: false, null: false
     t.bigint "parent_id"
     t.bigint "post_id", null: false
     t.bigint "replied_to_user_id"
     t.integer "replies_count", default: 0, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["flagged"], name: "index_comments_on_flagged"
     t.index ["parent_id"], name: "index_comments_on_parent_id"
     t.index ["post_id"], name: "index_comments_on_post_id"
     t.index ["replied_to_user_id"], name: "index_comments_on_replied_to_user_id"
@@ -428,11 +431,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_072228) do
     t.index ["user_id"], name: "index_post_mentions_on_user_id"
   end
 
+  create_table "post_mutations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "post_id", null: false
+    t.string "prompt_used"
+    t.string "reaction_type"
+    t.integer "status"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["post_id"], name: "index_post_mutations_on_post_id"
+    t.index ["user_id"], name: "index_post_mutations_on_user_id"
+  end
+
+  create_table "post_universe_transformations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "post_id", null: false
+    t.integer "status"
+    t.text "transformed_caption"
+    t.bigint "universe_theme_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["post_id"], name: "index_post_universe_transformations_on_post_id"
+    t.index ["universe_theme_id"], name: "index_post_universe_transformations_on_universe_theme_id"
+  end
+
   create_table "posts", force: :cascade do |t|
     t.integer "comments_count", default: 0
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "edited_at"
+    t.string "flag_reason"
+    t.boolean "flagged", default: false, null: false
     t.bigint "group_id"
     t.string "image"
     t.decimal "latitude", precision: 10, scale: 6
@@ -444,6 +472,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_072228) do
     t.string "link_url"
     t.string "location_name"
     t.decimal "longitude", precision: 10, scale: 6
+    t.string "music_artist"
+    t.string "music_preview_url"
+    t.string "music_title"
     t.boolean "published", default: true, null: false
     t.integer "reach_count", default: 0, null: false
     t.datetime "scheduled_at"
@@ -453,6 +484,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_072228) do
     t.integer "views_count", default: 0, null: false
     t.string "visibility", default: "public", null: false
     t.index ["created_at"], name: "index_posts_on_created_at"
+    t.index ["flagged"], name: "index_posts_on_flagged"
     t.index ["group_id"], name: "index_posts_on_group_id"
     t.index ["published"], name: "index_posts_on_published"
     t.index ["scheduled_at"], name: "index_posts_on_scheduled_at"
@@ -503,6 +535,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_072228) do
     t.integer "duration"
     t.text "hashtags"
     t.integer "likes_count", default: 0, null: false
+    t.string "music"
     t.string "music_artist"
     t.string "music_preview_url"
     t.string "music_title"
@@ -722,6 +755,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_072228) do
     t.index ["user_id"], name: "index_story_views_on_user_id"
   end
 
+  create_table "universe_themes", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.text "prompt_prefix"
+    t.text "prompt_suffix"
+    t.string "slug"
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_universe_themes_on_slug"
+  end
+
   create_table "user_interactions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "interaction_type"
@@ -841,6 +884,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_18_072228) do
   add_foreign_key "post_hashtags", "posts"
   add_foreign_key "post_mentions", "posts"
   add_foreign_key "post_mentions", "users"
+  add_foreign_key "post_mutations", "posts"
+  add_foreign_key "post_mutations", "users"
+  add_foreign_key "post_universe_transformations", "posts"
+  add_foreign_key "post_universe_transformations", "universe_themes"
   add_foreign_key "posts", "groups"
   add_foreign_key "posts", "users"
   add_foreign_key "profile_highlights", "users"
