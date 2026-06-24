@@ -18,7 +18,13 @@ class FeedRankingService
     cached_post_ids = Rails.cache.read(cache_key)
 
     if cached_post_ids
-      posts = Post.where(id: cached_post_ids).includes(:user, :likes, :comments, :shares, :hashtags)
+      posts = Post.where(id: cached_post_ids).includes(
+        :user, :likes, :comments, :shares, :hashtags, :poll, :fundraiser, :bookmarks,
+        { post_collaborators: :user },
+        { user: { avatar_attachment: :blob } },
+        { images_attachments: :blob },
+        { image_attachment: :blob }
+      )
       # Sort based on the exact cached array order
       posts = posts.sort_by { |p| cached_post_ids.index(p.id) }
       return Kaminari.paginate_array(posts, total_count: total_candidate_count).page(page).per(per_page)
@@ -54,7 +60,13 @@ class FeedRankingService
     Rails.cache.write(cache_key, page_ids, expires_in: 5.minutes)
     @total_count = final_post_ids.count
 
-    posts = Post.where(id: page_ids).includes(:user, :likes, :comments, :shares, :hashtags)
+    posts = Post.where(id: page_ids).includes(
+      :user, :likes, :comments, :shares, :hashtags, :poll, :fundraiser, :bookmarks,
+      { post_collaborators: :user },
+      { user: { avatar_attachment: :blob } },
+      { images_attachments: :blob },
+      { image_attachment: :blob }
+    )
     posts = posts.sort_by { |p| page_ids.index(p.id) }
     
     Kaminari.paginate_array(posts, total_count: @total_count).page(page).per(per_page)
@@ -100,10 +112,10 @@ class FeedRankingService
 
     # D. Following Boost
     following_boost = 0.0
-    if friend_ids.include?(post.user_id)
-      following_boost = 0.8
-    elsif close_friend_ids.include?(post.user_id)
+    if close_friend_ids.include?(post.user_id)
       following_boost = 1.0
+    elsif friend_ids.include?(post.user_id)
+      following_boost = 0.8
     elsif post.user_id == @user.id
       following_boost = 1.0
     end

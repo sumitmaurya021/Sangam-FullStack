@@ -1,53 +1,62 @@
-<div class="feed-container">
+<div class="feed-container premium-bookmarks-container">
   <%= render 'shared/header' %>
   <div class="feed-layout">
     <main class="feed-main">
 
-      <div class="page-header-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <!-- Premium Dynamic Backdrop Glows -->
+      <div class="premium-backdrop-glow blur-purple"></div>
+      <div class="premium-backdrop-glow blur-pink"></div>
+
+      <!-- Premium Glass Header -->
+      <div class="premium-header-card-glass">
+        <div class="premium-header-content">
           <div>
-            <h1 class="page-title">📂 Collections</h1>
-            <p class="page-subtitle">Organize your saved posts & reels</p>
+            <h1 class="premium-page-title-glow">
+              <span class="folder-icon-bounce">📂</span> Nexus Collections
+            </h1>
+            <p class="premium-page-subtitle">Organize your saved posts & reels into dedicated folders</p>
           </div>
-          <button class="btn-primary" onclick="createCollectionModal()">+ New Collection</button>
+          <button class="premium-btn-collections" onclick="createCollectionModal()">
+            <span class="folder-icon">+</span> New Collection
+          </button>
         </div>
       </div>
 
       <!-- Also show all saved link -->
-      <div class="collections-all-link">
-        <%= link_to bookmarks_path, class: 'collection-card collection-card--all' do %>
-          <div class="collection-card__cover collection-card__cover--default">🔖</div>
-          <div class="collection-card__info">
-            <h3 class="collection-name">All Saved</h3>
-            <p class="collection-meta">View all your saved items</p>
+      <div class="collections-all-link-wrapper">
+        <%= link_to bookmarks_path, class: 'premium-collection-card-glass all-saved-card' do %>
+          <div class="premium-collection-cover-glow all-saved-cover">🔖</div>
+          <div class="premium-collection-info">
+            <h3 class="premium-collection-name">All Saved Items</h3>
+            <p class="premium-collection-meta">View everything you've bookmarked</p>
           </div>
-          <div class="collection-card__arrow">›</div>
+          <div class="premium-collection-arrow">→</div>
         <% end %>
       </div>
 
       <!-- Collections Grid -->
-      <div class="collections-grid" id="collections-grid">
+      <div class="premium-collections-grid" id="collections-grid">
         <% @collections.each do |col| %>
-          <%= link_to bookmark_collection_path(col), class: 'collection-card' do %>
-            <div class="collection-card__cover">
+          <%= link_to bookmark_collection_path(col), class: 'premium-collection-card-glass' do %>
+            <div class="premium-collection-cover-glow">
               <% cover = col.cover_thumbnail_url(self) %>
               <% if cover %>
-                <img src="<%= cover %>" alt="<%= col.name %>">
+                <img src="<%= cover %>" alt="<%= col.name %>" class="premium-collection-img">
               <% else %>
-                <div class="collection-card__cover--empty">📂</div>
+                <div class="premium-collection-empty-icon">📂</div>
               <% end %>
             </div>
-            <div class="collection-card__info">
-              <h3 class="collection-name"><%= col.name %></h3>
-              <p class="collection-meta"><%= col.bookmarks_count %> item<%= col.bookmarks_count == 1 ? '' : 's' %></p>
+            <div class="premium-collection-info">
+              <h3 class="premium-collection-name"><%= col.name %></h3>
+              <p class="premium-collection-meta"><%= col.bookmarks_count %> item<%= col.bookmarks_count == 1 ? '' : 's' %></p>
               <% if col.description.present? %>
-                <p class="collection-desc"><%= col.description.truncate(60) %></p>
+                <p class="premium-collection-desc"><%= col.description.truncate(60) %></p>
               <% end %>
             </div>
-            <div class="collection-card__actions" onclick="event.preventDefault()">
-              <button class="collection-action-btn" onclick="editCollection(<%= col.id %>, '<%= j col.name %>', event)" title="Edit">✏️</button>
+            <div class="premium-collection-actions" onclick="event.preventDefault()">
+              <button class="premium-collection-btn" onclick="editCollection(<%= col.id %>, '<%= j col.name %>', '<%= j col.description %>', event)" title="Edit">✏️</button>
               <% unless col.is_default %>
-                <button class="collection-action-btn collection-action-btn--danger"
+                <button class="premium-collection-btn btn-danger"
                         onclick="deleteCollection(<%= col.id %>, '<%= j col.name %>', event)" title="Delete">🗑</button>
               <% end %>
             </div>
@@ -56,11 +65,11 @@
       </div>
 
       <% if @collections.empty? %>
-        <div class="bookmarks-empty">
-          <div class="bookmarks-empty__icon">📂</div>
-          <h3>No collections yet</h3>
-          <p>Create collections to organize your saved content.</p>
-          <button class="bookmarks-empty__btn" onclick="createCollectionModal()">Create First Collection</button>
+        <div class="premium-empty-state-glass">
+          <div class="premium-empty-icon-glow">📂</div>
+          <h3>No Collections Created</h3>
+          <p>Create thematic folders to filter and organize your bookmarks list.</p>
+          <button class="premium-btn-explore" onclick="createCollectionModal()">Create First Collection</button>
         </div>
       <% end %>
 
@@ -68,19 +77,25 @@
   </div>
 </div>
 
-<!-- Create/Edit Collection Modal -->
-<div id="collection-create-modal" class="collection-modal-overlay" style="display:none">
-  <div class="collection-modal">
-    <div class="collection-modal__header">
+<!-- Create/Edit Collection Modal (Glassmorphic) -->
+<div id="collection-create-modal" class="premium-modal-overlay-glass" style="display:none">
+  <div class="premium-modal-glass">
+    <div class="premium-modal-header">
       <h3 id="collection-modal-title">New Collection</h3>
-      <button onclick="closeCollectionModal()" class="collection-modal__close">✕</button>
+      <button onclick="closeCollectionModal()" class="premium-modal-close-btn">✕</button>
     </div>
-    <div class="collection-modal__body">
-      <input type="text" id="collection-name-input" placeholder="Collection name..." maxlength="50" class="form-control" style="margin-bottom:10px">
-      <textarea id="collection-desc-input" placeholder="Description (optional)..." rows="2" class="form-control" style="margin-bottom:16px"></textarea>
-      <div style="display:flex;gap:10px">
-        <button class="btn-primary" onclick="saveCollection()">Save</button>
-        <button class="btn-secondary" onclick="closeCollectionModal()">Cancel</button>
+    <div class="premium-modal-body">
+      <div class="premium-input-group">
+        <label for="collection-name-input" class="premium-input-label">Name</label>
+        <input type="text" id="collection-name-input" placeholder="Collection name..." maxlength="50" class="premium-input-field-glass">
+      </div>
+      <div class="premium-input-group" style="margin-bottom: 20px;">
+        <label for="collection-desc-input" class="premium-input-label">Description (Optional)</label>
+        <textarea id="collection-desc-input" placeholder="Describe this collection..." rows="3" class="premium-input-field-glass"></textarea>
+      </div>
+      <div class="premium-modal-footer">
+        <button class="premium-btn-collections" onclick="saveCollection()">Save Collection</button>
+        <button class="premium-btn-cancel-glass" onclick="closeCollectionModal()">Cancel</button>
       </div>
     </div>
   </div>
@@ -97,11 +112,12 @@
     document.getElementById('collection-create-modal').style.display = 'flex';
   }
 
-  function editCollection(id, name, e) {
+  function editCollection(id, name, description, e) {
     e?.stopPropagation();
     editingCollectionId = id;
     document.getElementById('collection-modal-title').textContent = 'Edit Collection';
     document.getElementById('collection-name-input').value = name;
+    document.getElementById('collection-desc-input').value = description || '';
     document.getElementById('collection-create-modal').style.display = 'flex';
   }
 
@@ -130,7 +146,7 @@
 
   async function deleteCollection(id, name, e) {
     e?.stopPropagation();
-    if (!confirm(`Delete collection "${name}"? Items won't be deleted.`)) return;
+    if (!confirm(`Delete collection "${name}"? Items inside will not be deleted.`)) return;
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
     const resp = await fetch(`/bookmark_collections/${id}`, {
       method: 'DELETE',
@@ -143,3 +159,4 @@
 
 <%= stylesheet_link_tag 'bookmarks/bookmarks', 'data-turbo-track': 'reload' %>
 <%= stylesheet_link_tag 'shared/collections',  'data-turbo-track': 'reload' %>
+

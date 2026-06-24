@@ -33,7 +33,7 @@
           type="text" 
           class="premium-search__input" 
           id="headerSearchInput"
-          placeholder="Search Sangam..."
+          placeholder="Search Sangam with AI... (Ctrl+K)"
           autocomplete="off"
           aria-label="Search"
         />
@@ -428,4 +428,164 @@
       <span>Log out</span>
     <% end %>
   </nav>
+</div>
+
+<!-- AI Search Command Palette Modal -->
+<div class="ai-search-overlay" id="aiSearchModal">
+  <div class="ai-search-modal-container">
+    <!-- Header/Input bar -->
+    <div class="ai-search-box">
+      <div class="ai-search-box-sparkle">
+        <svg class="ai-sparkle-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M5.6 18.4l2.1-2.1m8.6-8.6l2.1-2.1"></path>
+          <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" fill="currentColor" opacity="0.2"></path>
+        </svg>
+      </div>
+      <input type="text" id="aiSearchInput" placeholder="Search Sangam with AI... (e.g., 'posts about ruby', 'events next week')" autocomplete="off" />
+      <div class="ai-search-kbd-hints">
+        <span class="ai-kbd-hint">ESC to close</span>
+      </div>
+      <button class="ai-search-close-btn" id="aiSearchCloseBtn" aria-label="Close search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Toggle Tabs -->
+    <div class="ai-search-tabs">
+      <button class="ai-search-tab active" data-search-tab="live">
+        <svg class="ai-tab-svg ai-search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        Quick Search
+      </button>
+      <button class="ai-search-tab" data-search-tab="ai">
+        <svg class="ai-tab-svg ai-sparkle-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M5.6 18.4l2.1-2.1m8.6-8.6l2.1-2.1"></path>
+          <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" fill="currentColor" opacity="0.3"></path>
+        </svg>
+        Ask AI Copilot
+      </button>
+    </div>
+
+    <!-- Scrollable content wrapper -->
+    <div class="ai-search-content">
+      <!-- Default Suggestions View -->
+      <div class="ai-search-suggestions" id="aiSearchSuggestions">
+        <div class="ai-search-suggest-group">
+          <div class="ai-suggest-title">⚡ Intelligent Shortcuts</div>
+          <div class="ai-suggest-grid">
+            <button class="ai-suggest-item" data-suggest-query="Find people who are online">
+              <div class="ai-suggest-icon-wrap user-badge">
+                <svg class="ai-suggest-svg user-icon-animated" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                  <circle cx="18" cy="18" r="3" fill="#31a24c" stroke="currentColor" stroke-width="1.5"></circle>
+                </svg>
+              </div>
+              <div class="ai-suggest-info">
+                <span class="ai-suggest-tag">Online users</span>
+                <span class="ai-suggest-query">"Find people who are online"</span>
+              </div>
+              <span class="ai-arrow">→</span>
+            </button>
+            <button class="ai-suggest-item" data-suggest-query="Show me posts about coding or ruby">
+              <div class="ai-suggest-icon-wrap post-badge">
+                <svg class="ai-suggest-svg post-line-animated" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13" class="write-line-1"></line>
+                  <line x1="16" y1="17" x2="8" y2="17" class="write-line-2"></line>
+                </svg>
+              </div>
+              <div class="ai-suggest-info">
+                <span class="ai-suggest-tag">Knowledge feed</span>
+                <span class="ai-suggest-query">"Show me posts about coding or ruby"</span>
+              </div>
+              <span class="ai-arrow">→</span>
+            </button>
+            <button class="ai-suggest-item" data-suggest-query="Are there any upcoming public events?">
+              <div class="ai-suggest-icon-wrap event-badge">
+                <svg class="ai-suggest-svg event-calendar-animated" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                  <circle cx="12" cy="16" r="1.5" fill="currentColor"></circle>
+                </svg>
+              </div>
+              <div class="ai-suggest-info">
+                <span class="ai-suggest-tag">Upcoming plans</span>
+                <span class="ai-suggest-query">"Are there any upcoming public events?"</span>
+              </div>
+              <span class="ai-arrow">→</span>
+            </button>
+            <button class="ai-suggest-item" data-suggest-query="Search groups for coders or developers">
+              <div class="ai-suggest-icon-wrap group-badge">
+                <svg class="ai-suggest-svg group-avatar-animated" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <div class="ai-suggest-info">
+                <span class="ai-suggest-tag">Communities</span>
+                <span class="ai-suggest-query">"Groups for developers or coders"</span>
+              </div>
+              <span class="ai-arrow">→</span>
+            </button>
+            <button class="ai-suggest-item" data-suggest-query="market items under electronics category">
+              <div class="ai-suggest-icon-wrap market-badge">
+                <svg class="ai-suggest-svg listing-tag-animated" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                  <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                </svg>
+              </div>
+              <div class="ai-suggest-info">
+                <span class="ai-suggest-tag">Marketplace</span>
+                <span class="ai-suggest-query">"market items under electronics"</span>
+              </div>
+              <span class="ai-arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Search Results Container -->
+      <div class="ai-search-results-pane" id="aiLiveResultsPane" style="display: none;">
+        <!-- Dynamically rendered categorized sections -->
+        <div class="ai-results-categories" id="aiLiveResultsCategories"></div>
+      </div>
+
+      <!-- AI Copilot Panel -->
+      <div class="ai-search-results-pane" id="aiCopilotPane" style="display: none;">
+        <!-- AI Response box -->
+        <div class="ai-copilot-response-container">
+          <div class="ai-copilot-header">
+            <span class="ai-copilot-badge">✨ SANGAM AI SEARCH ANSWER</span>
+          </div>
+          <!-- Shimmering line loader when AI is thinking -->
+          <div class="ai-copilot-loader" id="aiCopilotLoader" style="display: none;">
+            <div class="ai-loader-portal">
+              <div class="ai-loader-ring"></div>
+              <div class="ai-loader-ring"></div>
+              <div class="ai-loader-core"></div>
+            </div>
+            <span class="ai-loader-text">Analyzing database records & synthesizing answer...</span>
+          </div>
+          <!-- AI generated summary -->
+          <div class="ai-copilot-text" id="aiCopilotAnswer"></div>
+        </div>
+
+        <!-- AI Referenced Cards Grid -->
+        <div class="ai-copilot-cards-section" id="aiCopilotCardsSection" style="display: none;">
+          <div class="ai-suggest-title">Matching Resources</div>
+          <div class="ai-cards-grid" id="aiCopilotCardsGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

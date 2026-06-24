@@ -115,7 +115,11 @@ class User < ApplicationRecord
   end
 
   def liked?(post)
-    likes.exists?(post_id: post.id)
+    if post.likes.loaded?
+      post.likes.any? { |like| like.user_id == self.id }
+    else
+      likes.exists?(post_id: post.id)
+    end
   end
 
   def conversations

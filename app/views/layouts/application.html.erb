@@ -2,6 +2,7 @@
 <html class="<%= 'dark-mode' if user_signed_in? && current_user.dark_mode %>">
   <head>
     <title><%= content_for(:title) || "Sangam" %></title>
+    <%= render 'shared/meta_tags' %>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Sangam">

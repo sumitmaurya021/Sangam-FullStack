@@ -1,59 +1,81 @@
-<div class="feed-container">
+<div class="feed-container premium-bookmarks-container">
   <%= render 'shared/header' %>
   <div class="feed-layout">
     <main class="feed-main">
 
-      <!-- Page header -->
-      <div class="page-header-card">
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <!-- Premium Dynamic Backdrop Glows -->
+      <div class="premium-backdrop-glow blur-purple"></div>
+      <div class="premium-backdrop-glow blur-pink"></div>
+
+      <!-- Premium Glass Header -->
+      <div class="premium-header-card-glass">
+        <div class="premium-header-content">
           <div>
-            <h1 class="page-title">
-              <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor" style="vertical-align:middle;margin-right:8px;">
-                <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
-              </svg>
-              Saved
+            <h1 class="premium-page-title-glow">
+              <span class="bookmark-icon-bounce">🔖</span> Saved Nexus
             </h1>
-            <p class="page-subtitle">
-              <%= @post_bookmarks.total_count %> post<%= @post_bookmarks.total_count == 1 ? '' : 's' %> ·
-              <%= @saved_reels.size %> reel<%= @saved_reels.size == 1 ? '' : 's' %>
+            <p class="premium-page-subtitle">
+              <span class="stats-badge"><%= @post_bookmarks.total_count %> Posts</span>
+              <span class="stats-badge"><%= @saved_reels.size %> Reels</span>
             </p>
           </div>
-          <%= link_to bookmark_collections_path, class: 'btn-secondary btn-sm' do %>
-            📂 Collections (<%= @collections.count %>)
-          <% end %>
+          <div class="header-action-group">
+            <%= link_to bookmark_collections_path, class: 'premium-btn-collections' do %>
+              <span class="folder-icon">📂</span> Collections (<%= @collections.count %>)
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Premium Filter & Search Bar -->
+        <div class="premium-filter-bar">
+          <div class="search-input-wrapper">
+            <svg class="search-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            <input type="text" id="bookmarks-search-input" placeholder="Search saved items by author or keyword..." class="premium-search-input-glass">
+          </div>
+          <div class="sort-selector-wrapper">
+            <svg class="sort-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
+            </svg>
+            <select id="bookmarks-sort-select" class="premium-sort-select-glass">
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <!-- Tabs -->
-      <div class="bookmarks-tabs">
+      <!-- Premium Frosted Tabs -->
+      <div class="premium-bookmarks-tabs-glass">
         <%= link_to bookmarks_path(tab: 'posts'),
-              class: "bookmarks-tab #{@active_tab == 'posts' ? 'active' : ''}" do %>
+              class: "premium-bookmarks-tab #{@active_tab == 'posts' ? 'active' : ''}" do %>
           <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
             <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
           </svg>
           Posts
-          <span class="bookmarks-tab__count"><%= @post_bookmarks.total_count %></span>
+          <span class="premium-tab-badge"><%= @post_bookmarks.total_count %></span>
         <% end %>
 
         <%= link_to bookmarks_path(tab: 'reels'),
-              class: "bookmarks-tab #{@active_tab == 'reels' ? 'active' : ''}" do %>
+              class: "premium-bookmarks-tab #{@active_tab == 'reels' ? 'active' : ''}" do %>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="12" cy="12" r="10"/>
             <path d="M10 8l6 4-6 4V8z" fill="white"/>
           </svg>
           Reels
-          <span class="bookmarks-tab__count"><%= @saved_reels.size %></span>
+          <span class="premium-tab-badge"><%= @saved_reels.size %></span>
         <% end %>
       </div>
 
-      <!-- Posts tab -->
+      <!-- Posts Tab content -->
       <% if @active_tab == 'posts' %>
         <% if @saved_posts.empty? %>
-          <div class="bookmarks-empty">
-            <div class="bookmarks-empty__icon">🔖</div>
-            <h3>No saved posts yet</h3>
-            <p>Tap <strong>Save</strong> on any post to find it here later.</p>
-            <%= link_to 'Browse Feed', posts_path, class: 'bookmarks-empty__btn' %>
+          <div class="premium-empty-state-glass">
+            <div class="premium-empty-icon-glow">🔖</div>
+            <h3>Your Saved Feed is Empty</h3>
+            <p>Save interesting posts to view, review, or organize them here later.</p>
+            <%= link_to 'Explore Feed', posts_path, class: 'premium-btn-explore' %>
           </div>
         <% else %>
           <div class="posts-feed">
@@ -63,76 +85,81 @@
           <% if @post_bookmarks.next_page %>
             <div class="pagination-wrapper">
               <%= link_to 'Load More', bookmarks_path(tab: 'posts', page: @post_bookmarks.next_page),
-                    class: 'btn-load-more' %>
+                    class: 'premium-btn-load-more' %>
             </div>
           <% end %>
         <% end %>
 
-      <!-- Reels tab -->
+      <!-- Reels Tab content -->
       <% else %>
         <% if @saved_reels.empty? %>
-          <div class="bookmarks-empty">
-            <div class="bookmarks-empty__icon">🎬</div>
-            <h3>No saved reels yet</h3>
-            <p>Tap <strong>Save</strong> on any reel to find it here.</p>
-            <%= link_to 'Browse Reels', reels_path, class: 'bookmarks-empty__btn' %>
+          <div class="premium-empty-state-glass">
+            <div class="premium-empty-icon-glow">🎬</div>
+            <h3>No Saved Reels</h3>
+            <p>Save engaging vertical video clips to find them organized here.</p>
+            <%= link_to 'Watch Reels', reels_path, class: 'premium-btn-explore' %>
           </div>
         <% else %>
-          <div class="bookmarks-reels-grid">
+          <div class="premium-reels-grid">
             <% @saved_reels.each do |reel| %>
-              <div class="bookmarks-reel-card">
-                <%= link_to reels_path(anchor: "reel-#{reel.id}"), class: 'bookmarks-reel-card__thumb' do %>
+              <div class="premium-reel-card-glass" data-created-at="<%= reel.created_at.to_i %>">
+                
+                <!-- Unsave Absolute Button -->
+                <button class="premium-reel-unsave-btn"
+                        data-reel-id="<%= reel.id %>"
+                        data-bookmarked="true"
+                        onclick="toggleReelBookmark(<%= reel.id %>, this); this.closest('.premium-reel-card-glass').remove();"
+                        title="Remove Bookmark">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                  </svg>
+                </button>
+
+                <%= link_to reels_path(anchor: "reel-#{reel.id}"), class: 'premium-reel-thumb-link' do %>
                   <% if reel.thumbnail.attached? %>
-                    <%= image_tag reel.thumbnail, alt: reel.caption.to_s.truncate(40) %>
+                    <%= image_tag reel.thumbnail, alt: reel.caption.to_s.truncate(40), class: 'premium-reel-img' %>
                   <% elsif reel.video.attached? %>
-                    <div class="bookmarks-reel-card__placeholder">
-                      <svg width="32" height="32" viewBox="0 0 24 24" fill="rgba(255,255,255,.7)">
+                    <div class="premium-reel-placeholder">
+                      <svg width="36" height="36" viewBox="0 0 24 24" fill="rgba(255, 255, 255, 0.4)">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
                       </svg>
                     </div>
                   <% end %>
-                  <!-- Duration badge if available -->
+                  
                   <% if reel.respond_to?(:duration) && reel.duration.present? %>
-                    <span class="bookmarks-reel-card__dur">
+                    <span class="premium-reel-duration-badge">
                       <%= "#{reel.duration / 60}:#{reel.duration % 60 < 10 ? '0' : ''}#{reel.duration % 60}" %>
                     </span>
                   <% end %>
-                  <div class="bookmarks-reel-card__overlay">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
+
+                  <div class="premium-reel-hover-overlay">
+                    <div class="overlay-play-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
                   </div>
                 <% end %>
 
-                <div class="bookmarks-reel-card__info">
-                  <div class="bookmarks-reel-card__author">
-                    <div class="bookmarks-reel-card__avatar">
+                <div class="premium-reel-info-box">
+                  <div class="premium-reel-author-row">
+                    <div class="premium-reel-avatar-glow">
                       <% if reel.user.avatar.attached? %>
                         <%= image_tag reel.user.avatar, alt: reel.user.name %>
                       <% else %>
                         <%= reel.user.name&.first&.upcase || 'U' %>
                       <% end %>
                     </div>
-                    <span class="bookmarks-reel-card__name"><%= reel.user.name %></span>
+                    <span class="premium-reel-author-name"><%= reel.user.name %></span>
                   </div>
                   <% if reel.caption.present? %>
-                    <p class="bookmarks-reel-card__caption"><%= reel.caption.truncate(60) %></p>
+                    <p class="premium-reel-caption"><%= reel.caption.truncate(50) %></p>
                   <% end %>
-                  <div class="bookmarks-reel-card__stats">
-                    <span>❤️ <%= number_with_delimiter(reel.likes_count) %></span>
-                    <span>💬 <%= number_with_delimiter(reel.comments_count) %></span>
-                    <span>👁 <%= number_with_delimiter(reel.views_count) %></span>
+                  <div class="premium-reel-stats-bar">
+                    <span class="stat-bubble">❤️ <%= number_to_human(reel.likes_count, precision: 1, significant: false) %></span>
+                    <span class="stat-bubble">💬 <%= number_to_human(reel.comments_count, precision: 1, significant: false) %></span>
+                    <span class="stat-bubble">👁 <%= number_to_human(reel.views_count, precision: 1, significant: false) %></span>
                   </div>
                 </div>
 
-                <!-- Unsave button -->
-                <button class="bookmarks-reel-card__unsave"
-                        data-reel-id="<%= reel.id %>"
-                        data-bookmarked="true"
-                        onclick="toggleReelBookmark(<%= reel.id %>, this); this.closest('.bookmarks-reel-card').remove();"
-                        title="Remove from saved">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
-                  </svg>
-                </button>
               </div>
             <% end %>
           </div>
@@ -143,6 +170,89 @@
   </div>
 </div>
 
+<script>
+  (function() {
+    function setupBookmarksFilter() {
+      const searchInput = document.getElementById("bookmarks-search-input");
+      const sortSelect = document.getElementById("bookmarks-sort-select");
+      const activeTab = "<%= @active_tab %>";
+
+      if (!searchInput && !sortSelect) return;
+
+      function filterAndSort() {
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+        const sortVal = sortSelect ? sortSelect.value : "newest";
+
+        if (activeTab === 'posts') {
+          const feed = document.querySelector(".posts-feed");
+          if (!feed) return;
+          const posts = Array.from(feed.querySelectorAll(".post-card"));
+          
+          posts.forEach(post => {
+            const text = post.innerText.toLowerCase();
+            if (text.includes(query)) {
+              post.style.display = "";
+            } else {
+              post.style.display = "none";
+            }
+          });
+
+          posts.forEach((post, i) => {
+            if (!post.dataset.origIndex) {
+              post.dataset.origIndex = i;
+            }
+          });
+
+          posts.sort((a, b) => {
+            const idxA = parseInt(a.dataset.origIndex);
+            const idxB = parseInt(b.dataset.origIndex);
+            return sortVal === "newest" ? idxA - idxB : idxB - idxA;
+          });
+
+          posts.forEach(post => feed.appendChild(post));
+
+        } else {
+          const grid = document.querySelector(".premium-reels-grid");
+          if (!grid) return;
+          const reels = Array.from(grid.querySelectorAll(".premium-reel-card-glass"));
+
+          reels.forEach(reel => {
+            const text = reel.innerText.toLowerCase();
+            if (text.includes(query)) {
+              reel.style.display = "";
+            } else {
+              reel.style.display = "none";
+            }
+          });
+
+          reels.forEach((reel, i) => {
+            if (!reel.dataset.origIndex) {
+              reel.dataset.origIndex = i;
+            }
+          });
+
+          reels.sort((a, b) => {
+            const idxA = parseInt(a.dataset.origIndex);
+            const idxB = parseInt(b.dataset.origIndex);
+            return sortVal === "newest" ? idxA - idxB : idxB - idxA;
+          });
+
+          reels.forEach(reel => grid.appendChild(reel));
+        }
+      }
+
+      if (searchInput) searchInput.addEventListener("input", filterAndSort);
+      if (sortSelect) sortSelect.addEventListener("change", filterAndSort);
+    }
+
+    // Run on both standard load and Turbo restore/load events
+    document.addEventListener("turbo:load", setupBookmarksFilter);
+    setupBookmarksFilter();
+  })();
+</script>
+
 <%= stylesheet_link_tag 'posts/post_card',   'data-turbo-track': 'reload' %>
 <%= stylesheet_link_tag 'posts/feed',        'data-turbo-track': 'reload' %>
 <%= stylesheet_link_tag 'bookmarks/bookmarks', 'data-turbo-track': 'reload' %>
+<%= stylesheet_link_tag 'shared/collections',  'data-turbo-track': 'reload' %>
+

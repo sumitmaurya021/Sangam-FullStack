@@ -47,17 +47,17 @@ module Admin
       @likes_last_30_days  = Like.where('created_at >= ?', 30.days.ago).count
       @comments_last_30_days = Comment.where('created_at >= ?', 30.days.ago).count
 
-      # Chart: last 7 days daily activity
-      @chart_labels = (6.days.ago.to_date..Date.today).map { |d| d.strftime('%b %d') }.to_json
-      @chart_users  = (6.days.ago.to_date..Date.today).map { |d|
-        User.where(created_at: d.beginning_of_day..d.end_of_day).count
-      }.to_json
-      @chart_posts  = (6.days.ago.to_date..Date.today).map { |d|
-        Post.where(created_at: d.beginning_of_day..d.end_of_day).count
-      }.to_json
-      @chart_likes  = (6.days.ago.to_date..Date.today).map { |d|
-        Like.where(created_at: d.beginning_of_day..d.end_of_day).count
-      }.to_json
+      # Chart: last 7 days daily activity using groupdate single query aggregation
+      six_days_ago = 6.days.ago.beginning_of_day
+      daily_users = User.where('created_at >= ?', six_days_ago).group_by_day(:created_at).count
+      daily_posts = Post.where('created_at >= ?', six_days_ago).group_by_day(:created_at).count
+      daily_likes = Like.where('created_at >= ?', six_days_ago).group_by_day(:created_at).count
+
+      date_range = (6.days.ago.to_date..Date.today)
+      @chart_labels = date_range.map { |d| d.strftime('%b %d') }.to_json
+      @chart_users  = date_range.map { |d| daily_users[d] || 0 }.to_json
+      @chart_posts  = date_range.map { |d| daily_posts[d] || 0 }.to_json
+      @chart_likes  = date_range.map { |d| daily_likes[d] || 0 }.to_json
 
       # Donut chart data
       @donut_data = [@total_posts, @total_likes, @total_comments, @total_shares].to_json
