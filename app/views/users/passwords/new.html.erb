@@ -1,94 +1,75 @@
-<%= stylesheet_link_tag 'users/sessions', media: 'all' %>
+<%= stylesheet_link_tag 'auth_premium', media: 'all', 'data-turbo-track': 'reload' %>
+<script src="/assets/auth_premium.js" data-turbo-track="reload"></script>
 
-<div class="auth-container">
-
-  <!-- LEFT IMAGE PANEL -->
-  <div class="auth-image-panel">
-    <div class="auth-image-bg" id="randomBg"></div>
-    <div class="auth-image-overlay"></div>
-    <div class="auth-image-content">
-      <p class="auth-image-quote" id="randomQuote"></p>
-      <p class="auth-image-attr" id="randomAttr"></p>
-    </div>
+<div class="ap-viewport">
+  <!-- Dynamic Ambient Backdrop & Particle Canvas -->
+  <div class="ap-ambient-bg">
+    <canvas id="apCanvas" class="ap-canvas"></canvas>
+    <div class="ap-glow-orb ap-glow-orb--1"></div>
+    <div class="ap-glow-orb ap-glow-orb--2"></div>
+    <div class="ap-glow-orb ap-glow-orb--3"></div>
   </div>
+  <div class="ap-grid-overlay"></div>
 
-  <!-- RIGHT FORM PANEL -->
-  <div class="auth-form-panel">
-    <div class="auth-form-inner">
-      <div class="auth-brand">
-        <span class="auth-brand-logo">Sangam</span>
-        <span class="auth-brand-tagline">Connect with friends and the world</span>
-      </div>
+  <!-- Split-Screen Container -->
+  <div class="ap-split-wrapper">
+    <!-- LEFT SIDE: Animated App Showcase -->
+    <%= render "users/shared/showcase_panel" %>
 
-      <h1 class="auth-heading">Find Your Account</h1>
-      <p class="auth-subheading">Please enter your email address to search for your account.</p>
+    <!-- RIGHT SIDE: Authentication Form Panel -->
+    <div class="ap-form-panel">
+      <div class="ap-card">
+        <div class="ap-card-border-glow"></div>
 
-      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: 'auth-form' }) do |f| %>
+        <!-- Header -->
+        <div class="ap-header">
+          <h1 class="ap-title">Reset your password</h1>
+          <p class="ap-subtitle">Enter your email and we'll send reset instructions</p>
+        </div>
+
+        <!-- Validation Errors -->
         <%= render "users/shared/error_messages", resource: resource %>
 
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <%= f.email_field :email, autofocus: true, autocomplete: "email", placeholder: "you@example.com", class: 'form-input' %>
+        <!-- Forgot Password Form -->
+        <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: 'ap-form' }) do |f| %>
+          
+          <!-- Email Input -->
+          <div class="ap-form-group">
+            <label class="ap-label" for="user_email">Email Address</label>
+            <div class="ap-input-wrapper">
+              <%= f.email_field :email,
+                    id: 'user_email',
+                    autofocus: true,
+                    autocomplete: "email",
+                    placeholder: "name@example.com",
+                    class: "ap-input",
+                    required: true %>
+              <div class="ap-input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <%= f.button type: :submit, class: "ap-btn-primary" do %>
+            <span class="ap-btn-text">Send Reset Instructions</span>
+            <div class="ap-spinner"></div>
+          <% end %>
+        <% end %>
+
+        <!-- Footer Switcher -->
+        <div class="ap-footer">
+          Remembered your password?
+          <%= link_to "Back to Sign In", new_session_path(resource_name), class: "ap-footer-link" %>
         </div>
 
-        <%= f.submit "Send Reset Instructions", class: 'btn btn-primary' %>
-      <% end %>
-
-      <div class="auth-footer">
-        <div class="signin-prompt">
-          <%= link_to "Back to Sign In", new_session_path(resource_name), class: 'link-primary' %>
+        <div class="ap-copyright">
+          © <%= Time.current.year %> Sangam. All rights reserved.
         </div>
       </div>
-
-      <p class="auth-panel-foot">© <%= Time.current.year %> Sangam</p>
     </div>
   </div>
 </div>
-
-<script>
-  // Use turbo:load instead of DOMContentLoaded for Turbo compatibility
-  document.addEventListener("turbo:load", function () {
-    const quotes = [
-      {
-        text: "The best time to connect with someone is now.",
-        attr: "— Unknown"
-      },
-      {
-        text: "Friendship is the only cement that will ever hold the world together.",
-        attr: "— Woodrow Wilson"
-      },
-      {
-        text: "Connection is why we're here. It gives purpose and meaning to our lives.",
-        attr: "— Brené Brown"
-      },
-      {
-        text: "Alone we can do so little; together we can do so much.",
-        attr: "— Helen Keller"
-      },
-      {
-        text: "The quality of your life is the quality of your relationships.",
-        attr: "— Tony Robbins"
-      }
-    ];
-
-    const randomSeed = Math.floor(Math.random() * 999999999);
-    const imageUrl = `https://picsum.photos/seed/${randomSeed}/2000/2500`;
-    const quote = quotes[Math.floor(Math.random() * quotes.length)];
-
-    const bg = document.getElementById("randomBg");
-    const quoteEl = document.getElementById("randomQuote");
-    const attrEl = document.getElementById("randomAttr");
-
-    if (bg) {
-      bg.style.backgroundImage = `url('${imageUrl}')`;
-    }
-
-    if (quoteEl) {
-      quoteEl.textContent = `"${quote.text}"`;
-    }
-
-    if (attrEl) {
-      attrEl.textContent = quote.attr;
-    }
-  });
-</script>
