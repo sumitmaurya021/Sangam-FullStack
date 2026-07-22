@@ -63,7 +63,7 @@ class User < ApplicationRecord
   has_many :post_collaborators, dependent: :destroy
   has_many :collaborative_posts, through: :post_collaborators, source: :post
 
-  # Friendships
+  # Friendshipsg
   has_many :friendships, dependent: :destroy
   has_many :inverse_friendships, class_name: 'Friendship', foreign_key: 'friend_id', dependent: :destroy
   has_many :friends, -> { where(friendships: { status: 'accepted' }) }, through: :friendships, source: :friend
