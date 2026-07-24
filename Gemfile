@@ -64,6 +64,7 @@ group :development, :test do
   
   # Faker for generating fake data
   gem "faker", "~> 3.5"
+  gem "pry-rails"
 end
 
 # Pagination

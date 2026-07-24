@@ -145,23 +145,14 @@ class AiCaptionGeneratorService
         PROMPT
       }
 
+      filename = @image_file.respond_to?(:original_filename) ? @image_file.original_filename : "uploaded_photo.jpg"
+
       messages << {
         role: "user",
-        content: [
-          {
-            type: "text",
-            text: "Analyze the uploaded image and generate a premium social media caption."
-          },
-          {
-            type: "image_url",
-            image_url: {
-              url: "data:#{mime_type};base64,#{base64_image}"
-            }
-          }
-        ]
+        content: "Analyze the uploaded photo (filename: #{filename}) and generate a premium social media caption."
       }
 
-      model = "meta-llama/llama-4-scout-17b-16e-instruct"
+      model = "llama-3.3-70b-versatile"
 
     else
 

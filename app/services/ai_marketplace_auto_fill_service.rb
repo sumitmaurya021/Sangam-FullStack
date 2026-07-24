@@ -201,18 +201,7 @@ class AiMarketplaceAutoFillService
       },
       {
         role: "user",
-        content: [
-          {
-            type: "text",
-            text: "Analyze this marketplace item image and generate the listing."
-          },
-          {
-            type: "image_url",
-            image_url: {
-              url: @image_data_url
-            }
-          }
-        ]
+        content: "Analyze this marketplace item image and generate the listing."
       }
     ]
 
@@ -222,7 +211,7 @@ class AiMarketplaceAutoFillService
     request["Content-Type"] = "application/json"
 
     request.body = JSON.dump({
-      "model" => "meta-llama/llama-4-scout-17b-16e-instruct",
+      "model" => "llama-3.3-70b-versatile",
       "messages" => messages,
       "temperature" => 0.5,
       "max_completion_tokens" => 500
