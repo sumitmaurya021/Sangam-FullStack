@@ -378,6 +378,9 @@
         <%= link_to admin_posts_path, class: "#{controller_action?('dashboard', 'posts') ? 'active' : ''}" do %>
           <i class="fa-solid fa-newspaper"></i> Posts
         <% end %>
+        <%= link_to admin_moderation_path, class: "#{controller_action?('dashboard', 'moderation') ? 'active' : ''}" do %>
+          <i class="fa-solid fa-shield-halved"></i> AI Safety & Moderation
+        <% end %>
 
         <div class="adm-nav-label">App</div>
         <%= link_to root_path do %>

@@ -91,6 +91,38 @@ module Admin
       @user_friends = @user.all_friends.count
     end
 
+    def moderation
+      @logs = AiModerationLog.includes(:user).recent.page(params[:page]).per(20)
+      @flagged_posts = Post.where(flagged: true).includes(:user).order(created_at: :desc)
+      @flagged_comments = Comment.where(flagged: true).includes(:user, :post).order(created_at: :desc)
+    end
+
+    def approve_moderation
+      log = AiModerationLog.find_by(id: params[:id])
+      if log
+        log.update(action_taken: "approved")
+        if log.target_type == "Post" && (post = Post.find_by(id: log.target_id))
+          post.update(flagged: false, flag_reason: nil)
+        elsif log.target_type == "Comment" && (comment = Comment.find_by(id: log.target_id))
+          comment.update(flagged: false, flag_reason: nil)
+        end
+      end
+      redirect_to admin_moderation_path, notice: "Content approved successfully."
+    end
+
+    def reject_moderation
+      log = AiModerationLog.find_by(id: params[:id])
+      if log
+        log.update(action_taken: "blocked")
+        if log.target_type == "Post" && (post = Post.find_by(id: log.target_id))
+          post.destroy
+        elsif log.target_type == "Comment" && (comment = Comment.find_by(id: log.target_id))
+          comment.destroy
+        end
+      end
+      redirect_to admin_moderation_path, notice: "Content rejected and removed."
+    end
+
     private
 
     def verify_super_admin!

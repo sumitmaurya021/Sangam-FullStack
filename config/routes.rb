@@ -168,6 +168,9 @@ Rails.application.routes.draw do
     get "users",      to: "dashboard#users",         as: "users"
     get "posts",      to: "dashboard#posts",         as: "posts"
     get "user/:id",   to: "dashboard#user_details",  as: "user_details"
+    get "moderation", to: "dashboard#moderation",    as: "moderation"
+    post "moderation/:id/approve", to: "dashboard#approve_moderation", as: "approve_moderation"
+    post "moderation/:id/reject",  to: "dashboard#reject_moderation",  as: "reject_moderation"
   end
 
   # Music search (proxies Deezer API to avoid CORS)

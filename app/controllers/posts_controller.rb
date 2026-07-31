@@ -1,4 +1,5 @@
 class PostsController < ApplicationController
+  include AiModeratable
   before_action :set_post, only: [:show, :edit, :update, :destroy]
   before_action :authorize_post!, only: [:edit, :update, :destroy]
 
@@ -39,6 +40,33 @@ class PostsController < ApplicationController
   def create
     @post = current_user.posts.build(post_params)
 
+    mod_check = moderate_content!(@post.content, target_type: "Post")
+    if mod_check[:status] == :blocked
+      @post.errors.add(:base, "AI Safety Warning: #{mod_check[:reason]}")
+      respond_to do |format|
+        format.html do
+          @posts = Post.visible_to(current_user)
+                       .includes(:user, :likes, :comments, :shares)
+                       .order(created_at: :desc)
+                       .page(1)
+                       .per(POSTS_PER_PAGE)
+          @users = User.where.not(id: current_user.id).limit(10)
+          render :index, status: :unprocessable_entity
+        end
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "create-post-form-wrapper",
+            partial: "posts/create_post_form",
+            locals:  { post: @post }
+          ), status: :unprocessable_entity
+        end
+      end
+      return
+    elsif mod_check[:status] == :flagged_for_review
+      @post.flagged = true
+      @post.flag_reason = mod_check[:reason]
+    end
+
     if @post.save
       # Schedule publishing job if needed
       if @post.scheduled_at.present? && !@post.published?
@@ -46,7 +74,7 @@ class PostsController < ApplicationController
       end
 
       respond_to do |format|
-        format.html { redirect_to posts_path, notice: @post.scheduled? ? 'Post scheduled!' : 'Post created successfully!' }
+        format.html { redirect_to posts_path, notice: @post.flagged? ? 'Post created and sent for moderator review.' : (@post.scheduled? ? 'Post scheduled!' : 'Post created successfully!') }
         format.turbo_stream
       end
     else
