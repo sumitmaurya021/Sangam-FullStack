@@ -21,6 +21,7 @@ class Message < ApplicationRecord
   after_create :update_conversation_timestamp
   after_commit :broadcast_new_message, on: :create
   after_commit :trigger_ai_response, on: :create
+  after_commit :enqueue_audio_transcription, on: :create
 
   def read?
     read_at.present?
@@ -49,6 +50,12 @@ class Message < ApplicationRecord
   end
 
   private
+
+  def enqueue_audio_transcription
+    return unless message_type == 'audio' && attachment.attached?
+    update_columns(transcription_status: 'pending')
+    TranscribeAudioJob.perform_later('Message', id)
+  end
 
   def trigger_ai_response
     # Check if this message was sent to the AI bot by a human
@@ -114,7 +121,9 @@ class Message < ApplicationRecord
       created_at: created_at.iso8601,
       attachment_url: deleted ? nil : attachment_url,
       attachment_filename: attachment_filename,
-      attachment_content_type: attachment_content_type
+      attachment_content_type: attachment_content_type,
+      transcription: deleted ? nil : transcription,
+      transcription_status: deleted ? nil : transcription_status
     }
   end
 

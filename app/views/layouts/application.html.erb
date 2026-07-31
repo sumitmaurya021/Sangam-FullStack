@@ -50,5 +50,53 @@
     <%= yield %>
     <%= render 'shared/chat_widget' if user_signed_in? %>
     <%= render 'shared/lightbox' %>
+
+    <script>
+      window.translateTranscriptText = function(selectEl, targetId) {
+        let targetLang = selectEl.value;
+        if (!targetLang) return;
+
+        if (targetLang === 'CUSTOM') {
+          targetLang = prompt('Enter any language name in the world (e.g. Swahili, Korean, Punjabi, Italian, Latin, etc.):');
+          if (!targetLang || !targetLang.trim()) {
+            selectEl.value = '';
+            return;
+          }
+        }
+
+        const pEl = document.getElementById(targetId);
+        if (!pEl) return;
+
+        const originalText = pEl.getAttribute('data-original-text') || pEl.textContent;
+        if (!pEl.getAttribute('data-original-text')) {
+          pEl.setAttribute('data-original-text', originalText);
+        }
+
+        pEl.style.opacity = '0.4';
+        selectEl.disabled = true;
+
+        fetch('/api/ai/translate_text', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+          },
+          body: JSON.stringify({ text: originalText, target_language: targetLang })
+        })
+        .then(r => r.json())
+        .then(data => {
+          selectEl.disabled = false;
+          pEl.style.opacity = '1';
+          if (data.translated_text) {
+            pEl.textContent = data.translated_text;
+          }
+        })
+        .catch(err => {
+          selectEl.disabled = false;
+          pEl.style.opacity = '1';
+          console.error('Translation failed:', err);
+        });
+      };
+    </script>
   </body>
 </html>

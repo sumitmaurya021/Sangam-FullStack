@@ -105,4 +105,22 @@ class AiFeaturesController < ApplicationController
       render json: { error: result[:error] || "Failed to perform AI search" }, status: :unprocessable_entity
     end
   end
+
+  def translate_text
+    text = params[:text]
+    target_language = params[:target_language]
+
+    if text.blank? || target_language.blank?
+      return render json: { error: "Text and target_language are required" }, status: :unprocessable_entity
+    end
+
+    service = AiTranslationService.new(text, target_language)
+    result = service.translate
+
+    if result[:success]
+      render json: { translated_text: result[:translated_text] }
+    else
+      render json: { error: result[:error] || "Translation failed" }, status: :unprocessable_entity
+    end
+  end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_31_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_31_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -239,6 +239,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_31_120000) do
     t.boolean "deleted", default: false, null: false
     t.bigint "group_chat_id", null: false
     t.string "message_type", default: "text", null: false
+    t.text "transcription"
+    t.string "transcription_status"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["created_at"], name: "index_group_chat_messages_on_created_at"
@@ -340,6 +342,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_31_120000) do
     t.boolean "deleted", default: false, null: false
     t.string "message_type", default: "text", null: false
     t.datetime "read_at"
+    t.text "transcription"
+    t.string "transcription_status"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["conversation_id"], name: "index_messages_on_conversation_id"

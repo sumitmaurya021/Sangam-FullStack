@@ -38,9 +38,58 @@
         </div>
       <% elsif message.message_type == 'audio' && message.attachment.attached? %>
         <div class="message-audio-wrapper">
-          <audio controls class="message-audio">
+          <audio controls class="message-audio" style="width:100%; border-radius:30px;">
             <source src="<%= url_for(message.attachment) %>">
           </audio>
+
+          <% box_style = is_mine ? "margin-top:8px; font-size:0.82rem; background:rgba(0,0,0,0.22); backdrop-filter:blur(8px); padding:10px 12px; border-radius:12px; border:1px solid rgba(255,255,255,0.25); color:#ffffff;" : "margin-top:8px; font-size:0.82rem; background:rgba(59,130,246,0.08); padding:10px 12px; border-radius:12px; border-left:3px solid #3b82f6; color:#1e293b;" %>
+          <% header_color = is_mine ? "#ffffff" : "#2563eb" %>
+          <% select_style = is_mine ? "font-size:0.72rem; border-radius:6px; border:1px solid rgba(255,255,255,0.4); padding:3px 6px; background:rgba(255,255,255,0.2); color:#ffffff; font-weight:500; cursor:pointer; outline:none;" : "font-size:0.72rem; border-radius:6px; border:1px solid #cbd5e1; padding:3px 6px; background:#ffffff; color:#334155; font-weight:500; cursor:pointer; outline:none;" %>
+          <% text_color = is_mine ? "rgba(255,255,255,0.95)" : "#334155" %>
+          <% status_color = is_mine ? "rgba(255,255,255,0.85)" : "#64748b" %>
+
+          <div class="message-transcription-box" id="transcription-<%= message.id %>" style="<%= box_style %>">
+            <% if message.transcription.present? %>
+              <div style="font-weight:600; color:<%= header_color %>; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between; gap:6px; flex-wrap:wrap;">
+                <span style="display:flex; align-items:center; gap:4px;">🎙️ AI Transcript</span>
+                <select onchange="translateTranscriptText(this, 'transcript-text-<%= message.id %>')" style="<%= select_style %>">
+                  <option value="" style="color:#1e293b; background:white;">🌐 Translate To...</option>
+                  <option value="CUSTOM" style="color:#1e293b; background:white;">✏️ Type Any World Language...</option>
+                  <optgroup label="Global Languages" style="color:#1e293b; background:white;">
+                    <option value="English">🇬🇧 English</option>
+                    <option value="Hindi">🇮🇳 Hindi (हिंदी)</option>
+                    <option value="Hinglish">💬 Hinglish</option>
+                    <option value="Spanish">🇪🇸 Spanish</option>
+                    <option value="French">🇫🇷 French</option>
+                    <option value="German">🇩🇪 German</option>
+                    <option value="Mandarin Chinese">🇨🇳 Chinese</option>
+                    <option value="Japanese">🇯🇵 Japanese</option>
+                    <option value="Korean">🇰🇷 Korean</option>
+                    <option value="Arabic">🇸🇦 Arabic</option>
+                    <option value="Russian">🇷🇺 Russian</option>
+                    <option value="Portuguese">🇵🇹 Portuguese</option>
+                    <option value="Italian">🇮🇹 Italian</option>
+                  </optgroup>
+                  <optgroup label="Indian Languages" style="color:#1e293b; background:white;">
+                    <option value="Marathi">🚩 Marathi (मराठी)</option>
+                    <option value="Gujarati">🚩 Gujarati (ગુજરાતી)</option>
+                    <option value="Bengali">🚩 Bengali (বাংলা)</option>
+                    <option value="Punjabi">🚩 Punjabi (ਪੰਜਾਬੀ)</option>
+                    <option value="Tamil">🚩 Tamil (தமிழ்)</option>
+                    <option value="Telugu">🚩 Telugu (తెలుగు)</option>
+                    <option value="Kannada">🚩 Kannada (ಕನ್ನಡ)</option>
+                    <option value="Malayalam">🚩 Malayalam (മലയാളം)</option>
+                    <option value="Urdu">🚩 Urdu (اردو)</option>
+                  </optgroup>
+                </select>
+              </div>
+              <p id="transcript-text-<%= message.id %>" style="margin:0; color:<%= text_color %>; font-style:italic; line-height:1.45; word-break:break-word;"><%= message.transcription %></p>
+            <% elsif message.transcription_status == 'processing' || message.transcription_status == 'pending' %>
+              <span style="color:<%= status_color %>; font-style:italic;">⚡ Transcribing audio with Whisper AI...</span>
+            <% else %>
+              <span style="color:<%= status_color %>; font-style:italic;">🎙️ Voice Note</span>
+            <% end %>
+          </div>
         </div>
       <% elsif message.message_type == 'file' && message.attachment.attached? %>
         <div class="message-file-wrapper">
