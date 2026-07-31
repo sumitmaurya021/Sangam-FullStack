@@ -36,12 +36,6 @@ class Post < ApplicationRecord
 
   after_commit :enqueue_embedding_generation, on: [:create, :update]
 
-  private
-
-  def enqueue_embedding_generation
-    GenerateEmbeddingJob.perform_later('Post', id) if saved_change_to_content? || respond_to?(:embedding) && embedding.nil?
-  end
-
   scope :published,   -> { where(published: true).where('scheduled_at IS NULL OR scheduled_at <= ?', Time.current) }
   scope :scheduled,   -> { where(published: false).where('scheduled_at > ?', Time.current) }
   scope :recent, -> { order(created_at: :desc) }
@@ -181,6 +175,10 @@ class Post < ApplicationRecord
   end
 
   private
+
+  def enqueue_embedding_generation
+    GenerateEmbeddingJob.perform_later('Post', id) if saved_change_to_content? || respond_to?(:embedding) && embedding.nil?
+  end
 
   # Poll is blank if question and all options are empty
   def poll_blank?(attrs)

@@ -1,0 +1,139 @@
+<!-- Floating AI Copilot Trigger Orb -->
+<div id="aiCopilotOrb" onclick="toggleSangamCopilot()" title="Sangam Genius AI Assistant (Cmd + K)" style="position:fixed; bottom:24px; right:24px; z-index:9990; background:linear-gradient(135deg, #6366f1, #a855f7, #ec4899); color:white; padding:12px 18px; border-radius:30px; box-shadow:0 8px 25px rgba(168,85,247,0.45); cursor:pointer; display:flex; align-items:center; gap:8px; font-weight:600; font-size:0.9rem; transition:transform 0.2s ease, box-shadow 0.2s ease; user-select:none;">
+  <span style="font-size:1.1rem;">✨</span>
+  <span>Sangam Genius</span>
+  <span style="background:rgba(255,255,255,0.25); padding:2px 6px; border-radius:6px; font-size:0.7rem; font-weight:700;">Cmd+K</span>
+</div>
+
+<!-- AI Copilot Modal / Command Drawer -->
+<div id="aiCopilotModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(15,23,42,0.65); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:16px;">
+  <div style="background:#1e293b; color:#f8fafc; width:100%; max-width:650px; border-radius:16px; border:1px solid #334155; box-shadow:0 20px 40px rgba(0,0,0,0.5); display:flex; flex-direction:column; overflow:hidden; max-height:85vh;">
+    
+    <!-- Header -->
+    <div style="padding:16px 20px; border-bottom:1px solid #334155; display:flex; align-items:center; justify-content:space-between; background:linear-gradient(135deg, #1e1b4b, #311042);">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:36px; height:36px; background:linear-gradient(135deg,#6366f1,#a855f7); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.2rem;">✨</div>
+        <div>
+          <h3 style="margin:0; font-size:1.1rem; font-weight:700; color:#f8fafc;">Sangam Genius Copilot</h3>
+          <p style="margin:0; font-size:0.75rem; color:#a5b4fc;">Autonomous AI Assistant & Command Center</p>
+        </div>
+      </div>
+      <button onclick="toggleSangamCopilot()" style="background:none; border:none; color:#94a3b8; font-size:1.4rem; cursor:pointer; padding:4px;">✕</button>
+    </div>
+
+    <!-- Quick Action Pills -->
+    <div style="padding:10px 16px; background:#0f172a; border-bottom:1px solid #334155; display:flex; gap:8px; overflow-x:auto; white-space:nowrap;">
+      <button onclick="sendCopilotPrompt('Summarize my recent feed')" style="background:#1e293b; color:#cbd5e1; border:1px solid #334155; padding:5px 12px; border-radius:20px; font-size:0.78rem; cursor:pointer; transition:all 0.2s;">📰 Summarize Feed</button>
+      <button onclick="sendCopilotPrompt('Write a post about my day')" style="background:#1e293b; color:#cbd5e1; border:1px solid #334155; padding:5px 12px; border-radius:20px; font-size:0.78rem; cursor:pointer;">✍️ Write Post</button>
+      <button onclick="sendCopilotPrompt('Schedule a meetup event next Friday')" style="background:#1e293b; color:#cbd5e1; border:1px solid #334155; padding:5px 12px; border-radius:20px; font-size:0.78rem; cursor:pointer;">🗓️ Schedule Event</button>
+      <button onclick="sendCopilotPrompt('Search marketplace for cheap laptops')" style="background:#1e293b; color:#cbd5e1; border:1px solid #334155; padding:5px 12px; border-radius:20px; font-size:0.78rem; cursor:pointer;">🛒 Search Marketplace</button>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="copilotMessages" style="padding:20px; flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:14px; min-height:280px; max-height:420px; background:#0f172a;">
+      <div style="display:flex; gap:10px; align-items:flex-start;">
+        <div style="width:30px; height:30px; background:#6366f1; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0;">✨</div>
+        <div style="background:#1e293b; padding:12px 14px; border-radius:12px; border:1px solid #334155; font-size:0.88rem; line-height:1.45; color:#e2e8f0; max-width:85%;">
+          Hello <%= current_user&.name %>! 👋 I am <strong>Sangam Genius</strong>. How can I help you today? You can ask me to write posts, schedule events, summarize your feed, or search the marketplace!
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Form -->
+    <div style="padding:14px 16px; background:#1e293b; border-top:1px solid #334155; display:flex; gap:10px; align-items:center;">
+      <input type="text" id="copilotInput" placeholder="Ask Genius to do anything... (e.g. Write a post about tech)" onkeydown="if(event.key==='Enter') triggerCopilotSend()" style="flex:1; background:#0f172a; border:1px solid #334155; color:white; padding:10px 14px; border-radius:10px; font-size:0.9rem; outline:none;" />
+      <button onclick="triggerCopilotSend()" style="background:linear-gradient(135deg, #6366f1, #a855f7); color:white; border:none; padding:10px 18px; border-radius:10px; font-weight:600; cursor:pointer; font-size:0.9rem;">Send ✨</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function toggleSangamCopilot() {
+    const modal = document.getElementById('aiCopilotModal');
+    if (!modal) return;
+    if (modal.style.display === 'none' || modal.style.display === '') {
+      modal.style.display = 'flex';
+      setTimeout(() => document.getElementById('copilotInput')?.focus(), 100);
+    } else {
+      modal.style.display = 'none';
+    }
+  }
+
+  // Keyboard shortcut Cmd+K / Ctrl+K
+  document.addEventListener('keydown', function(e) {
+    if ((e.metaKey || e.ctrlKey) && e.key.downcase === 'k' || (e.metaKey || e.ctrlKey) && e.code === 'KeyK') {
+      e.preventDefault();
+      toggleSangamCopilot();
+    }
+  });
+
+  function sendCopilotPrompt(text) {
+    const input = document.getElementById('copilotInput');
+    if (input) input.value = text;
+    triggerCopilotSend();
+  }
+
+  function triggerCopilotSend() {
+    const input = document.getElementById('copilotInput');
+    const container = document.getElementById('copilotMessages');
+    if (!input || !container) return;
+
+    const query = input.value.trim();
+    if (!query) return;
+
+    // Append User Bubble
+    const userBubble = document.createElement('div');
+    userBubble.style.cssText = 'display:flex; justify-content:flex-end; margin-bottom:4px;';
+    userBubble.innerHTML = `<div style="background:#4f46e5; color:white; padding:10px 14px; border-radius:12px; font-size:0.88rem; max-width:80%; word-break:break-word;">${escapeHtml(query)}</div>`;
+    container.appendChild(userBubble);
+
+    input.value = '';
+    container.scrollTop = container.scrollHeight;
+
+    // Append Loading Indicator
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'copilotLoading';
+    loadingDiv.style.cssText = 'display:flex; gap:10px; align-items:center; color:#94a3b8; font-style:italic; font-size:0.85rem;';
+    loadingDiv.innerHTML = `<div style="width:24px; height:24px; background:#6366f1; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:0.75rem;">✨</div><span>Genius is thinking & performing action...</span>`;
+    container.appendChild(loadingDiv);
+    container.scrollTop = container.scrollHeight;
+
+    // Fetch API
+    fetch('/api/ai/copilot', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      },
+      body: JSON.stringify({ prompt: query })
+    })
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('copilotLoading')?.remove();
+
+      const botDiv = document.createElement('div');
+      botDiv.style.cssText = 'display:flex; gap:10px; align-items:flex-start;';
+      
+      const answerHtml = (data.answer || 'Completed action.').replace(/\n/g, '<br>');
+      botDiv.innerHTML = `
+        <div style="width:30px; height:30px; background:#6366f1; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0;">✨</div>
+        <div style="background:#1e293b; padding:12px 14px; border-radius:12px; border:1px solid #334155; font-size:0.88rem; line-height:1.45; color:#e2e8f0; max-width:85%;">
+          ${answerHtml}
+        </div>
+      `;
+      container.appendChild(botDiv);
+      container.scrollTop = container.scrollHeight;
+    })
+    .catch(err => {
+      document.getElementById('copilotLoading')?.remove();
+      const errDiv = document.createElement('div');
+      errDiv.style.cssText = 'color:#f87171; font-size:0.85rem; padding:8px;';
+      errDiv.textContent = 'Failed to execute request.';
+      container.appendChild(errDiv);
+    });
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+</script>

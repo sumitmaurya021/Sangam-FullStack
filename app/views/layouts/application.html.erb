@@ -50,6 +50,7 @@
     <%= yield %>
     <%= render 'shared/chat_widget' if user_signed_in? %>
     <%= render 'shared/lightbox' %>
+    <%= render 'shared/ai_copilot_modal' if user_signed_in? %>
 
     <script>
       window.translateTranscriptText = function(selectEl, targetId) {

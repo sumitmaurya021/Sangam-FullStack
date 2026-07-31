@@ -30,6 +30,7 @@ Rails.application.routes.draw do
       post 'rewrite_message', to: '/ai_features#rewrite_message'
       post 'search', to: '/ai_features#search'
       post 'translate_text', to: '/ai_features#translate_text'
+      post 'copilot', to: '/ai_features#copilot'
     end
     post 'interactions', to: '/interactions#create'
   end

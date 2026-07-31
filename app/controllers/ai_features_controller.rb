@@ -123,4 +123,21 @@ class AiFeaturesController < ApplicationController
       render json: { error: result[:error] || "Translation failed" }, status: :unprocessable_entity
     end
   end
+
+  def copilot
+    prompt = params[:prompt]
+
+    if prompt.blank?
+      return render json: { error: "Prompt is required" }, status: :unprocessable_entity
+    end
+
+    service = AiCopilotService.new(prompt, current_user)
+    result = service.execute
+
+    if result[:success]
+      render json: { answer: result[:answer], action: result[:action] }
+    else
+      render json: { error: result[:error] || "Copilot execution failed" }, status: :unprocessable_entity
+    end
+  end
 end
