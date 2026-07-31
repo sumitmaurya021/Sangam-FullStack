@@ -34,4 +34,12 @@ class MarketplaceListing < ApplicationRecord
   def mark_sold!
     update!(status: 'sold')
   end
+
+  after_commit :enqueue_embedding_generation, on: [:create, :update]
+
+  private
+
+  def enqueue_embedding_generation
+    GenerateEmbeddingJob.perform_later('MarketplaceListing', id)
+  end
 end

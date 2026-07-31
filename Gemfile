@@ -109,3 +109,6 @@ gem 'cloudinary', '~> 2.2'
 
 # Groupdate for time-based grouping
 gem 'groupdate', '~> 6.4'
+
+# Vector Search support
+gem 'pgvector', '~> 0.2'

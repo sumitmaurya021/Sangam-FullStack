@@ -13,32 +13,48 @@ class AiSearchService
   def generate
     return { success: false, error: "Query is blank" } if @query.blank?
 
+    query_vector = AiEmbeddingService.new(@query).generate
+
     # 1. Query database models (scoped safely)
     users = User.where.not(id: @current_user.id)
                 .where("name ILIKE :q OR email ILIKE :q", q: "%#{@query}%")
                 .order(:name)
                 .limit(5)
 
-    posts = Post.visible_to(@current_user)
-                .search(@query)
-                .includes(:user)
-                .order(created_at: :desc)
-                .limit(5)
+    all_posts = Post.visible_to(@current_user).includes(:user).limit(25)
+    posts_with_scores = all_posts.map do |p|
+      v = p.try(:embedding) || p.try(:embedding_data)
+      sim = AiEmbeddingService.cosine_similarity(query_vector, v)
+      text_match = p.content.to_s.downcase.include?(@query.downcase)
+      final_score = (sim * 0.7) + (text_match ? 0.3 : 0.0)
+      [p, final_score]
+    end.sort_by { |_, score| -score }.take(5)
 
     groups = Group.public_groups.search(@query).limit(5)
 
     events = Event.upcoming.search(@query).limit(5)
 
-    articles = Article.published
-                      .where("title ILIKE ?", "%#{@query}%")
-                      .includes(:user)
-                      .order(created_at: :desc)
-                      .limit(5)
+    all_articles = Article.published.includes(:user).limit(25)
+    articles_with_scores = all_articles.map do |a|
+      v = a.try(:embedding) || a.try(:embedding_data)
+      sim = AiEmbeddingService.cosine_similarity(query_vector, v)
+      text_match = a.title.to_s.downcase.include?(@query.downcase)
+      final_score = (sim * 0.7) + (text_match ? 0.3 : 0.0)
+      [a, final_score]
+    end.sort_by { |_, score| -score }.take(5)
 
-    listings = MarketplaceListing.active.search(@query).limit(5)
+    all_listings = MarketplaceListing.active.limit(25)
+    listings_with_scores = all_listings.map do |l|
+      v = l.try(:embedding) || l.try(:embedding_data)
+      sim = AiEmbeddingService.cosine_similarity(query_vector, v)
+      text_match = l.title.to_s.downcase.include?(@query.downcase) || l.description.to_s.downcase.include?(@query.downcase)
+      final_score = (sim * 0.7) + (text_match ? 0.3 : 0.0)
+      [l, final_score]
+    end.sort_by { |_, score| -score }.take(5)
 
     # 2. Serialize results for front-end preview cards
     serialized_results = {
+      search_mode: "⚡ AI Vector Hybrid Search",
       users: users.map { |u|
         {
           id: u.id,
@@ -48,12 +64,13 @@ class AiSearchService
           mutual_friends_count: (@current_user.all_friends & u.all_friends).count
         }
       },
-      posts: posts.map { |p|
+      posts: posts_with_scores.map { |p, score|
         {
           id: p.id,
           content: p.content.truncate(120),
           user: p.user.name,
           post_url: post_path(p),
+          similarity_score: "#{(score * 100).round}% Match",
           created_at: p.created_at.strftime("%b %d, %Y")
         }
       },
@@ -75,22 +92,24 @@ class AiSearchService
           event_url: event_path(e)
         }
       },
-      articles: articles.map { |a|
+      articles: articles_with_scores.map { |a, score|
         {
           id: a.id,
           title: a.title,
           user: a.user.name,
           article_url: article_path(a),
+          similarity_score: "#{(score * 100).round}% Match",
           views_count: a.views_count
         }
       },
-      listings: listings.map { |l|
+      listings: listings_with_scores.map { |l, score|
         {
           id: l.id,
           title: l.title,
           price: l.price,
           category: l.category,
           condition: l.condition,
+          similarity_score: "#{(score * 100).round}% Match",
           listing_url: marketplace_listing_path(l)
         }
       }
@@ -104,9 +123,9 @@ class AiSearchService
       users.each { |u| context += "- #{u.name} (Email: #{u.email}) [Link: /profile/#{u.id}]\n" }
     end
     
-    if posts.any?
+    if posts_with_scores.any?
       context += "\nPOSTS:\n"
-      posts.each { |p| context += "- Post by #{p.user.name}: \"#{p.content.truncate(100)}\" [Link: /posts/#{p.id}]\n" }
+      posts_with_scores.each { |p, s| context += "- Post by #{p.user.name} (#{(s*100).round}% Match): \"#{p.content.truncate(100)}\" [Link: /posts/#{p.id}]\n" }
     end
     
     if groups.any?
@@ -119,14 +138,14 @@ class AiSearchService
       events.each { |e| context += "- Event \"#{e.title}\" on #{e.starts_at.strftime("%b %d, %Y")} [Link: /events/#{e.id}]\n" }
     end
 
-    if articles.any?
+    if articles_with_scores.any?
       context += "\nARTICLES:\n"
-      articles.each { |a| context += "- Article \"#{a.title}\" by #{a.user.name} [Link: /articles/#{a.id}]\n" }
+      articles_with_scores.each { |a, s| context += "- Article \"#{a.title}\" (#{(s*100).round}% Match) by #{a.user.name} [Link: /articles/#{a.id}]\n" }
     end
 
-    if listings.any?
+    if listings_with_scores.any?
       context += "\nMARKETPLACE LISTINGS:\n"
-      listings.each { |l| context += "- Listing \"#{l.title}\" for #{l.formatted_price} [Link: /marketplace/#{l.id}]\n" }
+      listings_with_scores.each { |l, s| context += "- Listing \"#{l.title}\" (#{(s*100).round}% Match) for #{l.formatted_price} [Link: /marketplace/#{l.id}]\n" }
     end
 
     if context.blank?

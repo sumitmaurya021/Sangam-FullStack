@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_31_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_31_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -70,6 +70,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_31_130000) do
 
   create_table "articles", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.text "embedding_data"
     t.boolean "published", default: true, null: false
     t.string "title"
     t.datetime "updated_at", null: false
@@ -322,6 +323,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_31_130000) do
     t.string "condition", default: "used", null: false
     t.datetime "created_at", null: false
     t.text "description"
+    t.text "embedding_data"
     t.string "location_name"
     t.decimal "price", precision: 10, scale: 2
     t.boolean "price_negotiable", default: false, null: false
@@ -479,6 +481,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_31_130000) do
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "edited_at"
+    t.text "embedding_data"
     t.string "flag_reason"
     t.boolean "flagged", default: false, null: false
     t.bigint "group_id"

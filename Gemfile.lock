@@ -304,6 +304,7 @@ GEM
       racc
     pg (1.6.3-x64-mingw-ucrt)
     pg (1.6.3-x86_64-linux)
+    pgvector (0.3.3)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
@@ -546,6 +547,7 @@ DEPENDENCIES
   omniauth-google-oauth2 (~> 1.1)
   omniauth-rails_csrf_protection (~> 1.0)
   pg (~> 1.1)
+  pgvector (~> 0.2)
   propshaft
   pry-rails
   puma (>= 5.0)

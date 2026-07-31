@@ -34,6 +34,14 @@ class Post < ApplicationRecord
   validate  :content_or_poll_present
   validate  :acceptable_images
 
+  after_commit :enqueue_embedding_generation, on: [:create, :update]
+
+  private
+
+  def enqueue_embedding_generation
+    GenerateEmbeddingJob.perform_later('Post', id) if saved_change_to_content? || respond_to?(:embedding) && embedding.nil?
+  end
+
   scope :published,   -> { where(published: true).where('scheduled_at IS NULL OR scheduled_at <= ?', Time.current) }
   scope :scheduled,   -> { where(published: false).where('scheduled_at > ?', Time.current) }
   scope :recent, -> { order(created_at: :desc) }

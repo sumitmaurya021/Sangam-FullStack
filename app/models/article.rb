@@ -9,4 +9,12 @@ class Article < ApplicationRecord
 
   scope :published, -> { where(published: true) }
   scope :recent, -> { order(created_at: :desc) }
+
+  after_commit :enqueue_embedding_generation, on: [:create, :update]
+
+  private
+
+  def enqueue_embedding_generation
+    GenerateEmbeddingJob.perform_later('Article', id)
+  end
 end
