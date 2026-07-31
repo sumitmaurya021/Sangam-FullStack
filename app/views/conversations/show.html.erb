@@ -109,7 +109,9 @@
           </span>
         </div>
       </div>
-      <div class="messenger-call-actions">
+        <button onclick="summarizeCurrentChat()" class="messenger-call-btn" style="background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(168,85,247,0.15)); border:1px solid rgba(99,102,241,0.3); color:#6366f1; width:auto; padding:4px 10px; font-size:0.78rem; font-weight:600; border-radius:8px; gap:4px;" title="Summarize recent messages with AI">
+          ✨ Catch-Up Summary
+        </button>
         <button class="messenger-call-btn" id="audioCallBtn" title="Voice Call">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
             <path d="M16.5 13.5c-1 0-2-.2-2.9-.5-.3-.1-.6 0-.8.2l-1.8 1.8c-2.1-1.1-3.9-2.9-5-5l1.8-1.8c.2-.2.3-.5.2-.8-.3-.9-.5-1.9-.5-2.9 0-.6-.4-1-1-1H3c-.6 0-1 .4-1 1 0 7.7 6.3 14 14 14 .6 0 1-.4 1-1v-3.5c0-.6-.4-1-1-1z"/>
@@ -460,4 +462,32 @@
       setTimeout(initVoice, 100);
     }
   })();
+
+  window.summarizeCurrentChat = function() {
+    const msgNodes = document.querySelectorAll('.message-body, .message-content-text');
+    const msgTexts = Array.from(msgNodes).map(node => node.textContent.trim()).filter(t => t.length > 0).slice(-15);
+
+    if (msgTexts.length === 0) {
+      alert("No messages available in this chat to summarize.");
+      return;
+    }
+
+    fetch('/api/ai/chat_summarize', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      },
+      body: JSON.stringify({ messages: msgTexts })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.summary) {
+        alert(`✨ AI Chat Catch-Up Summary:\n\n${data.summary}`);
+      } else {
+        alert(data.error || "Could not summarize chat.");
+      }
+    })
+    .catch(err => alert("Failed to generate chat summary."));
+  };
 </script>

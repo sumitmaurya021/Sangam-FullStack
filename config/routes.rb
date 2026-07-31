@@ -33,6 +33,7 @@ Rails.application.routes.draw do
       post 'copilot', to: '/ai_features#copilot'
       post 'estimate_price', to: '/ai_features#estimate_price'
       post 'negotiate_offer', to: '/ai_features#negotiate_offer'
+      post 'chat_summarize', to: '/ai_features#chat_summarize'
     end
     post 'interactions', to: '/interactions#create'
   end

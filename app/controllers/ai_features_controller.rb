@@ -73,19 +73,35 @@ class AiFeaturesController < ApplicationController
 
   def rewrite_message
     text = params[:text]
-    tone = params[:tone]
+    tone = params[:tone] || "formal"
 
-    if text.blank? || tone.blank?
-      return render json: { error: "Text and tone are required" }, status: :unprocessable_entity
+    if text.blank?
+      return render json: { error: "Text is required" }, status: :unprocessable_entity
     end
 
-    service = AiMessageRewriterService.new(text, tone)
-    result = service.generate
+    service = AiMultimodalChatService.new(text: text, tone: tone)
+    result = service.rewrite_message
 
     if result[:success]
-      render json: { text: result[:text] }
+      render json: { text: result[:rewritten_text] }
     else
       render json: { error: result[:error] || "Failed to rewrite message" }, status: :unprocessable_entity
+    end
+  end
+
+  def chat_summarize
+    messages = params[:messages] || []
+    if messages.empty?
+      return render json: { error: "Messages array is required" }, status: :unprocessable_entity
+    end
+
+    service = AiMultimodalChatService.new(messages: messages)
+    result = service.summarize_conversation
+
+    if result[:success]
+      render json: { summary: result[:summary], sentiment: result[:sentiment] }
+    else
+      render json: { error: result[:error] || "Summarization failed" }, status: :unprocessable_entity
     end
   end
 
