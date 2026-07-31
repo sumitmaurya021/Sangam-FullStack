@@ -31,6 +31,9 @@
           <strong><%= @article.user.name %></strong>
           <span>Published <%= @article.created_at.strftime('%B %d, %Y') %> &bull; <%= @article.views_count %> views</span>
         </div>
+        <button onclick="openReelStudio(<%= @article.content.to_plain_text.to_json %>, <%= @article.title.to_json %>)" style="margin-left:auto; background:linear-gradient(135deg, #ec4899, #f43f5e); color:white; border:none; padding:8px 16px; border-radius:12px; font-weight:700; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; gap:6px;">
+          <span>🎬</span> Convert to AI Reel
+        </button>
       </div>
     </div>
 

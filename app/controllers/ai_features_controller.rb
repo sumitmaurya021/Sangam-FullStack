@@ -178,4 +178,22 @@ class AiFeaturesController < ApplicationController
     result = AiMarketplaceValuationService.negotiate_offer(listing, offer_price)
     render json: result
   end
+
+  def generate_reel
+    text = params[:text]
+    title = params[:title]
+
+    if text.blank?
+      return render json: { error: "Text content is required" }, status: :unprocessable_entity
+    end
+
+    service = AiReelStudioService.new(text, title)
+    result = service.generate
+
+    if result[:success]
+      render json: result
+    else
+      render json: { error: result[:error] || "Failed to generate reel" }, status: :unprocessable_entity
+    end
+  end
 end
