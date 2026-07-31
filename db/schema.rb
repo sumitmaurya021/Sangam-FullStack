@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_31_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_31_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -812,6 +812,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_31_160000) do
     t.index ["user_id"], name: "index_story_views_on_user_id"
   end
 
+  create_table "synapse_streams", force: :cascade do |t|
+    t.text "audio_transcription"
+    t.datetime "created_at", null: false
+    t.string "primary_intent", default: "general", null: false
+    t.jsonb "published_records", default: {}
+    t.text "raw_input_text"
+    t.string "status", default: "draft", null: false
+    t.jsonb "synthesized_article_data", default: {}
+    t.jsonb "synthesized_marketplace_data", default: {}
+    t.jsonb "synthesized_post_data", default: {}
+    t.jsonb "synthesized_reel_data", default: {}
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["status"], name: "index_synapse_streams_on_status"
+    t.index ["user_id", "created_at"], name: "index_synapse_streams_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_synapse_streams_on_user_id"
+  end
+
   create_table "universe_themes", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name"
@@ -998,6 +1016,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_31_160000) do
   add_foreign_key "story_qa_replies", "users"
   add_foreign_key "story_views", "stories"
   add_foreign_key "story_views", "users"
+  add_foreign_key "synapse_streams", "users"
   add_foreign_key "user_interactions", "posts"
   add_foreign_key "user_interactions", "users"
   add_foreign_key "user_tag_affinities", "category_tags"

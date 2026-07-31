@@ -79,7 +79,7 @@ class DigitalTwinExecutionService
   end
 
   def generate_twin_response(context)
-    api_key = ENV["GEMINI_API_KEY"] || ENV["OPENAI_API_KEY"]
+    api_key = ENV["GROK_API_KEY"].presence || ENV["GROQ_API_KEY"].presence
     
     prompt = <<~PROMPT
       You are an Autonomous Digital Twin AI proxy acting on behalf of #{@user.display_name}.
@@ -100,38 +100,46 @@ class DigitalTwinExecutionService
     PROMPT
 
     if api_key.present?
-      fetch_llm_response(prompt, api_key)
+      fetch_grok_response(prompt, api_key)
     else
       fallback_response
     end
   end
 
-  def fetch_llm_response(prompt, api_key)
-    if ENV["GEMINI_API_KEY"].present?
-      uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=#{ENV['GEMINI_API_KEY']}")
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-      
-      request = Net::HTTP::Post.new(uri.path + "?" + uri.query, { "Content-Type" => "application/json" })
-      request.body = {
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 250, temperature: 0.7 }
-      }.to_json
+  def fetch_grok_response(prompt, api_key)
+    endpoint_url = ENV["GROK_API_KEY"].present? ? "https://api.x.ai/v1/chat/completions" : "https://api.groq.com/openai/v1/chat/completions"
+    model_name = ENV["GROK_API_KEY"].present? ? "grok-beta" : "llama-3.3-70b-versatile"
 
-      response = http.request(request)
-      if response.is_a?(Net::HTTPSuccess)
-        data = JSON.parse(response.body)
-        data.dig("candidates", 0, "content", "parts", 0, "text")&.strip
-      else
-        fallback_response
-      end
+    uri = URI(endpoint_url)
+    request = Net::HTTP::Post.new(uri)
+    request["Authorization"] = "Bearer #{api_key}"
+    request["Content-Type"] = "application/json"
+    request.body = JSON.dump({
+      "model" => model_name,
+      "messages" => [
+        { "role" => "system", "content" => "You are an autonomous Digital Twin AI assistant." },
+        { "role" => "user", "content" => prompt }
+      ],
+      "temperature" => 0.7,
+      "max_tokens" => 250
+    })
+
+    req_options = { use_ssl: uri.scheme == "https" }
+    response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+      http.request(request)
+    end
+
+    if response.is_a?(Net::HTTPSuccess)
+      data = JSON.parse(response.body)
+      data.dig("choices", 0, "message", "content")&.strip || fallback_response
     else
       fallback_response
     end
   rescue StandardError => e
-    Rails.logger.error("DigitalTwinExecutionService LLM Error: #{e.message}")
+    Rails.logger.error("DigitalTwinExecutionService Grok API Error: #{e.message}")
     fallback_response
   end
+
 
   def fallback_response
     "Hello #{@sender_name}! I am #{@user.display_name}'s Digital Twin. They are currently away, but I've logged your message and notified them."

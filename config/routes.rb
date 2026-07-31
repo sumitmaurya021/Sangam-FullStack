@@ -268,6 +268,14 @@ Rails.application.routes.draw do
   resource :ux_mutation, only: [ :create, :update ] do
     get :dashboard
   end
+
+  # ─── Synapse-Stream Cross-Modal Studio ─────────────────────────────────────
+  resources :synapse_streams, only: [ :index, :show, :create ] do
+    member do
+      post :publish
+    end
+  end
 end
+
 
 

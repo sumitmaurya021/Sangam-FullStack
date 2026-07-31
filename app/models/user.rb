@@ -68,6 +68,10 @@ class User < ApplicationRecord
   has_one :ux_mutation_preference, dependent: :destroy
   has_many :ux_telemetry_events, dependent: :destroy
 
+  # Synapse-Stream Cross-Modal Studio
+  has_many :synapse_streams, dependent: :destroy
+
+
 
 
   # Post collaborations
