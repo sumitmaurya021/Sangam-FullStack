@@ -255,4 +255,13 @@ Rails.application.routes.draw do
 
   # ─── Dark Mode preference (AJAX toggle) ──────────────────────────────────────
   patch "settings/dark_mode", to: "settings#toggle_dark_mode", as: "toggle_dark_mode"
+
+  # ─── Autonomous Digital Twin Proxy (ADTP) ──────────────────────────────────
+  resource :digital_twin, only: [ :show, :update ] do
+    member do
+      patch :toggle
+      post :test_run
+    end
+  end
 end
+

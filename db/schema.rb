@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_31_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_31_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -153,6 +153,40 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_31_140000) do
     t.index ["recipient_id"], name: "index_conversations_on_recipient_id"
     t.index ["sender_id", "recipient_id"], name: "index_conversations_on_sender_id_and_recipient_id", unique: true
     t.index ["sender_id"], name: "index_conversations_on_sender_id"
+  end
+
+  create_table "digital_twin_logs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "digital_twin_id", null: false
+    t.text "input_text"
+    t.text "output_text"
+    t.string "reason"
+    t.string "sender_name"
+    t.string "status", default: "executed", null: false
+    t.string "trigger_source", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["digital_twin_id"], name: "index_digital_twin_logs_on_digital_twin_id"
+    t.index ["status"], name: "index_digital_twin_logs_on_status"
+    t.index ["user_id", "created_at"], name: "index_digital_twin_logs_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_digital_twin_logs_on_user_id"
+  end
+
+  create_table "digital_twins", force: :cascade do |t|
+    t.boolean "auto_reply_dms", default: true, null: false
+    t.boolean "auto_reply_group_chats", default: false, null: false
+    t.boolean "auto_reply_marketplace", default: true, null: false
+    t.datetime "created_at", null: false
+    t.text "custom_instructions"
+    t.boolean "enabled", default: false, null: false
+    t.jsonb "guardrails", default: {"flag_topics"=>["password", "bank", "address"], "max_daily_replies"=>50, "prohibit_financial_info"=>true, "prohibit_personal_phone"=>true}
+    t.decimal "min_marketplace_offer", precision: 10, scale: 2, default: "0.0"
+    t.string "mode", default: "away_only", null: false
+    t.string "persona_name", default: "Digital Twin"
+    t.string "tone", default: "friendly_professional"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_digital_twins_on_user_id", unique: true
   end
 
   create_table "event_responses", force: :cascade do |t|
@@ -870,6 +904,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_31_140000) do
   add_foreign_key "comments", "users", column: "replied_to_user_id"
   add_foreign_key "conversations", "users", column: "recipient_id"
   add_foreign_key "conversations", "users", column: "sender_id"
+  add_foreign_key "digital_twin_logs", "digital_twins"
+  add_foreign_key "digital_twin_logs", "users"
+  add_foreign_key "digital_twins", "users"
   add_foreign_key "event_responses", "events"
   add_foreign_key "event_responses", "users"
   add_foreign_key "events", "users", column: "organizer_id"

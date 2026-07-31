@@ -60,6 +60,11 @@ class User < ApplicationRecord
   # Marketplace
   has_many :marketplace_listings, dependent: :destroy
 
+  # Digital Twin Proxy
+  has_one :digital_twin, dependent: :destroy
+  has_many :digital_twin_logs, dependent: :destroy
+
+
   # Post collaborations
   has_many :post_collaborators, dependent: :destroy
   has_many :collaborative_posts, through: :post_collaborators, source: :post
@@ -90,6 +95,12 @@ class User < ApplicationRecord
   def super_admin?
     super_admin == true
   end
+
+  def display_name
+    name.presence || email.to_s.split('@').first
+  end
+  alias_method :username, :display_name
+
   def all_friends
     friends + inverse_friends
   end

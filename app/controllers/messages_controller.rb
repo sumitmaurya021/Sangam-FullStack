@@ -7,8 +7,24 @@ class MessagesController < ApplicationController
     @message.user = current_user
 
     if @message.save
+      recipient = @conversation.other_participant(current_user)
+      if recipient&.digital_twin&.enabled?
+        Thread.new do
+          Rails.application.executor.wrap do
+            DigitalTwinExecutionService.new(
+              user: recipient,
+              trigger_source: "direct_message",
+              input_text: @message.body,
+              sender_name: current_user.display_name,
+              conversation_id: @conversation.id
+            ).execute
+          end
+        end
+      end
+
       render json: { success: true, message_id: @message.id }, status: :created
     else
+
       Rails.logger.error "Message save failed: #{@message.errors.full_messages}"
       render json: { success: false, errors: @message.errors.full_messages }, status: :unprocessable_entity
     end
