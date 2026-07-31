@@ -1,66 +1,112 @@
-<div class="feed-container">
-  <%= render 'shared/header' %>
+<!-- ========================================
+     PREMIUM FEED — Sangam 2026
+     Glass Design / Premium Layout
+======================================== -->
 
-  <div class="feed-layout">
-    <!-- Sidebar -->
-    <aside class="feed-sidebar">
-      <div class="sidebar-section">
-        <h3>Friend Requests</h3>
-        <% if current_user.pending_friend_requests.any? %>
-          <% current_user.pending_friend_requests.limit(5).each do |friendship| %>
-            <div class="friend-request-item">
-              <div class="friend-info">
-                <div class="friend-avatar"><%= friendship.user.name&.first&.upcase || 'U' %></div>
-                <span><%= friendship.user.name || friendship.user.email %></span>
-              </div>
-              <div class="friend-actions">
-                <%= button_to accept_friendship_path(friendship), method: :patch, class: 'btn-accept' do %>
-                  ✓
-                <% end %>
-                <%= button_to reject_friendship_path(friendship), method: :patch, class: 'btn-reject' do %>
-                  ✕
-                <% end %>
-              </div>
-            </div>
-          <% end %>
-        <% else %>
-          <p class="empty-state">No pending requests</p>
-        <% end %>
-      </div>
+<%= render 'shared/header' %>
 
-      <div class="sidebar-section">
-        <h3>Suggested Friends</h3>
-        <% @users.each do |user| %>
-          <% unless current_user.friends_with?(user) || current_user.friend_request_pending?(user) %>
-            <div class="suggested-friend">
-              <div class="friend-info">
-                <div class="friend-avatar"><%= user.name&.first&.upcase || 'U' %></div>
-                <div>
-                  <div class="friend-name"><%= user.name || user.email %></div>
-                  <div class="friend-meta"><%= user.all_friends.count %> friends</div>
+<div class="premium-feed">
+  <div class="premium-feed__layout">
+    
+    <!-- ==================== LEFT SIDEBAR ==================== -->
+    <aside class="premium-feed__sidebar premium-feed__sidebar--left">
+      
+      <!-- Friend Requests -->
+      <div class="premium-glass-card premium-feed__widget">
+        <div class="premium-feed__widget-header">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M13 7a3 3 0 11-6 0 3 3 0 016 0zM5 17v-1a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          <span>Friend Requests</span>
+        </div>
+        <div class="premium-feed__widget-body">
+          <% if current_user.pending_friend_requests.any? %>
+            <% current_user.pending_friend_requests.limit(5).each do |friendship| %>
+              <div class="premium-feed__request">
+                <div class="premium-feed__request-avatar">
+                  <%= friendship.user.name&.first&.upcase || 'U' %>
+                </div>
+                <div class="premium-feed__request-info">
+                  <span class="premium-feed__request-name"><%= friendship.user.name || friendship.user.email %></span>
+                </div>
+                <div class="premium-feed__request-actions">
+                  <%= button_to accept_friendship_path(friendship), method: :patch, class: 'premium-btn-icon premium-btn-icon--accept', title: 'Accept',
+                        data: { turbo: false } do %>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  <% end %>
+                  <%= button_to reject_friendship_path(friendship), method: :patch, class: 'premium-btn-icon premium-btn-icon--reject', title: 'Reject',
+                        data: { turbo: false } do %>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  <% end %>
                 </div>
               </div>
-              <%= button_to friendships_path(friend_id: user.id), class: 'btn-add-friend' do %>
-                Add Friend
+            <% end %>
+          <% else %>
+            <div class="premium-feed__empty">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.4">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 00-3-3.87"/>
+                <path d="M16 3.13a4 4 0 010 7.75"/>
+              </svg>
+              <span>No pending requests</span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Suggested Friends -->
+      <div class="premium-glass-card premium-feed__widget">
+        <div class="premium-feed__widget-header">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M13 7a3 3 0 11-6 0 3 3 0 016 0zM5 17v-1a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            <circle cx="17" cy="5" r="2" fill="currentColor" stroke="none"/>
+          </svg>
+          <span>Suggested Friends</span>
+        </div>
+        <div class="premium-feed__widget-body">
+          <% @users.each do |user| %>
+            <% next if current_user.friends_with?(user) || current_user.friend_request_pending?(user) %>
+            <div class="premium-feed__suggested">
+              <div class="premium-feed__suggested-avatar">
+                <%= user.name&.first&.upcase || 'U' %>
+              </div>
+              <div class="premium-feed__suggested-info">
+                <div class="premium-feed__suggested-name"><%= user.name || user.email %></div>
+                <div class="premium-feed__suggested-meta"><%= user.all_friends.count %> friends</div>
+              </div>
+              <%= button_to friendships_path(friend_id: user.id), class: 'premium-btn-sm', data: { turbo: false } do %>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                  <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                  <circle cx="8.5" cy="7" r="4"/>
+                  <line x1="20" y1="8" x2="20" y2="14"/>
+                  <line x1="23" y1="11" x2="17" y2="11"/>
+                </svg>
+                Add
               <% end %>
             </div>
           <% end %>
-        <% end %>
+        </div>
       </div>
     </aside>
 
-    <!-- Main Feed -->
-    <main class="feed-main">
-      <!-- Stories Bar (Instagram/Facebook style) -->
+    <!-- ==================== MAIN FEED ==================== -->
+    <main class="premium-feed__main">
+
+      <!-- Stories Bar -->
       <%= render 'stories/stories_bar' %>
 
-      <!-- Create Post -->
-      <div class="create-post-card" id="create-post-form-wrapper">
+      <!-- Create Post Card -->
+      <div class="premium-glass-card premium-feed__create" id="create-post-form-wrapper">
         <%= render 'posts/create_post_form', post: @post %>
       </div>
 
       <!-- Posts Feed -->
-      <div class="posts-feed"
+      <div class="premium-feed__posts"
            id="posts-feed"
            data-next-page="<%= @posts.next_page %>"
            data-total-pages="<%= @posts.total_pages %>"
@@ -71,24 +117,24 @@
       <!-- Skeleton Loaders for Infinite Scroll -->
       <div id="posts-skeleton-loader" style="display: none;">
         <% 3.times do %>
-          <div class="skeleton-post-card">
-            <div class="skeleton-header">
-              <div class="skeleton-avatar skeleton-pulse"></div>
-              <div class="skeleton-header-text">
-                <div class="skeleton-line skeleton-pulse" style="width: 45%; height: 14px;"></div>
-                <div class="skeleton-line skeleton-pulse" style="width: 30%; height: 11px; margin-top: 6px;"></div>
+          <div class="premium-skeleton">
+            <div class="premium-skeleton__header">
+              <div class="premium-skeleton__avatar shimmer"></div>
+              <div class="premium-skeleton__lines">
+                <div class="premium-skeleton__line shimmer" style="width: 45%; height: 14px;"></div>
+                <div class="premium-skeleton__line shimmer" style="width: 30%; height: 11px; margin-top: 6px;"></div>
               </div>
             </div>
-            <div class="skeleton-content">
-              <div class="skeleton-line skeleton-pulse" style="width: 100%; height: 12px;"></div>
-              <div class="skeleton-line skeleton-pulse" style="width: 85%; height: 12px;"></div>
-              <div class="skeleton-line skeleton-pulse" style="width: 60%; height: 12px;"></div>
+            <div class="premium-skeleton__body">
+              <div class="premium-skeleton__line shimmer" style="width: 100%; height: 12px;"></div>
+              <div class="premium-skeleton__line shimmer" style="width: 85%; height: 12px; margin-top: 8px;"></div>
+              <div class="premium-skeleton__line shimmer" style="width: 60%; height: 12px; margin-top: 8px;"></div>
             </div>
-            <div class="skeleton-image skeleton-pulse"></div>
-            <div class="skeleton-actions">
-              <div class="skeleton-action-btn skeleton-pulse"></div>
-              <div class="skeleton-action-btn skeleton-pulse"></div>
-              <div class="skeleton-action-btn skeleton-pulse"></div>
+            <div class="premium-skeleton__image shimmer"></div>
+            <div class="premium-skeleton__actions">
+              <div class="premium-skeleton__action shimmer"></div>
+              <div class="premium-skeleton__action shimmer"></div>
+              <div class="premium-skeleton__action shimmer"></div>
             </div>
           </div>
         <% end %>
@@ -98,57 +144,94 @@
       <div id="infinite-scroll-sentinel" style="height: 10px; width: 100%;"></div>
 
       <!-- Loading Spinner (fallback) -->
-      <div id="posts-loading-spinner" style="display: none; text-align: center; padding: 1.5rem;">
-        <div class="posts-spinner"></div>
+      <div id="posts-loading-spinner" style="display: none; text-align: center; padding: 2rem;">
+        <div class="premium-spinner" style="width:40px;height:40px;margin:0 auto;"></div>
       </div>
     </main>
 
-    <!-- Right Sidebar -->
-    <aside class="feed-right-sidebar">
-      <div class="sidebar-section">
-        <h3>Your Friends</h3>
-        <% current_user.all_friends.first(8).each do |friend| %>
-          <%= link_to profile_path(friend), class: 'friend-item' do %>
-            <div class="friend-avatar-small"><%= friend.name&.first&.upcase || 'U' %></div>
-            <span><%= friend.name || friend.email %></span>
+    <!-- ==================== RIGHT SIDEBAR ==================== -->
+    <aside class="premium-feed__sidebar premium-feed__sidebar--right">
+
+      <!-- Friends -->
+      <div class="premium-glass-card premium-feed__widget">
+        <div class="premium-feed__widget-header">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M13 7a3 3 0 11-6 0 3 3 0 016 0zM5 17v-1a3 3 0 013-3h4a3 3 0 013 3v1"/>
+            <circle cx="17" cy="5" r="2" fill="currentColor" stroke="none"/>
+          </svg>
+          <span>Your Friends</span>
+        </div>
+        <div class="premium-feed__widget-body">
+          <% current_user.all_friends.first(8).each do |friend| %>
+            <%= link_to profile_path(friend), class: 'premium-feed__link' do %>
+              <div class="premium-feed__link-avatar"><%= friend.name&.first&.upcase || 'U' %></div>
+              <span class="premium-feed__link-name"><%= friend.name || friend.email %></span>
+            <% end %>
           <% end %>
-        <% end %>
-        <% if current_user.all_friends.count > 8 %>
-          <%= link_to profile_friends_path(current_user), class: 'see-all-link' do %>
-            See All Friends
+          <% if current_user.all_friends.count > 8 %>
+            <%= link_to profile_friends_path(current_user), class: 'premium-feed__see-all' do %>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+              See All Friends
+            <% end %>
           <% end %>
-        <% end %>
+        </div>
       </div>
 
       <!-- Groups -->
-      <div class="sidebar-section">
-        <h3>Groups</h3>
-        <% current_user.groups.limit(4).each do |group| %>
-          <%= link_to group, class: 'friend-item' do %>
-            <div class="friend-avatar-small" style="background: #e7f3ff; color: #1877f2;">
-              <%= group.name&.first&.upcase || 'G' %>
-            </div>
-            <span><%= group.name %></span>
+      <div class="premium-glass-card premium-feed__widget">
+        <div class="premium-feed__widget-header">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span>Groups</span>
+        </div>
+        <div class="premium-feed__widget-body">
+          <% current_user.groups.limit(4).each do |group| %>
+            <%= link_to group, class: 'premium-feed__link' do %>
+              <div class="premium-feed__link-avatar premium-feed__link-avatar--group"><%= group.name&.first&.upcase || 'G' %></div>
+              <span class="premium-feed__link-name"><%= group.name %></span>
+            <% end %>
           <% end %>
-        <% end %>
-        <%= link_to 'See All Groups', groups_path, class: 'see-all-link' %>
+          <%= link_to groups_path, class: 'premium-feed__see-all' do %>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            See All Groups
+          <% end %>
+        </div>
       </div>
 
       <!-- Upcoming Events -->
-      <div class="sidebar-section">
-        <h3>Upcoming Events</h3>
-        <% Event.upcoming.where(privacy: 'public').limit(3).each do |event| %>
-          <%= link_to event, class: 'friend-item' do %>
-            <div class="friend-avatar-small" style="background: #fff3e6; color: #e67e22;">
-              <%= event.starts_at.strftime('%d') %>
-            </div>
-            <div>
-              <div style="font-size: 13px; font-weight: 600;"><%= event.title.truncate(25) %></div>
-              <div style="font-size: 12px; color: #65676b;"><%= event.starts_at.strftime('%b %d') %></div>
-            </div>
+      <div class="premium-glass-card premium-feed__widget">
+        <div class="premium-feed__widget-header">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
+          <span>Upcoming Events</span>
+        </div>
+        <div class="premium-feed__widget-body">
+          <% Event.upcoming.where(privacy: 'public').limit(3).each do |event| %>
+            <%= link_to event, class: 'premium-feed__link premium-feed__link--event' do %>
+              <div class="premium-feed__link-date">
+                <span class="premium-feed__link-date-day"><%= event.starts_at.strftime('%d') %></span>
+                <span class="premium-feed__link-date-month"><%= event.starts_at.strftime('%b') %></span>
+              </div>
+              <div class="premium-feed__link-event-info">
+                <span class="premium-feed__link-name"><%= event.title.truncate(25) %></span>
+                <span class="premium-feed__link-meta"><%= event.starts_at.strftime('%b %d, %Y') %></span>
+              </div>
+            <% end %>
           <% end %>
-        <% end %>
-        <%= link_to 'See All Events', events_path, class: 'see-all-link' %>
+          <%= link_to events_path, class: 'premium-feed__see-all' do %>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            See All Events
+          <% end %>
+        </div>
       </div>
     </aside>
   </div>
