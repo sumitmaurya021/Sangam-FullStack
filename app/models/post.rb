@@ -15,6 +15,10 @@ class Post < ApplicationRecord
   has_many :mentioned_users, through: :post_mentions, source: :user
   has_many :post_category_tags, dependent: :destroy
   has_many :category_tags, through: :post_category_tags
+  has_many :user_interactions, dependent: :destroy
+  has_many :post_mutations, dependent: :destroy
+  has_many :post_universe_transformations, dependent: :destroy
+  has_many :shared_stories, class_name: 'Story', foreign_key: :shared_post_id, dependent: :destroy
   has_one  :poll, dependent: :destroy
   has_one  :fundraiser, dependent: :destroy
   has_many :post_collaborators, dependent: :destroy

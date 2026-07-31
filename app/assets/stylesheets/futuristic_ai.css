@@ -390,7 +390,7 @@ body.dark-mode .ai-suggest-item:hover {
 .ai-suggest-icon-wrap.post-badge { background: rgba(56, 178, 172, 0.1); color: #319795; }
 .ai-suggest-icon-wrap.event-badge { background: rgba(237, 137, 54, 0.1); color: #dd6b20; }
 .ai-suggest-icon-wrap.group-badge { background: rgba(236, 110, 173, 0.1); color: #d53f8c; }
-.ai-suggest-icon-wrap.market-badge { background: rgba(245, 101, 101, 0.1); color: #e53e3e; }
+.ai-suggest-icon-wrap.ai-market-badge { background: rgba(245, 101, 101, 0.1); color: #e53e3e; }
 
 .ai-suggest-info {
   flex: 1;
@@ -779,7 +779,7 @@ body.dark-mode .ai-resource-card:hover {
 .ai-card-badge.group-badge { background: rgba(236, 110, 173, 0.1); color: #d53f8c; }
 .ai-card-badge.event-badge { background: rgba(237, 137, 54, 0.1); color: #dd6b20; }
 .ai-card-badge.article-badge { background: rgba(159, 122, 234, 0.1); color: #805ad5; }
-.ai-card-badge.market-badge { background: rgba(245, 101, 101, 0.1); color: #e53e3e; }
+.ai-card-badge.ai-market-badge { background: rgba(245, 101, 101, 0.1); color: #e53e3e; }
 
 .ai-card-time, .ai-card-count, .ai-card-price {
   font-size: 10px;

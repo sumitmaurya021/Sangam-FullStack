@@ -13,6 +13,7 @@ class User < ApplicationRecord
   # Associations
   has_many :articles, dependent: :destroy
   has_many :posts, dependent: :destroy
+  has_many :user_interactions, dependent: :destroy
   has_many :reels, dependent: :destroy
   has_many :reel_likes, dependent: :destroy
   has_many :reel_comments, dependent: :destroy
