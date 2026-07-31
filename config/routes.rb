@@ -35,6 +35,7 @@ Rails.application.routes.draw do
       post 'negotiate_offer', to: '/ai_features#negotiate_offer'
       post 'chat_summarize', to: '/ai_features#chat_summarize'
       post 'generate_reel', to: '/ai_features#generate_reel'
+      post 'article_co_writer', to: '/ai_features#article_co_writer'
     end
     post 'interactions', to: '/interactions#create'
   end

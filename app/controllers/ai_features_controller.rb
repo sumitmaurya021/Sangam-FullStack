@@ -196,4 +196,19 @@ class AiFeaturesController < ApplicationController
       render json: { error: result[:error] || "Failed to generate reel" }, status: :unprocessable_entity
     end
   end
+
+  def article_co_writer
+    title = params[:title]
+    text = params[:text]
+    mode = params[:mode] || "continue"
+
+    service = AiArticleCoWriterService.new(title, text, mode)
+    result = service.execute
+
+    if result[:success]
+      render json: { generated_content: result[:generated_content] }
+    else
+      render json: { error: result[:error] || "Co-writer failed" }, status: :unprocessable_entity
+    end
+  end
 end
