@@ -31,6 +31,8 @@ Rails.application.routes.draw do
       post 'search', to: '/ai_features#search'
       post 'translate_text', to: '/ai_features#translate_text'
       post 'copilot', to: '/ai_features#copilot'
+      post 'estimate_price', to: '/ai_features#estimate_price'
+      post 'negotiate_offer', to: '/ai_features#negotiate_offer'
     end
     post 'interactions', to: '/interactions#create'
   end

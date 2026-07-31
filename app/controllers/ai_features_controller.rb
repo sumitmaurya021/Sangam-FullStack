@@ -140,4 +140,26 @@ class AiFeaturesController < ApplicationController
       render json: { error: result[:error] || "Copilot execution failed" }, status: :unprocessable_entity
     end
   end
+
+  def estimate_price
+    service = AiMarketplaceValuationService.new(params)
+    result = service.estimate_price
+
+    if result[:success]
+      render json: result
+    else
+      render json: { error: result[:error] }, status: :unprocessable_entity
+    end
+  end
+
+  def negotiate_offer
+    listing = MarketplaceListing.find_by(id: params[:listing_id])
+    if listing.nil?
+      return render json: { error: "Listing not found" }, status: :not_found
+    end
+
+    offer_price = params[:offer_price]
+    result = AiMarketplaceValuationService.negotiate_offer(listing, offer_price)
+    render json: result
+  end
 end
