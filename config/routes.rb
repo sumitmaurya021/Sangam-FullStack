@@ -263,5 +263,11 @@ Rails.application.routes.draw do
       post :test_run
     end
   end
+
+  # ─── Self-Evolving UX Mutation ──────────────────────────────────────────────
+  resource :ux_mutation, only: [ :create, :update ] do
+    get :dashboard
+  end
 end
+
 

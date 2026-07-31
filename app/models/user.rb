@@ -64,6 +64,11 @@ class User < ApplicationRecord
   has_one :digital_twin, dependent: :destroy
   has_many :digital_twin_logs, dependent: :destroy
 
+  # Self-Evolving UX Mutation
+  has_one :ux_mutation_preference, dependent: :destroy
+  has_many :ux_telemetry_events, dependent: :destroy
+
+
 
   # Post collaborations
   has_many :post_collaborators, dependent: :destroy

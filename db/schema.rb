@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_31_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_31_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -888,6 +888,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_31_150000) do
     t.index ["verified"], name: "index_users_on_verified"
   end
 
+  create_table "ux_mutation_preferences", force: :cascade do |t|
+    t.boolean "auto_adapt", default: true, null: false
+    t.datetime "created_at", null: false
+    t.jsonb "custom_rules", default: {}
+    t.float "friction_score", default: 0.0, null: false
+    t.string "layout_mode", default: "standard", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_ux_mutation_preferences_on_user_id", unique: true
+  end
+
+  create_table "ux_telemetry_events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "duration_ms", default: 0
+    t.string "event_type", null: false
+    t.jsonb "metadata", default: {}
+    t.string "page_route", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["created_at"], name: "index_ux_telemetry_events_on_created_at"
+    t.index ["page_route", "event_type"], name: "index_ux_telemetry_events_on_page_route_and_event_type"
+    t.index ["user_id"], name: "index_ux_telemetry_events_on_user_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "ai_moderation_logs", "users"
@@ -978,4 +1002,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_31_150000) do
   add_foreign_key "user_interactions", "users"
   add_foreign_key "user_tag_affinities", "category_tags"
   add_foreign_key "user_tag_affinities", "users"
+  add_foreign_key "ux_mutation_preferences", "users"
+  add_foreign_key "ux_telemetry_events", "users"
 end

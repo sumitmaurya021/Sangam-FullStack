@@ -42,12 +42,15 @@
     <%= stylesheet_link_tag 'shared/lightbox',                'data-turbo-track': 'reload' %>
     <%= stylesheet_link_tag 'futuristic_ai',                  'data-turbo-track': 'reload' %>
     <%= stylesheet_link_tag 'digital_twin',                    'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'ux_mutations',                    'data-turbo-track': 'reload' %>
     <%= yield :head %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body class="<%= 'dark-mode' if user_signed_in? && current_user.dark_mode %>"
-        data-dark-mode="<%= user_signed_in? && current_user.dark_mode ? 'true' : 'false' %>">
+        data-dark-mode="<%= user_signed_in? && current_user.dark_mode ? 'true' : 'false' %>"
+        data-ux-mode="<%= current_ux_mode %>">
+
     <%= yield %>
     <%= render 'shared/chat_widget' if user_signed_in? %>
     <%= render 'shared/lightbox' %>
