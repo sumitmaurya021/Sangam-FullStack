@@ -38,8 +38,8 @@ class FeedRankingService
 
     # 2. Scoring
     user_affinities = fetch_user_affinities
-    friend_ids = @user.all_friends.pluck(:id)
-    close_friend_ids = @user.close_friend_records.pluck(:close_friend_id)
+    friend_ids = @friend_ids ||= (@user.respond_to?(:all_friends) ? @user.all_friends.pluck(:id) : @user.friends.pluck(:id))
+    close_friend_ids = @close_friend_ids ||= @user.close_friend_records.pluck(:close_friend_id)
 
     scored_posts = candidate_posts.map do |post|
       score = calculate_score(post, user_affinities, friend_ids, close_friend_ids)
@@ -79,9 +79,8 @@ class FeedRankingService
   end
 
   def fetch_candidates
-    # Optimization: Just get recent posts visible to user for now.
-    # In a real app with lots of data, we would filter by last 7 days: `.where("posts.created_at > ?", 7.days.ago)`
-    Post.visible_to(@user).order(created_at: :desc).limit(200)
+    # Eager load post_category_tags to prevent N+1 queries during scoring loop
+    Post.visible_to(@user).includes(:post_category_tags).order(created_at: :desc).limit(200)
   end
 
   def fetch_user_affinities

@@ -7,9 +7,11 @@ test:
   adapter: test
 
 production:
-  adapter: solid_cable
+  adapter: <%= ENV["REDIS_URL"].present? ? "redis" : "solid_cable" %>
+  url: <%= ENV.fetch("REDIS_URL", nil) %>
+  channel_prefix: sangam_production
   connects_to:
     database:
       writing: cable
-  polling_interval: 0.1.seconds
+  polling_interval: 1.0.seconds
   message_retention: 1.day

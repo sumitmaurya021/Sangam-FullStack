@@ -30,10 +30,10 @@ class SynapseStreamsController < ApplicationController
       status: "draft"
     )
 
-    # Execute synthesis
-    SynapseStreamSynthesisService.new(@stream).synthesize!
+    # Enqueue background job to prevent web server thread blocking
+    SynthesizeSynapseStreamJob.perform_later(@stream.id)
 
-    redirect_to synapse_stream_path(@stream), notice: "✨ Cross-Modal Stream synthesized successfully!"
+    redirect_to synapse_stream_path(@stream), notice: "✨ Cross-Modal Stream synthesis queued in background!"
   end
 
   def publish
