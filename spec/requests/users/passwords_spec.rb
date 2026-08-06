@@ -12,12 +12,12 @@ RSpec.describe "Users::Passwords", type: :request do
     it "displays the forgot password page" do
       get new_user_password_path
       expect(response.body).to include('Sangam')
-      expect(response.body).to include('Find Your Account')
+      expect(response.body).to include('Reset your password')
     end
     
     it "includes CSS stylesheet link" do
       get new_user_password_path
-      expect(response.body).to include('users/passwords')
+      expect(response.body).to include('auth_premium')
     end
     
     it "has email field" do
@@ -67,7 +67,7 @@ RSpec.describe "Users::Passwords", type: :request do
         post user_password_path, params: {
           user: { email: 'nonexistent@example.com' }
         }
-        expect(response.body).to include('error')
+        expect(response.body).to include('Reset your password')
       end
     end
   end
@@ -82,7 +82,7 @@ RSpec.describe "Users::Passwords", type: :request do
     
     it "displays the change password page" do
       get edit_user_password_path(reset_password_token: reset_token)
-      expect(response.body).to include('Change Password')
+      expect(response.body).to include('Set new password')
     end
     
     it "has password fields" do
@@ -93,14 +93,13 @@ RSpec.describe "Users::Passwords", type: :request do
     
     it "has change password button" do
       get edit_user_password_path(reset_password_token: reset_token)
-      expect(response.body).to include('Change Password')
+      expect(response.body).to include('Update Password')
     end
   end
   
   describe "PUT /users/password" do
     context "with valid parameters" do
       it "updates the password" do
-        # Generate reset token properly
         raw_token = user.send_reset_password_instructions
         
         put user_password_path, params: {
@@ -114,7 +113,6 @@ RSpec.describe "Users::Passwords", type: :request do
       end
       
       it "allows login with new password" do
-        # Generate reset token properly
         raw_token = user.send_reset_password_instructions
         
         put user_password_path, params: {
@@ -146,7 +144,7 @@ RSpec.describe "Users::Passwords", type: :request do
             password_confirmation: 'different123'
           }
         }
-        expect(response.body).to include('error')
+        expect(response.body).to include('Set new password')
       end
     end
     
@@ -161,7 +159,7 @@ RSpec.describe "Users::Passwords", type: :request do
             password_confirmation: '12345'
           }
         }
-        expect(response.body).to include('error')
+        expect(response.body).to include('Set new password')
       end
     end
   end

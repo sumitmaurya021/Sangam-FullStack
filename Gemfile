@@ -94,6 +94,9 @@ group :test do
   
   # Shoulda matchers for RSpec
   gem "shoulda-matchers", "~> 6.0"
+  
+  # Mock HTTP requests
+  gem "webmock", require: false
 end
 gem "devise"
 gem "omniauth-google-oauth2", "~> 1.1"

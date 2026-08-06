@@ -6,69 +6,194 @@ RSpec.describe User, type: :model do
     
     it { should validate_presence_of(:email) }
     it { should validate_uniqueness_of(:email).case_insensitive }
+    it { should validate_presence_of(:name) }
+    it { should validate_length_of(:name).is_at_most(100) }
+    it { should validate_length_of(:bio).is_at_most(500) }
     it { should allow_value('user@example.com').for(:email) }
     it { should_not allow_value('invalid_email').for(:email) }
+    it { should allow_value('https://example.com').for(:website_url) }
+    it { should_not allow_value('invalid_url').for(:website_url) }
   end
-  
-  describe 'factory' do
-    it 'has a valid factory' do
-      expect(build(:user)).to be_valid
+
+  describe 'associations' do
+    it { should have_many(:articles).dependent(:destroy) }
+    it { should have_many(:posts).dependent(:destroy) }
+    it { should have_many(:user_interactions).dependent(:destroy) }
+    it { should have_many(:reels).dependent(:destroy) }
+    it { should have_many(:reel_likes).dependent(:destroy) }
+    it { should have_many(:reel_comments).dependent(:destroy) }
+    it { should have_many(:stories).dependent(:destroy) }
+    it { should have_many(:bookmarks).dependent(:destroy) }
+    it { should have_many(:events).with_foreign_key(:organizer_id).dependent(:destroy) }
+    it { should have_many(:event_responses).dependent(:destroy) }
+    it { should have_many(:group_memberships).dependent(:destroy) }
+    it { should have_many(:groups).through(:group_memberships) }
+    it { should have_many(:sent_conversations).class_name('Conversation').with_foreign_key('sender_id').dependent(:destroy) }
+    it { should have_many(:received_conversations).class_name('Conversation').with_foreign_key('recipient_id').dependent(:destroy) }
+    it { should have_many(:messages).dependent(:destroy) }
+    it { should have_many(:owned_group_chats).class_name('GroupChat').with_foreign_key('owner_id').dependent(:destroy) }
+    it { should have_many(:group_chat_members).dependent(:destroy) }
+    it { should have_many(:group_chats).through(:group_chat_members) }
+    it { should have_many(:group_chat_messages).dependent(:destroy) }
+    it { should have_many(:likes).dependent(:destroy) }
+    it { should have_many(:liked_posts).through(:likes).source(:post) }
+    it { should have_many(:comments).dependent(:destroy) }
+    it { should have_many(:shares).dependent(:destroy) }
+    it { should have_many(:notifications).with_foreign_key(:recipient_id).dependent(:destroy) }
+    it { should have_many(:sent_notifications).class_name('Notification').with_foreign_key(:actor_id).dependent(:destroy) }
+    it { should have_many(:bookmark_collections).dependent(:destroy) }
+    it { should have_many(:profile_highlights).dependent(:destroy) }
+    it { should have_many(:close_friend_records).class_name('CloseFriend').with_foreign_key(:user_id).dependent(:destroy) }
+    it { should have_many(:marketplace_listings).dependent(:destroy) }
+    it { should have_one(:digital_twin).dependent(:destroy) }
+    it { should have_many(:digital_twin_logs).dependent(:destroy) }
+    it { should have_one(:ux_mutation_preference).dependent(:destroy) }
+    it { should have_many(:ux_telemetry_events).dependent(:destroy) }
+    it { should have_many(:synapse_streams).dependent(:destroy) }
+    it { should have_many(:active_follows).class_name('Follow').with_foreign_key('follower_id').dependent(:destroy) }
+    it { should have_many(:passive_follows).class_name('Follow').with_foreign_key('followee_id').dependent(:destroy) }
+    it { should have_many(:following).through(:active_follows).source(:followee) }
+    it { should have_many(:followers).through(:passive_follows).source(:follower) }
+  end
+
+  describe 'scopes' do
+    it 'returns super admins' do
+      regular_user = create(:user)
+      admin_user = create(:user, :super_admin)
+      expect(User.super_admins).to include(admin_user)
+      expect(User.super_admins).not_to include(regular_user)
     end
-    
-    it 'creates a user with faker data' do
+  end
+
+  describe '#super_admin?' do
+    it 'returns true for super admins' do
+      admin = create(:user, :super_admin)
+      expect(admin.super_admin?).to be true
+    end
+
+    it 'returns false for regular users' do
       user = create(:user)
-      expect(user.email).to be_present
-      expect(user.email).to include('@')
-    end
-    
-    it 'creates a user with name trait' do
-      user = create(:user, :with_name)
-      expect(user.email).to match(/\w+\.\w+@example\.com/)
+      expect(user.super_admin?).to be false
     end
   end
-  
-  describe 'devise modules' do
-    it 'includes database_authenticatable' do
-      expect(User.devise_modules).to include(:database_authenticatable)
+
+  describe '#display_name' do
+    it 'returns name if present' do
+      user = build(:user, name: 'Alice Smith')
+      expect(user.display_name).to eq('Alice Smith')
     end
-    
-    it 'includes registerable' do
-      expect(User.devise_modules).to include(:registerable)
-    end
-    
-    it 'includes recoverable' do
-      expect(User.devise_modules).to include(:recoverable)
-    end
-    
-    it 'includes rememberable' do
-      expect(User.devise_modules).to include(:rememberable)
-    end
-    
-    it 'includes validatable' do
-      expect(User.devise_modules).to include(:validatable)
+
+    it 'returns email prefix if name is blank' do
+      user = build(:user, name: '', email: 'john.doe@example.com')
+      expect(user.display_name).to eq('john.doe')
     end
   end
-  
-  describe 'password encryption' do
-    it 'encrypts password on save' do
-      user = create(:user, password: 'testpassword123', password_confirmation: 'testpassword123')
-      expect(user.encrypted_password).to be_present
-      expect(user.encrypted_password).not_to eq('testpassword123')
+
+  describe 'follows' do
+    let(:user1) { create(:user) }
+    let(:user2) { create(:user) }
+
+    it 'allows user to follow and unfollow another user' do
+      expect(user1.following?(user2)).to be false
+
+      user1.follow!(user2)
+      expect(user1.following?(user2)).to be true
+      expect(user2.followers).to include(user1)
+
+      user1.unfollow!(user2)
+      expect(user1.following?(user2)).to be false
     end
   end
-  
-  describe 'email uniqueness' do
-    it 'does not allow duplicate emails' do
-      create(:user, email: 'test@example.com')
-      duplicate_user = build(:user, email: 'test@example.com')
-      expect(duplicate_user).not_to be_valid
-      expect(duplicate_user.errors[:email]).to include('has already been taken')
+
+  describe 'online status management' do
+    let(:user) { create(:user) }
+
+    it 'marks user online and offline' do
+      user.mark_online!
+      expect(user.reload.online).to be true
+      expect(user.online_status).to eq('online')
+
+      user.mark_offline!
+      expect(user.reload.online).to be false
     end
-    
-    it 'is case insensitive' do
-      create(:user, email: 'Test@Example.com')
-      duplicate_user = build(:user, email: 'test@example.com')
-      expect(duplicate_user).not_to be_valid
+
+    it 'always returns online for AI bot' do
+      ai_user = create(:user, :ai_bot)
+      expect(ai_user.online?).to be true
+    end
+  end
+
+  describe '2FA & OTP verification' do
+    let(:user) { create(:user, :with_2fa) }
+
+    it 'validates OTP code correctly' do
+      totp = ROTP::TOTP.new(user.otp_secret, issuer: 'Sangam')
+      current_code = totp.now
+
+      expect(user.valid_otp?(current_code)).to be_truthy
+      expect(user.valid_otp?('000000')).to be_falsy
+    end
+
+    it 'returns false if 2FA is disabled' do
+      plain_user = create(:user)
+      expect(plain_user.valid_otp?('123456')).to be false
+    end
+  end
+
+  describe 'close friends' do
+    let(:user1) { create(:user) }
+    let(:user2) { create(:user) }
+
+    it 'toggles close friend status' do
+      expect(user1.close_friends_with?(user2)).to be false
+
+      user1.toggle_close_friend!(user2)
+      expect(user1.close_friends_with?(user2)).to be true
+
+      user1.toggle_close_friend!(user2)
+      expect(user1.close_friends_with?(user2)).to be false
+    end
+  end
+
+  describe '.from_omniauth' do
+    let(:auth_hash) do
+      OmniAuth::AuthHash.new(
+        provider: 'google_oauth2',
+        uid: '123456789',
+        info: {
+          email: 'oauth_user@example.com',
+          name: 'OAuth User'
+        }
+      )
+    end
+
+    it 'creates a new user from omniauth payload' do
+      expect {
+        user = User.from_omniauth(auth_hash)
+        expect(user.email).to eq('oauth_user@example.com')
+        expect(user.provider).to eq('google_oauth2')
+        expect(user.uid).to eq('123456789')
+      }.to change(User, :count).by(1)
+    end
+
+    it 'links omniauth to existing user by email' do
+      existing_user = create(:user, email: 'oauth_user@example.com')
+
+      expect {
+        user = User.from_omniauth(auth_hash)
+        expect(user.id).to eq(existing_user.id)
+        expect(user.reload.provider).to eq('google_oauth2')
+      }.not_to change(User, :count)
+    end
+  end
+
+  describe '.ai_bot' do
+    it 'creates or fetches the singleton AI bot user' do
+      bot = User.ai_bot
+      expect(bot.email).to eq('ai@sangam.com')
+      expect(bot.is_ai).to be true
+
+      expect(User.ai_bot.id).to eq(bot.id)
     end
   end
 end

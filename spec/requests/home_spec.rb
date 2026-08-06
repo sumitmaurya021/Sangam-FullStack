@@ -21,22 +21,22 @@ RSpec.describe "Home", type: :request do
       
       it "displays posts feed" do
         get root_path
-        expect(response.body).to include('feed-container')
+        expect(response.body).to include('premium-feed')
       end
       
       it "includes CSS stylesheet link" do
         get root_path
-        expect(response.body).to include('posts/feed')
+        expect(response.body).to include('premium-feed')
       end
       
       it "has header navigation" do
         get root_path
-        expect(response.body).to include('fb-header')
+        expect(response.body).to include('premium-header')
       end
       
       it "has create post section" do
         get root_path
-        expect(response.body).to include('create-post-card')
+        expect(response.body).to include('create-post-form-wrapper')
       end
       
       it "has search input in header" do
@@ -46,7 +46,7 @@ RSpec.describe "Home", type: :request do
       
       it "has profile dropdown" do
         get root_path
-        expect(response.body).to include('fb-profile-btn')
+        expect(response.body).to include('premium-user-btn')
       end
     end
   end

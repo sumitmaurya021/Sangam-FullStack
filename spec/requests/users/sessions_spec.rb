@@ -12,12 +12,12 @@ RSpec.describe "Users::Sessions", type: :request do
     it "displays the login page" do
       get new_user_session_path
       expect(response.body).to include('Sangam')
-      expect(response.body).to include('Connect with friends')
+      expect(response.body).to include('Where Connections')
     end
     
     it "includes CSS stylesheet link" do
       get new_user_session_path
-      expect(response.body).to include('users/sessions')
+      expect(response.body).to include('auth_premium')
     end
     
     it "has email and password fields" do
@@ -33,7 +33,7 @@ RSpec.describe "Users::Sessions", type: :request do
     
     it "has login button" do
       get new_user_session_path
-      expect(response.body).to include('Sign in')
+      expect(response.body).to include('Sign In to Sangam')
     end
     
     it "has signup link" do
@@ -43,7 +43,7 @@ RSpec.describe "Users::Sessions", type: :request do
     
     it "has forgot password link" do
       get new_user_session_path
-      expect(response.body).to include('Forgot password?')
+      expect(response.body).to include('Forgot?')
     end
   end
   
@@ -67,7 +67,7 @@ RSpec.describe "Users::Sessions", type: :request do
           }
         }
         follow_redirect!
-        expect(response.body).to include('post-card')
+        expect(response.body).to include('premium-feed')
       end
     end
     
@@ -99,7 +99,6 @@ RSpec.describe "Users::Sessions", type: :request do
             password: 'wrongpassword'
           }
         }
-        # Check that response is unprocessable entity (422) which indicates validation error
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
@@ -129,8 +128,6 @@ RSpec.describe "Users::Sessions", type: :request do
     it "clears the user session" do
       delete destroy_user_session_path
       follow_redirect!
-      # After logout, should redirect to posts index (root) which requires login
-      # So it will redirect to sign in page
       expect(response).to redirect_to(new_user_session_path)
     end
   end

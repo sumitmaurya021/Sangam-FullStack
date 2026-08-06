@@ -4,16 +4,25 @@ FactoryBot.define do
     email { Faker::Internet.unique.email }
     password { 'password123' }
     password_confirmation { 'password123' }
-    
-    trait :with_name do
-      name { Faker::Name.name }
-      email { "#{Faker::Name.first_name.downcase}.#{Faker::Name.last_name.downcase}@example.com" }
+    bio { Faker::Lorem.sentence }
+    website_url { 'https://example.com' }
+    confirmed_at { Time.current }
+
+    trait :super_admin do
+      super_admin { true }
     end
-    
-    trait :confirmed do
-      confirmed_at { Time.current }
+
+    trait :with_2fa do
+      otp_enabled { true }
+      otp_secret { ROTP::Base32.random }
     end
-    
+
+    trait :ai_bot do
+      is_ai { true }
+      email { 'ai@sangam.com' }
+      name { 'AI Assistant ✨' }
+    end
+
     trait :unconfirmed do
       confirmed_at { nil }
     end
