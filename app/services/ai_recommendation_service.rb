@@ -36,25 +36,30 @@ class AiRecommendationService
   private
 
   def compute_user_centroid
-    liked_posts = Post.joins(:likes).where(likes: { user_id: @user.id }).limit(10)
-    return Array.new(384, 0.0) if liked_posts.empty?
+    Rails.cache.fetch("user_centroid:#{@user.id}", expires_in: 30.minutes) do
+      liked_posts = Post.joins(:likes).where(likes: { user_id: @user.id }).order(id: :desc).limit(10)
+      if liked_posts.empty?
+        Array.new(384, 0.0)
+      else
+        embeddings = liked_posts.filter_map do |p|
+          v = p.try(:embedding) || p.try(:embedding_data)
+          v.present? ? AiEmbeddingService.parse_vector(v) : nil
+        end
 
-    embeddings = liked_posts.filter_map do |p|
-      v = p.try(:embedding) || p.try(:embedding_data)
-      v.present? ? AiEmbeddingService.parse_vector(v) : nil
+        if embeddings.empty?
+          Array.new(384, 0.0)
+        else
+          dim = embeddings.first.length
+          centroid = Array.new(dim, 0.0)
+          embeddings.each do |vec|
+            vec.each_with_index { |val, idx| centroid[idx] += val }
+          end
+
+          count = embeddings.length.to_f
+          centroid.map { |val| (val / count).round(6) }
+        end
+      end
     end
-
-    return Array.new(384, 0.0) if embeddings.empty?
-
-    # Average vectors
-    dim = embeddings.first.length
-    centroid = Array.new(dim, 0.0)
-    embeddings.each do |vec|
-      vec.each_with_index { |val, idx| centroid[idx] += val }
-    end
-
-    count = embeddings.length.to_f
-    centroid.map { |val| (val / count).round(6) }
   end
 
   def calculate_post_score(post, user_centroid, friend_ids)

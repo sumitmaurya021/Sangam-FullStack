@@ -115,11 +115,12 @@ RSpec.describe FeedRankingService do
       it 'caches the feed results in Redis' do
         post = create(:post, user: stranger)
         
+        allow(Rails.cache).to receive(:write).and_call_original
         expect(Rails.cache).to receive(:write).with(
           "feed_ranking:#{user.id}:page:1:per_page:5",
           [post.id],
           expires_in: 5.minutes
-        ).and_call_original
+        )
         
         service.get_feed(1, 5)
       end

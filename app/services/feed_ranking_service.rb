@@ -38,11 +38,12 @@ class FeedRankingService
 
     # 2. Scoring
     user_affinities = fetch_user_affinities
-    friend_ids = @friend_ids ||= (@user.respond_to?(:all_friends) ? @user.all_friends.pluck(:id) : @user.friends.pluck(:id))
-    close_friend_ids = @close_friend_ids ||= @user.close_friend_records.pluck(:close_friend_id)
+    friend_ids = @friend_ids ||= (@user.respond_to?(:all_friends) ? @user.all_friends.pluck(:id) : @user.friends.pluck(:id)).to_set
+    close_friend_ids = @close_friend_ids ||= @user.close_friend_records.pluck(:close_friend_id).to_set
+    user_centroid = @user_centroid ||= AiRecommendationService.new(@user).send(:compute_user_centroid)
 
     scored_posts = candidate_posts.map do |post|
-      score = calculate_score(post, user_affinities, friend_ids, close_friend_ids)
+      score = calculate_score(post, user_affinities, friend_ids, close_friend_ids, user_centroid)
       { post: post, score: score }
     end
 
@@ -93,9 +94,8 @@ class FeedRankingService
     end
   end
 
-  def calculate_score(post, user_affinities, friend_ids, close_friend_ids)
+  def calculate_score(post, user_affinities, friend_ids, close_friend_ids, user_centroid)
     # A. Tag & Vector Affinity Score
-    user_centroid = @user_centroid ||= AiRecommendationService.new(@user).send(:compute_user_centroid)
     post_vec = post.try(:embedding) || post.try(:embedding_data)
     vector_sim = post_vec.present? ? AiEmbeddingService.cosine_similarity(user_centroid, post_vec) : 0.0
 
