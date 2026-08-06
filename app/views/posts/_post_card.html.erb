@@ -266,7 +266,8 @@
 
     <!-- Comments Section -->
     <div class="comments-section" id="comments-<%= post.id %>" data-comment-section-target="container" style="display: none;">
-    <div class="comments-list" id="comments-list-<%= post.id %>">
+      <%= turbo_stream_from "post_#{post.id}_comments" %>
+      <div class="comments-list" id="comments-list-<%= post.id %>">
       <% post.comments.top_level.recent.each do |comment| %>
         <%= render 'comments/comment', comment: comment, post: post %>
       <% end %>
