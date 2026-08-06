@@ -33,7 +33,7 @@
   --post-bg:        #ffffff;
   --sidebar-bg:     #ffffff;
   --modal-bg:       #ffffff;
-  --dropdown-bg:    rgba(255,255,255,0.98);
+  --dropdown-bg:    #ffffff;
   --placeholder:    #8a8d91;
 }
 
@@ -45,7 +45,7 @@ html.dark-mode body {
   --bg-card:        #242526;
   --bg-input:       #3a3b3c;
   --bg-hover:       #3a3b3c;
-  --bg-overlay:     rgba(24,25,26,0.98);
+  --bg-overlay:     #18191a;
   --text-primary:   #e4e6eb;
   --text-secondary: #b0b3b8;
   --text-tertiary:  #8a8d91;
@@ -63,7 +63,7 @@ html.dark-mode body {
   --post-bg:        #242526;
   --sidebar-bg:     #242526;
   --modal-bg:       #242526;
-  --dropdown-bg:    rgba(36,37,38,0.98);
+  --dropdown-bg:    #242526;
   --placeholder:    #8a8d91;
 
   background-color: var(--bg-primary);
