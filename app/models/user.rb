@@ -114,6 +114,14 @@ class User < ApplicationRecord
     friends + inverse_friends
   end
 
+  def unread_notifications_count_cached
+    if respond_to?(:unread_notifications_count) && self[:unread_notifications_count].present?
+      self[:unread_notifications_count]
+    else
+      notifications.unread.count
+    end
+  end
+
   def friends_with?(user)
     all_friends.include?(user)
   end

@@ -79,8 +79,12 @@ class FeedRankingService
   end
 
   def fetch_candidates
-    # Eager load post_category_tags to prevent N+1 queries during scoring loop
-    Post.visible_to(@user).includes(:post_category_tags).order(created_at: :desc).limit(200)
+    # Bound scan window to recent posts (last 14 days) to utilize B-Tree created_at index and prevent 10M scale sequential table scans
+    Post.visible_to(@user)
+        .where("posts.created_at >= ?", 14.days.ago)
+        .includes(:post_category_tags)
+        .order(created_at: :desc)
+        .limit(200)
   end
 
   def fetch_user_affinities
