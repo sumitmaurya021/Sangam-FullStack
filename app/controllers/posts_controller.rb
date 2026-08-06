@@ -9,7 +9,9 @@ class PostsController < ApplicationController
     @posts = FeedRankingService.new(current_user).get_feed(params[:page], POSTS_PER_PAGE)
 
     @post  = Post.new
-    @users = User.where.not(id: current_user.id).order("RANDOM()").limit(10)
+    @users = Rails.cache.fetch("suggested_users:#{current_user.id}", expires_in: 10.minutes) do
+      User.where.not(id: current_user.id).limit(20).to_a.sample(10)
+    end
 
     respond_to do |format|
       format.html

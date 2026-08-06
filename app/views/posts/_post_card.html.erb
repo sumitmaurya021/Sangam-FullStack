@@ -1,3 +1,4 @@
+<% cache [post, current_user.id, post.likes_count, post.comments_count, post.updated_at] do %>
 <article class="post-card" id="post-<%= post.id %>" data-post-id="<%= post.id %>">
   <!-- Post Header -->
   <div class="post-header">
@@ -331,3 +332,4 @@
     </script>
   </div>
 </article>
+<% end %>
