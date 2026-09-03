@@ -18,7 +18,7 @@ class AiMultimodalChatService
       prompt = <<~PROMPT
         Summarize the following chat conversation transcript into 3 concise bullet points.
         Transcript:
-        #{@messages.join("\n")}
+        #{@messages.join("\n")} 
 
         Return ONLY a JSON object:
         {
