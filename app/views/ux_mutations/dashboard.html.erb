@@ -1,159 +1,500 @@
-<div class="feed-container">
+<div class="ux-studio-page">
   <%= render 'shared/header' %>
 
-  <div class="dt-container">
-    <%# Backdrop Glows %>
-    <div class="premium-backdrop-glow blur-purple" style="position: absolute; width: 400px; height: 400px; background: rgba(168, 85, 247, 0.15); filter: blur(100px); border-radius: 50%; pointer-events: none;"></div>
+  <%# Ambient Radial Glows %>
+  <div class="ux-ambient-glow top-left"></div>
+  <div class="ux-ambient-glow top-right"></div>
 
-    <%# Top Header Card %>
-    <div class="dt-header-card">
-      <div class="dt-header-title-group">
-        <div class="dt-header-icon" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(99, 102, 241, 0.15)); border-color: rgba(168, 85, 247, 0.3);">✨</div>
+  <div class="ux-studio-container">
+    
+    <%# Breadcrumbs %>
+    <div class="ux-breadcrumb">
+      <%= link_to 'Home', root_path %>
+      <span class="ux-breadcrumb-sep">/</span>
+      <span>Studios</span>
+      <span class="ux-breadcrumb-sep">/</span>
+      <span class="ux-breadcrumb-current">UX Evolution Studio</span>
+    </div>
+
+    <%# Studio Hero Card %>
+    <div class="ux-hero-card">
+      <div class="ux-hero-left">
+        <div class="ux-hero-icon-wrap">✨</div>
         <div>
-          <h1 class="dt-header-title">Self-Evolving UX & Funnel Intelligence</h1>
-          <p class="dt-header-subtitle">Real-time friction analytics, form abandonment telemetry, and automated layout mutation metrics.</p>
+          <h1 class="ux-hero-title">Self-Evolving UX & Funnel Intelligence</h1>
+          <p class="ux-hero-subtitle">
+            Autonomous layout mutation, real-time friction telemetry, and adaptive interface engineering that scales to user velocity.
+          </p>
         </div>
       </div>
 
-      <div class="dt-status-pill-box">
-        <div>
-          <span style="display: block; font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b;">Engine Mode</span>
-          <span class="dt-status-indicator active">
-            <span class="dt-pulse-dot" style="background: #a855f7; box-shadow: 0 0 10px #a855f7;"></span>
-            Auto-Mutation Active
+      <div class="ux-hero-badge-box">
+        <div class="ux-engine-status-pill">
+          <div class="ux-pulse-container">
+            <div class="ux-pulse-ring"></div>
+            <div class="ux-pulse-dot"></div>
+          </div>
+          <span>
+            <% if @preference.auto_adapt? %>
+              Autonomous Engine Active
+            <% else %>
+              Manual Override Active
+            <% end %>
           </span>
         </div>
+        <span style="font-size: 0.74rem; color: var(--ux-text-muted); font-weight: 500;">
+          Current: <strong style="color: var(--ux-primary);"><%= @preference.layout_mode.humanize %></strong>
+        </span>
       </div>
     </div>
 
-    <%# Metrics Overview Grid %>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
-      <div class="dt-card" style="margin-bottom: 0;">
-        <span class="dt-form-label">Total Telemetry Events</span>
-        <div style="font-size: 32px; font-weight: 900; color: #6366f1; margin-top: 4px;"><%= @total_events %></div>
-        <span style="font-size: 12px; color: #94a3b8;">Recorded across platform routes</span>
+    <% if notice %>
+      <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 16px; padding: 14px 20px; color: #10b981; font-weight: 600; font-size: 0.88rem; margin-bottom: 24px; display: flex; align-items: center; gap: 10px;">
+        <span>✓</span>
+        <span><%= notice %></span>
       </div>
+    <% end %>
 
-      <div class="dt-card" style="margin-bottom: 0;">
-        <span class="dt-form-label">Friction Signals</span>
-        <div style="font-size: 32px; font-weight: 900; color: #f59e0b; margin-top: 4px;"><%= @friction_events_count %></div>
-        <span style="font-size: 12px; color: #94a3b8;">Form abandonments & hesitations</span>
-      </div>
-
-      <div class="dt-card" style="margin-bottom: 0;">
-        <span class="dt-form-label">Active Layout Modes</span>
-        <div style="font-size: 14px; font-weight: 700; color: var(--text-color, #0f172a); margin-top: 8px;">
-          <% @mode_counts.each do |mode, count| %>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span><%= mode.humanize %>:</span>
-              <strong style="color: #a855f7;"><%= count %> users</strong>
-            </div>
-          <% end %>
+    <%# KPI Metrics Overview Grid %>
+    <div class="ux-kpi-grid">
+      
+      <!-- 1. Flow Health -->
+      <div class="ux-kpi-card">
+        <div>
+          <div class="ux-kpi-top">
+            <span class="ux-kpi-label">Flow Health Index</span>
+            <span class="ux-kpi-badge <%= @flow_health >= 70 ? 'success' : 'warning' %>">
+              <%= @flow_health >= 70 ? 'Optimal' : 'Needs Review' %>
+            </span>
+          </div>
+          <div class="ux-kpi-value"><%= @flow_health %>%</div>
+        </div>
+        <div>
+          <div class="ux-kpi-subtext">Friction Score: <strong><%= @friction_score %></strong> / 10</div>
+          <div class="ux-progress-track">
+            <div class="ux-progress-fill <%= @flow_health >= 70 ? 'green' : 'amber' %>" style="width: <%= @flow_health %>%;"></div>
+          </div>
         </div>
       </div>
+
+      <!-- 2. Telemetry Volume -->
+      <div class="ux-kpi-card">
+        <div>
+          <div class="ux-kpi-top">
+            <span class="ux-kpi-label">Telemetry Events</span>
+            <span class="ux-kpi-badge info"><%= @is_admin ? "Global Platform" : "Personal Flow" %></span>
+          </div>
+          <div class="ux-kpi-value" style="color: #6366f1;"><%= @total_events %></div>
+        </div>
+        <div class="ux-kpi-subtext">Logged across platform routes</div>
+      </div>
+
+      <!-- 3. Friction Signals -->
+      <div class="ux-kpi-card">
+        <div>
+          <div class="ux-kpi-top">
+            <span class="ux-kpi-label">Friction Signals</span>
+            <span class="ux-kpi-badge warning">Monitored</span>
+          </div>
+          <div class="ux-kpi-value" style="color: #f59e0b;"><%= @friction_events_count %></div>
+        </div>
+        <div class="ux-kpi-subtext"><%= @hesitations_count %> Hesitations • <%= @abandonments_count %> Drops</div>
+      </div>
+
+      <!-- 4. Active Layout Mode -->
+      <div class="ux-kpi-card">
+        <div>
+          <div class="ux-kpi-top">
+            <span class="ux-kpi-label">Active Layout Mode</span>
+            <span class="ux-kpi-badge success"><%= @preference.layout_mode.upcase %></span>
+          </div>
+          <div class="ux-kpi-value" style="color: #a855f7; font-size: 1.5rem; line-height: 1.25;">
+            <%= @preference.layout_mode.humanize %>
+          </div>
+        </div>
+        <div class="ux-kpi-subtext"><%= @preference.auto_adapt? ? "⚡ Auto-Adapting to behavior" : "🔒 User locked preference" %></div>
+      </div>
+
     </div>
 
-    <%# Main Content Grid %>
-    <div class="dt-grid">
+    <%# Main Studio Content Grid %>
+    <div class="ux-main-grid">
+
+      <!-- LEFT COLUMN: Layout Mode Picker & Simulator -->
       <div>
-        <%# Friction Routes Panel %>
-        <div class="dt-card">
-          <h2 class="dt-card-title">
-            <span style="font-size: 20px;">🔥</span> Top High-Friction Page Routes
-          </h2>
-
-          <% if @top_friction_routes.empty? %>
-            <div style="text-align: center; padding: 20px; color: #94a3b8; font-size: 13px;">
-              No high-friction routes detected. Form abandonments and hesitations will automatically populate here.
+        
+        <!-- Interactive Layout Mode Studio Card -->
+        <div class="ux-studio-card">
+          <div class="ux-card-header">
+            <div class="ux-card-title-wrap">
+              <div class="ux-card-icon">🎨</div>
+              <div>
+                <h2 class="ux-card-title">Select Studio Layout Mode</h2>
+                <p style="margin: 2px 0 0 0; font-size: 0.78rem; color: var(--ux-text-muted);">
+                  Choose how Sangam adapts its visual hierarchy, density, and forms to your workflow.
+                </p>
+              </div>
             </div>
-          <% else %>
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-              <% @top_friction_routes.each do |route, count| %>
-                <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-log, #f8fafc); border: 1px solid var(--border-log, #e2e8f0); border-radius: 12px; padding: 12px 16px;">
-                  <span style="font-family: monospace; font-size: 13px; font-weight: 700; color: #6366f1;"><%= route %></span>
-                  <span class="dt-badge dt-badge-blocked"><%= count %> Friction Events</span>
-                </div>
-              <% end %>
-            </div>
-          <% end %>
-        </div>
-
-        <%# Telemetry Audit Stream %>
-        <div class="dt-card">
-          <h2 class="dt-card-title">
-            <span style="font-size: 20px;">📡</span> Live Telemetry Audit Stream
-          </h2>
-
-          <% if @recent_events.empty? %>
-            <div style="text-align: center; padding: 30px; color: #94a3b8; font-size: 13px;">
-              No recent telemetry events logged yet.
-            </div>
-          <% else %>
-            <div>
-              <% @recent_events.each do |event| %>
-                <div class="dt-log-item">
-                  <div class="dt-log-meta">
-                    <span>
-                      <span class="dt-badge <%= event.event_type == 'form_abandonment' ? 'dt-badge-error' : 'dt-badge-blocked' %>"><%= event.event_type.humanize %></span>
-                      <strong style="margin-left: 8px; color: var(--text-color, #0f172a);"><%= event.page_route %></strong>
-                    </span>
-                    <span style="font-size: 11px;"><%= event.created_at.strftime("%H:%M:%S") %></span>
-                  </div>
-                  <div style="font-size: 12px; color: var(--text-muted, #64748b);">
-                    Duration: <%= event.duration_ms %>ms | User: <%= event.user&.display_name || 'Guest' %>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-          <% end %>
-        </div>
-      </div>
-
-      <%# Right Column: AI Recommendations & Manual Controls %>
-      <div>
-        <div class="dt-card">
-          <h2 class="dt-card-title">
-            <span style="font-size: 20px;">🤖</span> AI Funnel Recommendations
-          </h2>
-
-          <div style="background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 14px; padding: 16px; margin-bottom: 16px;">
-            <strong style="display: block; font-size: 13px; color: #a855f7; margin-bottom: 4px;">Automated Form Simplification</strong>
-            <p style="font-size: 12px; color: var(--text-muted, #64748b); line-height: 1.5; margin: 0;">
-              The engine automatically mutates multi-input marketplace forms into single-step AI voice wizards for users with friction scores >= 5.0.
-            </p>
           </div>
 
-          <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 14px; padding: 16px;">
-            <strong style="display: block; font-size: 13px; color: #6366f1; margin-bottom: 4px;">Power User Density Tuning</strong>
-            <p style="font-size: 12px; color: var(--text-muted, #64748b); line-height: 1.5; margin: 0;">
-              High-velocity users with >50 actions and zero abandonments are automatically assigned high-density table layouts to maximize productivity.
-            </p>
-          </div>
-        </div>
+          <%= form_with(model: @preference, url: ux_mutation_path, method: :patch, id: "uxPreferenceForm") do |f| %>
+            <%= f.hidden_field :layout_mode, id: "selectedLayoutMode", value: @preference.layout_mode %>
 
-        <%# Your Personal UX Preference %>
-        <div class="dt-card">
-          <h2 class="dt-card-title">
-            <span style="font-size: 20px;">🎨</span> Your Layout Mode
-          </h2>
+            <!-- 4-Card Visual Mode Grid -->
+            <div class="ux-mode-picker-grid">
+              
+              <!-- Option 1: Standard Adaptive -->
+              <div class="ux-mode-card <%= 'is-selected' if @preference.layout_mode == 'standard' %>" 
+                   data-mode="standard" 
+                   onclick="selectLayoutMode('standard', this)">
+                <div class="ux-mode-top">
+                  <div class="ux-mode-icon-badge">⚖️</div>
+                  <div class="ux-mode-radio-ring">
+                    <div class="ux-mode-radio-dot"></div>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="ux-mode-name">Standard Adaptive</h3>
+                  <p class="ux-mode-desc">Balanced modern layout with contextual widgets, responsive columns, and standard form density.</p>
+                </div>
+                <div>
+                  <span class="ux-mode-tag">Default Balanced</span>
+                </div>
+              </div>
 
-          <%= form_with(model: (current_user.ux_mutation_preference || current_user.build_ux_mutation_preference), url: ux_mutation_path, method: :patch) do |f| %>
-            <div class="dt-form-group">
-              <%= f.label :layout_mode, "Select Layout Mode", class: "dt-form-label" %>
-              <%= f.select :layout_mode, [["Standard Adaptive", "standard"], ["Minimalist Studio (Simplified)", "minimalist"], ["Power Density (Compact)", "power_density"], ["Voice First AI", "voice_first"]], {}, class: "dt-select" %>
+              <!-- Option 2: Minimalist Studio -->
+              <div class="ux-mode-card <%= 'is-selected' if @preference.layout_mode == 'minimalist' %>" 
+                   data-mode="minimalist" 
+                   onclick="selectLayoutMode('minimalist', this)">
+                <div class="ux-mode-top">
+                  <div class="ux-mode-icon-badge">🌿</div>
+                  <div class="ux-mode-radio-ring">
+                    <div class="ux-mode-radio-dot"></div>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="ux-mode-name">Minimalist Studio</h3>
+                  <p class="ux-mode-desc">Reduces visual noise by hiding secondary sidebars, expanding whitespace, and simplifying inputs.</p>
+                </div>
+                <div>
+                  <span class="ux-mode-tag">Focus & Low Friction</span>
+                </div>
+              </div>
+
+              <!-- Option 3: Power Density -->
+              <div class="ux-mode-card <%= 'is-selected' if @preference.layout_mode == 'power_density' %>" 
+                   data-mode="power_density" 
+                   onclick="selectLayoutMode('power_density', this)">
+                <div class="ux-mode-top">
+                  <div class="ux-mode-icon-badge">⚡</div>
+                  <div class="ux-mode-radio-ring">
+                    <div class="ux-mode-radio-dot"></div>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="ux-mode-name">Power Density</h3>
+                  <p class="ux-mode-desc">High-information density for power users with compact margins, tabular streams, and tighter paddings.</p>
+                </div>
+                <div>
+                  <span class="ux-mode-tag">High Velocity</span>
+                </div>
+              </div>
+
+              <!-- Option 4: Voice-First AI -->
+              <div class="ux-mode-card <%= 'is-selected' if @preference.layout_mode == 'voice_first' %>" 
+                   data-mode="voice_first" 
+                   onclick="selectLayoutMode('voice_first', this)">
+                <div class="ux-mode-top">
+                  <div class="ux-mode-icon-badge">🎙️</div>
+                  <div class="ux-mode-radio-ring">
+                    <div class="ux-mode-radio-dot"></div>
+                  </div>
+                </div>
+                <div>
+                  <h3 class="ux-mode-name">Voice-First AI</h3>
+                  <p class="ux-mode-desc">Accents microphone triggers, highlights voice-memo controls, and streamlines multimodal input.</p>
+                </div>
+                <div>
+                  <span class="ux-mode-tag">Hands-Free AI</span>
+                </div>
+              </div>
+
             </div>
 
-            <div class="dt-form-group">
-              <label class="dt-checkbox-label">
-                <%= f.check_box :auto_adapt, style: "accent-color: #a855f7; width: 16px; height: 16px;" %>
-                Allow AI to Auto-Mutate Layout
+            <!-- Auto-Adapt Switch Box -->
+            <div class="ux-switch-box">
+              <div class="ux-switch-info">
+                <h4>Allow AI to Auto-Mutate Layout</h4>
+                <p>When enabled, the engine shifts layout density automatically if friction signals (hesitations or drops) rise above threshold.</p>
+              </div>
+              <label class="ux-toggle-switch">
+                <%= f.check_box :auto_adapt %>
+                <span class="ux-toggle-slider"></span>
               </label>
             </div>
 
-            <%= f.submit "Update My UX Preference", class: "dt-btn-save", style: "width: 100%; margin-top: 8px; background: linear-gradient(135deg, #a855f7, #6366f1);" %>
+            <!-- Save Action Button -->
+            <%= f.submit "✨ Save Studio Preferences", class: "ux-btn-primary" %>
+          <% end %>
+
+        </div>
+
+        <!-- Interactive Telemetry Test Bench & Simulator -->
+        <div class="ux-studio-card">
+          <div class="ux-card-header">
+            <div class="ux-card-title-wrap">
+              <div class="ux-card-icon">🧪</div>
+              <div>
+                <h2 class="ux-card-title">Telemetry & Mutation Test Bench</h2>
+                <p style="margin: 2px 0 0 0; font-size: 0.78rem; color: var(--ux-text-muted);">
+                  Trigger live test events to see how the engine evaluates hesitation and mutates UI.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="ux-sim-box">
+            <span style="font-size: 0.8rem; font-weight: 700; color: var(--ux-primary);">SIMULATE TELEMETRY SIGNAL</span>
+            <div class="ux-sim-buttons">
+              <button type="button" class="ux-sim-btn" onclick="triggerSimulatedTelemetry('field_hesitation', 2400, '/marketplace_listings/new')">
+                ⏱️ Form Hesitation (2.4s)
+              </button>
+              <button type="button" class="ux-sim-btn" onclick="triggerSimulatedTelemetry('form_abandonment', 6800, '/articles/new')">
+                🚪 Form Abandonment
+              </button>
+              <button type="button" class="ux-sim-btn" onclick="triggerSimulatedTelemetry('rapid_backtrack', 1200, '/conversations')">
+                ↩️ Rapid Backtrack
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: Friction Routes, Telemetry Stream & Insights -->
+      <div>
+
+        <!-- Top High-Friction Routes Card -->
+        <div class="ux-studio-card">
+          <div class="ux-card-header">
+            <div class="ux-card-title-wrap">
+              <div class="ux-card-icon" style="background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.3);">🔥</div>
+              <div>
+                <h2 class="ux-card-title">Top High-Friction Routes</h2>
+                <p style="margin: 2px 0 0 0; font-size: 0.78rem; color: var(--ux-text-muted);">
+                  Pages exhibiting hesitation, drop-offs, or backtracks.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <% if @top_friction_routes.empty? %>
+            <div class="ux-empty-state">
+              <div class="ux-empty-icon">🛡️</div>
+              <p style="margin: 0; font-size: 0.86rem; font-weight: 600; color: var(--ux-text-primary);">Zero High-Friction Routes</p>
+              <p style="margin: 4px 0 0 0; font-size: 0.78rem; color: var(--ux-text-muted);">
+                User flows are operating with optimal velocity and zero registered friction.
+              </p>
+            </div>
+          <% else %>
+            <div class="ux-route-list">
+              <% @top_friction_routes.each do |route, count| %>
+                <div class="ux-route-card">
+                  <span class="ux-route-path"><%= route %></span>
+                  <span class="ux-route-badge">
+                    <span>⚠️</span>
+                    <span><%= count %> Events</span>
+                  </span>
+                </div>
+              <% end %>
+            </div>
           <% end %>
         </div>
+
+        <!-- Live Telemetry Audit Stream Card -->
+        <div class="ux-studio-card">
+          <div class="ux-card-header">
+            <div class="ux-card-title-wrap">
+              <div class="ux-card-icon" style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.3);">📡</div>
+              <div>
+                <h2 class="ux-card-title">Live Telemetry Audit Stream</h2>
+                <p style="margin: 2px 0 0 0; font-size: 0.78rem; color: var(--ux-text-muted);">
+                  Real-time client telemetry captured across platform sessions.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interactive Filter Tabs -->
+          <div class="ux-filter-tabs">
+            <button class="ux-tab-btn active" onclick="filterTelemetry('all', this)">All Events (<%= @recent_events.count %>)</button>
+            <button class="ux-tab-btn" onclick="filterTelemetry('hesitation', this)">Hesitations</button>
+            <button class="ux-tab-btn" onclick="filterTelemetry('abandonment', this)">Abandonments</button>
+          </div>
+
+          <!-- Telemetry Feed -->
+          <div class="ux-telemetry-feed" id="telemetryFeedContainer">
+            <% if @recent_events.empty? %>
+              <div class="ux-empty-state">
+                <div class="ux-empty-icon">📡</div>
+                <p style="margin: 0; font-size: 0.86rem; font-weight: 600; color: var(--ux-text-primary);">No Telemetry Logged Yet</p>
+                <p style="margin: 4px 0 0 0; font-size: 0.78rem; color: var(--ux-text-muted);">
+                  Use the simulator on the left or browse pages to generate telemetry signals.
+                </p>
+              </div>
+            <% else %>
+              <% @recent_events.each do |event| %>
+                <div class="ux-telemetry-item" data-event-type="<%= event.event_type %>">
+                  <div class="ux-telemetry-header">
+                    <div style="display: flex; align-items: center;">
+                      <span class="ux-event-tag <%= event.event_type.include?('abandon') ? 'abandonment' : (event.event_type.include?('backtrack') ? 'backtrack' : 'hesitation') %>">
+                        <%= event.event_type.humanize %>
+                      </span>
+                      <span class="ux-telemetry-route"><%= event.page_route %></span>
+                    </div>
+                    <span class="ux-telemetry-time"><%= event.created_at.strftime("%H:%M:%S") %></span>
+                  </div>
+                  <div class="ux-telemetry-meta">
+                    <span class="ux-latency-chip">
+                      <span>⏱️</span>
+                      <span><%= event.duration_ms %>ms</span>
+                    </span>
+                    <span>User: <%= event.user&.display_name || 'Guest' %></span>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Autonomous Engine Guardrails / Insights Card -->
+        <div class="ux-studio-card">
+          <div class="ux-card-header">
+            <div class="ux-card-title-wrap">
+              <div class="ux-card-icon">🤖</div>
+              <div>
+                <h2 class="ux-card-title">Autonomous Mutation Logic</h2>
+                <p style="margin: 2px 0 0 0; font-size: 0.78rem; color: var(--ux-text-muted);">
+                  How the Sangam Intelligence Engine mutates the DOM.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 14px; padding: 14px 16px;">
+              <strong style="display: block; font-size: 0.84rem; color: #a855f7; margin-bottom: 3px;">Adaptive Form Simplification</strong>
+              <p style="font-size: 0.78rem; color: var(--ux-text-secondary); line-height: 1.45; margin: 0;">
+                Users with friction scores &ge; 5.0 are seamlessly switched to Minimalist Studio mode to minimize abandonment.
+              </p>
+            </div>
+
+            <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 14px; padding: 14px 16px;">
+              <strong style="display: block; font-size: 0.84rem; color: #6366f1; margin-bottom: 3px;">High-Velocity Power Density</strong>
+              <p style="font-size: 0.78rem; color: var(--ux-text-secondary); line-height: 1.45; margin: 0;">
+                High-frequency users with &gt;50 actions and near-zero drop rates are provided high-density layouts for accelerated navigation.
+              </p>
+            </div>
+          </div>
+        </div>
+
       </div>
+
     </div>
+
   </div>
 </div>
+
+<script>
+  // ── Mode Picker Card Selector ─────────────────────────────────────────────
+  function selectLayoutMode(mode, cardElement) {
+    document.getElementById('selectedLayoutMode').value = mode;
+    document.querySelectorAll('.ux-mode-card').forEach(c => c.classList.remove('is-selected'));
+    cardElement.classList.add('is-selected');
+
+    if (window.showAiToast) {
+      window.showAiToast(`Mode set to ${cardElement.querySelector('.ux-mode-name').textContent}`, 'info', '🎨');
+    }
+  }
+
+  // ── Telemetry Feed Filter ─────────────────────────────────────────────────
+  function filterTelemetry(filter, btn) {
+    document.querySelectorAll('.ux-tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const items = document.querySelectorAll('.ux-telemetry-item');
+    items.forEach(item => {
+      const type = item.getAttribute('data-event-type') || '';
+      if (filter === 'all') {
+        item.style.display = 'block';
+      } else if (filter === 'hesitation') {
+        item.style.display = type.includes('hesitation') ? 'block' : 'none';
+      } else if (filter === 'abandonment') {
+        item.style.display = type.includes('abandon') ? 'block' : 'none';
+      }
+    });
+  }
+
+  // ── Simulated Telemetry Injection ─────────────────────────────────────────
+  function triggerSimulatedTelemetry(eventType, durationMs, route) {
+    if (window.showAiToast) {
+      window.showAiToast(`Simulating ${eventType.replace('_', ' ')}...`, 'info', '🧪');
+    }
+
+    fetch('/ux_mutation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      },
+      body: JSON.stringify({
+        event_type: eventType,
+        duration_ms: durationMs,
+        page_route: route,
+        metadata: { simulated: true, client_time: new Date().toISOString() }
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        if (window.showAiToast) {
+          window.showAiToast(`Telemetry logged (ID: ${data.event_id})! Mutation Engine evaluated.`, 'success', '⚡');
+        }
+
+        // Prepend new item to feed
+        const feed = document.getElementById('telemetryFeedContainer');
+        if (feed) {
+          const now = new Date();
+          const timeStr = now.toTimeString().split(' ')[0];
+          const tagClass = eventType.includes('abandon') ? 'abandonment' : 'hesitation';
+          
+          const newItem = document.createElement('div');
+          newItem.className = 'ux-telemetry-item';
+          newItem.setAttribute('data-event-type', eventType);
+          newItem.innerHTML = `
+            <div class="ux-telemetry-header">
+              <div style="display: flex; align-items: center;">
+                <span class="ux-event-tag ${tagClass}">${eventType.replace('_', ' ')}</span>
+                <span class="ux-telemetry-route">${route}</span>
+              </div>
+              <span class="ux-telemetry-time">${timeStr}</span>
+            </div>
+            <div class="ux-telemetry-meta">
+              <span class="ux-latency-chip">
+                <span>⏱️</span>
+                <span>${durationMs}ms</span>
+              </span>
+              <span>User: <%= current_user&.display_name || 'Guest' %> (Live)</span>
+            </div>
+          `;
+          feed.prepend(newItem);
+        }
+      }
+    })
+    .catch(err => {
+      if (window.showAiToast) {
+        window.showAiToast('Failed to log telemetry', 'error', '⚠️');
+      }
+    });
+  }
+</script>
