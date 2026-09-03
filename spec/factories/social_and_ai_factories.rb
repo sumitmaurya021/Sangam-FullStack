@@ -17,7 +17,7 @@ FactoryBot.define do
   factory :reel_comment do
     association :user
     association :reel
-    body { Faker::Lorem.sentence }
+    content { Faker::Lorem.sentence }
   end
 
   factory :reel_like do
@@ -29,7 +29,7 @@ FactoryBot.define do
     association :owner, factory: :user
     name { Faker::Company.name }
     description { Faker::Lorem.paragraph }
-    privacy { 'public_group' }
+    privacy { 'public' }
   end
 
   factory :group_membership do
@@ -95,16 +95,19 @@ FactoryBot.define do
 
   factory :event do
     association :organizer, factory: :user
-    title { Faker::Event.name rescue 'Community Meetup' }
+    title { Faker::Lorem.sentence(word_count: 3) }
     description { Faker::Lorem.paragraph }
-    start_time { 1.day.from_now }
-    location { Faker::Address.full_address }
+    starts_at { 2.days.from_now }
+    ends_at { 2.days.from_now + 2.hours }
+    privacy { 'public' }
+    location { 'Online' }
+    reminder_sent { false }
   end
 
   factory :event_response do
     association :user
     association :event
-    status { 'going' }
+    response { 'going' }
   end
 
   factory :marketplace_listing do
@@ -112,17 +115,19 @@ FactoryBot.define do
     title { Faker::Commerce.product_name }
     description { Faker::Lorem.paragraph }
     price { 99.99 }
-    category { 'Electronics' }
-    condition { 'Like New' }
+    category { 'electronics' }
+    condition { 'good' }
     status { 'active' }
   end
 
   factory :fundraiser do
-    association :user
-    title { Faker::Company.bs }
+    association :post
+    title { Faker::Company.bs.truncate(100) }
     description { Faker::Lorem.paragraph }
     goal_amount { 1000.00 }
-    current_amount { 0.00 }
+    raised_amount { 0.00 }
+    currency { 'USD' }
+    status { 'active' }
   end
 
   factory :bookmark do

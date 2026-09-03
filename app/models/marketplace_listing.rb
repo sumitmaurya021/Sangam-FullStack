@@ -1,7 +1,6 @@
 class MarketplaceListing < ApplicationRecord
   belongs_to :user
   has_many_attached :images
-  has_many :marketplace_messages, dependent: :destroy
 
   CATEGORIES = %w[
     electronics furniture clothing vehicles property

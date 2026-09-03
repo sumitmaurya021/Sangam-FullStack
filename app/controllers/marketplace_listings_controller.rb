@@ -1,6 +1,7 @@
 class MarketplaceListingsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_listing, only: [:show, :edit, :update, :destroy, :mark_sold]
+  before_action :authorize_listing!, only: [:edit, :update, :destroy, :mark_sold]
 
   # GET /marketplace
   def index
@@ -54,12 +55,10 @@ class MarketplaceListingsController < ApplicationController
 
   # GET /marketplace/:id/edit
   def edit
-    authorize_listing!
   end
 
   # PATCH /marketplace/:id
   def update
-    authorize_listing!
     if @listing.update(listing_params)
       respond_to do |format|
         format.html { redirect_to marketplace_listing_path(@listing), notice: 'Listing updated!' }
@@ -75,7 +74,6 @@ class MarketplaceListingsController < ApplicationController
 
   # DELETE /marketplace/:id
   def destroy
-    authorize_listing!
     @listing.destroy
     respond_to do |format|
       format.html { redirect_to marketplace_listing_index_path, notice: 'Listing deleted.' }
@@ -85,7 +83,6 @@ class MarketplaceListingsController < ApplicationController
 
   # PATCH /marketplace/:id/mark_sold
   def mark_sold
-    authorize_listing!
     @listing.mark_sold!
     render json: { success: true, status: 'sold' }
   end
