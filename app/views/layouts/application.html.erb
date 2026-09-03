@@ -57,6 +57,7 @@
     <%= render 'shared/lightbox' %>
     <%= render 'shared/ai_copilot_modal' if user_signed_in? %>
     <%= render 'shared/ai_reel_studio_modal' if user_signed_in? %>
+    <%= render 'shared/ai_catch_up_modal' if user_signed_in? %>
 
     <script>
       window.translateTranscriptText = function(selectEl, targetId) {

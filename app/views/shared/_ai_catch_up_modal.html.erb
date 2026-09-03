@@ -1,0 +1,259 @@
+<!-- Sangam AI Global Toast Container -->
+<div id="sangamAiToastContainer"></div>
+
+<!-- Sangam Glassmorphic AI Catch-Up Summary Modal -->
+<div id="aiCatchUpModal" class="ai-glass-modal-overlay" onclick="if(event.target===this) closeAiCatchUpModal()">
+  <div class="ai-glass-modal-card">
+    
+    <!-- Modal Header -->
+    <div class="ai-modal-header">
+      <div class="ai-modal-title-wrap">
+        <div class="ai-modal-avatar">✨</div>
+        <div>
+          <h3 class="ai-modal-title">Sangam AI Catch-Up</h3>
+          <p class="ai-modal-subtitle">AI-Powered Conversation Insights</p>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span id="aiCatchUpSentiment" class="ai-sentiment-badge neutral" style="display:none;"></span>
+        <button class="ai-modal-close-btn" onclick="closeAiCatchUpModal()" title="Close">✕</button>
+      </div>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="ai-modal-body">
+      <!-- 1. Loading State -->
+      <div id="aiCatchUpLoadingState" style="text-align:center; padding: 20px 0;">
+        <div class="ai-loader-portal">
+          <div class="ai-loader-ring"></div>
+          <div class="ai-loader-ring"></div>
+          <div class="ai-loader-core"></div>
+        </div>
+        <p style="color:#c7d2fe; font-size:0.92rem; font-weight:600; margin:14px 0 4px;">Distilling Conversation...</p>
+        <p style="color:#94a3b8; font-size:0.78rem; margin:0;">Analyzing recent message context with Llama intelligence</p>
+      </div>
+
+      <!-- 2. Result State -->
+      <div id="aiCatchUpResultState" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <span id="aiCatchUpMetaInfo" style="font-size:0.76rem; color:#94a3b8; font-weight:500;">Recent messages summary</span>
+          <span style="font-size:0.72rem; color:#818cf8; background:rgba(99,102,241,0.15); padding:2px 8px; border-radius:10px;">⚡ High Precision</span>
+        </div>
+        <div class="ai-bullet-list" id="aiCatchUpBullets">
+          <!-- Bullets injected dynamically -->
+        </div>
+      </div>
+
+      <!-- 3. Error / Empty State -->
+      <div id="aiCatchUpErrorState" style="display:none; text-align:center; padding: 25px 10px;">
+        <div style="font-size:2.2rem; margin-bottom:10px;">💭</div>
+        <h4 style="color:#f8fafc; font-size:1rem; margin:0 0 6px;">Nothing to summarize yet</h4>
+        <p id="aiCatchUpErrorMessage" style="color:#94a3b8; font-size:0.84rem; margin:0 0 16px;">
+          Send a few messages first, then ask AI to distill the key takeaways!
+        </p>
+        <button class="ai-modal-action-btn" onclick="closeAiCatchUpModal()" style="margin:0 auto;">Got it</button>
+      </div>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="ai-modal-footer" id="aiCatchUpFooter" style="display:none;">
+      <button class="ai-modal-action-btn" id="aiCatchUpCopyBtn" onclick="copyAiCatchUpSummary()">
+        <span>📋</span>
+        <span id="aiCatchUpCopyText">Copy Summary</span>
+      </button>
+      <div style="display:flex; gap:8px;">
+        <button class="ai-modal-action-btn" onclick="closeAiCatchUpModal()">Done</button>
+        <button class="ai-modal-primary-btn" id="aiCatchUpInsertBtn" onclick="insertAiCatchUpSummary()">
+          <span>💬</span>
+          <span>Insert into Chat</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  let activeSummaryText = "";
+  let activeTargetInput = null;
+
+  // ── Global AI Toast System ──────────────────────────────────────────────
+  window.showAiToast = function(message, type = "info", icon = "✨") {
+    let container = document.getElementById("sangamAiToastContainer");
+    if (!container) {
+      container = document.createElement("div");
+      container.id = "sangamAiToastContainer";
+      document.body.appendChild(container);
+    }
+
+    // Keep at most 2 toasts at once to prevent clutter
+    const existing = container.querySelectorAll(".sangam-ai-toast:not(.fade-out)");
+    if (existing.length >= 2) {
+      existing[0].classList.add("fade-out");
+      setTimeout(() => existing[0].remove(), 250);
+    }
+
+    const toast = document.createElement("div");
+    toast.className = `sangam-ai-toast ${type === 'success' ? 'toast-success' : type === 'error' ? 'toast-error' : ''}`;
+    toast.innerHTML = `
+      <span style="font-size:1.15rem; flex-shrink:0;">${icon}</span>
+      <span style="line-height:1.35; font-size:0.87rem;">${message}</span>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add("fade-out");
+      setTimeout(() => toast.remove(), 300);
+    }, 3200);
+  };
+
+  // ── AI Catch-Up Modal Controller ─────────────────────────────────────────
+  window.openAiCatchUpModal = function(messages = [], options = {}) {
+    const modal = document.getElementById("aiCatchUpModal");
+    const loadingState = document.getElementById("aiCatchUpLoadingState");
+    const resultState = document.getElementById("aiCatchUpResultState");
+    const errorState = document.getElementById("aiCatchUpErrorState");
+    const footer = document.getElementById("aiCatchUpFooter");
+    const sentimentBadge = document.getElementById("aiCatchUpSentiment");
+    const bulletsContainer = document.getElementById("aiCatchUpBullets");
+    const metaInfo = document.getElementById("aiCatchUpMetaInfo");
+
+    if (!modal) return;
+
+    activeTargetInput = options.targetInput || document.getElementById("messageInput");
+
+    // Reset views
+    loadingState.style.display = "block";
+    resultState.style.display = "none";
+    errorState.style.display = "none";
+    footer.style.display = "none";
+    sentimentBadge.style.display = "none";
+    activeSummaryText = "";
+
+    modal.classList.add("is-active");
+
+    // Check if messages array is empty
+    if (!messages || messages.length === 0) {
+      loadingState.style.display = "none";
+      errorState.style.display = "block";
+      document.getElementById("aiCatchUpErrorMessage").textContent = 
+        "No messages found in this chat yet. Start a conversation to generate an AI summary.";
+      return;
+    }
+
+    // Call API
+    fetch('/api/ai/chat_summarize', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      },
+      body: JSON.stringify({ messages: messages })
+    })
+    .then(r => r.json())
+    .then(data => {
+      loadingState.style.display = "none";
+
+      if (data.summary) {
+        activeSummaryText = data.summary;
+        
+        // Parse bullets
+        const lines = data.summary.split('\n').filter(l => l.trim().length > 0);
+        bulletsContainer.innerHTML = lines.map((line, idx) => {
+          const cleanText = line.replace(/^[•\-\*\d\.]+\s*/, '').trim();
+          return `
+            <div class="ai-bullet-card">
+              <div class="ai-bullet-badge">${idx + 1}</div>
+              <div class="ai-bullet-text">${escapeHtml(cleanText)}</div>
+            </div>
+          `;
+        }).join('');
+
+        // Sentiment
+        if (data.sentiment) {
+          const s = data.sentiment.toLowerCase();
+          sentimentBadge.style.display = "inline-flex";
+          sentimentBadge.className = `ai-sentiment-badge ${s.includes('pos') ? 'positive' : s.includes('urg') ? 'urgent' : 'neutral'}`;
+          
+          let icon = "⚪";
+          if (s.includes('pos')) icon = "🟢 Positive";
+          else if (s.includes('urg')) icon = "🔴 Urgent Action";
+          else icon = "⚪ Neutral Discussion";
+
+          sentimentBadge.textContent = icon;
+        }
+
+        if (metaInfo) {
+          metaInfo.textContent = `Summarized from recent ${messages.length} messages`;
+        }
+
+        resultState.style.display = "block";
+        footer.style.display = "flex";
+      } else {
+        errorState.style.display = "block";
+        document.getElementById("aiCatchUpErrorMessage").textContent = 
+          data.error || "Could not generate summary at this moment. Please try again.";
+      }
+    })
+    .catch(err => {
+      loadingState.style.display = "none";
+      errorState.style.display = "block";
+      document.getElementById("aiCatchUpErrorMessage").textContent = 
+        "Network connection error while reaching Sangam AI. Please check your connection.";
+    });
+  };
+
+  window.closeAiCatchUpModal = function() {
+    const modal = document.getElementById("aiCatchUpModal");
+    if (modal) modal.classList.remove("is-active");
+  };
+
+  window.copyAiCatchUpSummary = function() {
+    if (!activeSummaryText) return;
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(activeSummaryText).then(() => {
+        const textSpan = document.getElementById("aiCatchUpCopyText");
+        if (textSpan) {
+          const orig = textSpan.textContent;
+          textSpan.textContent = "Copied! ✓";
+          setTimeout(() => { textSpan.textContent = orig; }, 2000);
+        }
+        showAiToast("Summary copied to clipboard!", "success", "📋");
+      }).catch(() => {
+        showAiToast("Could not copy summary", "error", "⚠️");
+      });
+    }
+  };
+
+  window.insertAiCatchUpSummary = function() {
+    if (!activeSummaryText) return;
+
+    if (activeTargetInput) {
+      const formatted = `✨ AI Summary:\n${activeSummaryText}\n`;
+      activeTargetInput.value = (activeTargetInput.value ? activeTargetInput.value + "\n" : "") + formatted;
+      activeTargetInput.dispatchEvent(new Event('input', { bubbles: true }));
+      activeTargetInput.focus();
+      closeAiCatchUpModal();
+      showAiToast("Summary inserted into chat input!", "success", "💬");
+    } else {
+      copyAiCatchUpSummary();
+      closeAiCatchUpModal();
+    }
+  };
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;');
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeAiCatchUpModal();
+  });
+})();
+</script>

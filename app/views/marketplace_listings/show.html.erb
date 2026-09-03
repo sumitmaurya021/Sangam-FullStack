@@ -123,8 +123,16 @@
             if (!offerStr) return;
             const offerPrice = parseFloat(offerStr);
             if (isNaN(offerPrice) || offerPrice <= 0) {
-              alert('Please enter a valid offer price.');
+              if (window.showAiToast) {
+                window.showAiToast('Please enter a valid offer price.', 'error', '⚠️');
+              } else {
+                alert('Please enter a valid offer price.');
+              }
               return;
+            }
+
+            if (window.showAiToast) {
+              window.showAiToast('AI Negotiator is evaluating your offer...', 'info', '🤝');
             }
 
             fetch('/api/ai/negotiate_offer', {
@@ -137,9 +145,21 @@
             })
             .then(r => r.json())
             .then(data => {
-              alert(data.message || 'Offer processed.');
+              const msg = data.message || 'Offer processed.';
+              const isAccepted = data.status === 'accepted' || (data.message && data.message.toLowerCase().includes('accept'));
+              if (window.showAiToast) {
+                window.showAiToast(msg, isAccepted ? 'success' : 'info', isAccepted ? '🎉' : '🤝');
+              } else {
+                alert(msg);
+              }
             })
-            .catch(err => alert('Failed to negotiate offer.'));
+            .catch(err => {
+              if (window.showAiToast) {
+                window.showAiToast('Failed to negotiate offer.', 'error', '⚠️');
+              } else {
+                alert('Failed to negotiate offer.');
+              }
+            });
           }
         </script>
 

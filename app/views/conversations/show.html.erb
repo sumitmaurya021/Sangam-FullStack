@@ -109,8 +109,9 @@
           </span>
         </div>
       </div>
-        <button onclick="summarizeCurrentChat()" class="messenger-call-btn" style="background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(168,85,247,0.15)); border:1px solid rgba(99,102,241,0.3); color:#6366f1; width:auto; padding:4px 10px; font-size:0.78rem; font-weight:600; border-radius:8px; gap:4px;" title="Summarize recent messages with AI">
-          ✨ Catch-Up Summary
+        <button onclick="summarizeCurrentChat()" class="btn-futuristic-ai" style="padding:4px 12px; font-size:0.78rem; border-radius:10px; height:32px; gap:6px; flex-shrink:0;" title="Summarize recent messages with Sangam AI">
+          <span style="font-size:0.92rem;">✨</span>
+          <span>Catch-Up</span>
         </button>
         <button class="messenger-call-btn" id="audioCallBtn" title="Voice Call">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
@@ -464,29 +465,17 @@
 
   window.summarizeCurrentChat = function() {
     const msgNodes = document.querySelectorAll('.message-body, .message-content-text');
-    const msgTexts = Array.from(msgNodes).map(node => node.textContent.trim()).filter(t => t.length > 0).slice(-15);
+    const msgTexts = Array.from(msgNodes)
+      .map(node => node.textContent.trim())
+      .filter(t => t.length > 0)
+      .slice(-15);
 
-    if (msgTexts.length === 0) {
-      alert("No messages available in this chat to summarize.");
-      return;
+    const messageInput = document.getElementById("messageInput");
+
+    if (window.openAiCatchUpModal) {
+      window.openAiCatchUpModal(msgTexts, { targetInput: messageInput });
+    } else if (window.showAiToast) {
+      window.showAiToast("AI Catch-Up is initializing...", "info");
     }
-
-    fetch('/api/ai/chat_summarize', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
-      },
-      body: JSON.stringify({ messages: msgTexts })
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.summary) {
-        alert(`✨ AI Chat Catch-Up Summary:\n\n${data.summary}`);
-      } else {
-        alert(data.error || "Could not summarize chat.");
-      }
-    })
-    .catch(err => alert("Failed to generate chat summary."));
   };
 </script>

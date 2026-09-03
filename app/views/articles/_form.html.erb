@@ -157,8 +157,16 @@
     const currentText = trixEditor?.editor?.getDocument()?.toString() || "";
 
     if (!title && !currentText) {
-      alert("Please type an Article Title or draft text first.");
+      if (window.showAiToast) {
+        window.showAiToast("Please type an Article Title or draft text first.", "info", "✍️");
+      } else {
+        alert("Please type an Article Title or draft text first.");
+      }
       return;
+    }
+
+    if (window.showAiToast) {
+      window.showAiToast("AI Co-Writer drafting content...", "info", "✨");
     }
 
     fetch("/api/ai/article_co_writer", {
@@ -173,10 +181,23 @@
     .then(data => {
       if (data.generated_content && trixEditor && trixEditor.editor) {
         trixEditor.editor.insertHTML(`<p>${data.generated_content.replace(/\n/g, '<br>')}</p>`);
+        if (window.showAiToast) {
+          window.showAiToast("AI content generated successfully!", "success", "✨");
+        }
       } else {
-        alert(data.error || "Co-writer could not generate content.");
+        if (window.showAiToast) {
+          window.showAiToast(data.error || "Co-writer could not generate content.", "error", "❌");
+        } else {
+          alert(data.error || "Co-writer could not generate content.");
+        }
       }
     })
-    .catch(err => alert("Co-writer network error."));
+    .catch(err => {
+      if (window.showAiToast) {
+        window.showAiToast("Co-writer network error.", "error", "⚠️");
+      } else {
+        alert("Co-writer network error.");
+      }
+    });
   };
 </script>

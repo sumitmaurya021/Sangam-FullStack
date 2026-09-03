@@ -153,6 +153,8 @@ export class ChatWidget {
           <span class="mini-chat-name">${other.name}</span>
         </div>
         <div class="mini-chat-header-actions">
+          <button onclick="event.stopPropagation(); chatWidget.summarizeMiniChat(${conversationId})"
+                  class="mini-chat-action-btn mini-chat-ai-btn" title="✨ AI Catch-Up Summary">✨</button>
           <button onclick="event.stopPropagation(); window.location.href='/conversations/${conversationId}'"
                   class="mini-chat-action-btn" title="Open full chat">⤢</button>
           <button onclick="event.stopPropagation(); chatWidget._closeMiniWindow(${conversationId})"
@@ -187,6 +189,25 @@ export class ChatWidget {
     // Subscribe to channel
     this._subscribeToConversation(conversationId);
     this._scrollMiniToBottom(conversationId);
+  }
+
+  summarizeMiniChat(conversationId) {
+    const win = this.openWindows[conversationId];
+    if (!win) return;
+
+    const msgNodes = win.querySelectorAll('.mini-bubble');
+    const msgTexts = Array.from(msgNodes)
+      .map(node => node.textContent.trim())
+      .filter(t => t.length > 0)
+      .slice(-15);
+
+    const input = win.querySelector(`#mini-input-${conversationId}`);
+
+    if (window.openAiCatchUpModal) {
+      window.openAiCatchUpModal(msgTexts, { targetInput: input });
+    } else if (window.showAiToast) {
+      window.showAiToast("AI Catch-Up is initializing...", "info");
+    }
   }
 
   _subscribeToConversation(conversationId) {

@@ -64,12 +64,20 @@
         activeSlideIdx = 0;
         renderCurrentSlide();
       } else {
-        alert(data.error || 'Failed to generate reel.');
+        if (window.showAiToast) {
+          window.showAiToast(data.error || 'Failed to generate reel.', 'error', '❌');
+        } else {
+          alert(data.error || 'Failed to generate reel.');
+        }
         closeReelStudio();
       }
     })
     .catch(err => {
-      alert('Failed to generate reel.');
+      if (window.showAiToast) {
+        window.showAiToast('Failed to generate reel.', 'error', '⚠️');
+      } else {
+        alert('Failed to generate reel.');
+      }
       closeReelStudio();
     });
   }
@@ -115,7 +123,11 @@
   }
 
   function publishReelStory() {
-    alert('🎉 Story Published! Your AI Generated Reel is now live on your Sangam Story feed!');
+    if (window.showAiToast) {
+      window.showAiToast('Story Published! Your AI Generated Reel is now live on your Sangam Story feed!', 'success', '🎉');
+    } else {
+      alert('🎉 Story Published! Your AI Generated Reel is now live on your Sangam Story feed!');
+    }
     closeReelStudio();
   }
 </script>

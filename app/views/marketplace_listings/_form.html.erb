@@ -210,8 +210,16 @@
     const priceInput = document.getElementById("marketplace_listing_price");
 
     if (!title || !category) {
-      alert("Please fill in Title and Category first to get an AI price estimation.");
+      if (window.showAiToast) {
+        window.showAiToast("Please fill in Title and Category first to get an AI price estimation.", "info", "⚠️");
+      } else {
+        alert("Please fill in Title and Category first to get an AI price estimation.");
+      }
       return;
+    }
+
+    if (window.showAiToast) {
+      window.showAiToast("AI Valuation in progress...", "info", "✨");
     }
 
     fetch("/api/ai/estimate_price", {
@@ -226,11 +234,25 @@
     .then(data => {
       if (data.suggested_price && priceInput) {
         priceInput.value = data.suggested_price;
-        alert(`✨ AI Valuation Estimate:\nSuggested Price: $${data.suggested_price}\nRange: $${data.min_price} - $${data.max_price}\n\n${data.reasoning || ''}`);
+        if (window.showAiToast) {
+          window.showAiToast(`✨ AI Suggested Price: $${data.suggested_price} (Range: $${data.min_price} - $${data.max_price})`, "success", "🏷️");
+        } else {
+          alert(`✨ AI Valuation: $${data.suggested_price}`);
+        }
       } else {
-        alert(data.error || "Failed to calculate valuation.");
+        if (window.showAiToast) {
+          window.showAiToast(data.error || "Failed to calculate valuation.", "error", "❌");
+        } else {
+          alert(data.error || "Failed to calculate valuation.");
+        }
       }
     })
-    .catch(err => alert("Network error calculating valuation."));
+    .catch(err => {
+      if (window.showAiToast) {
+        window.showAiToast("Network error calculating valuation.", "error", "⚠️");
+      } else {
+        alert("Network error calculating valuation.");
+      }
+    });
   };
 </script>
