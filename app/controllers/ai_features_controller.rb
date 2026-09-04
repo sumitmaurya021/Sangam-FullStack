@@ -73,19 +73,35 @@ class AiFeaturesController < ApplicationController
 
   def rewrite_message
     text = params[:text]
-    tone = params[:tone]
+    tone = params[:tone] || "formal"
 
-    if text.blank? || tone.blank?
-      return render json: { error: "Text and tone are required" }, status: :unprocessable_entity
+    if text.blank?
+      return render json: { error: "Text is required" }, status: :unprocessable_entity
     end
 
-    service = AiMessageRewriterService.new(text, tone)
-    result = service.generate
+    service = AiMultimodalChatService.new(text: text, tone: tone)
+    result = service.rewrite_message
 
     if result[:success]
-      render json: { text: result[:text] }
+      render json: { text: result[:rewritten_text] }
     else
       render json: { error: result[:error] || "Failed to rewrite message" }, status: :unprocessable_entity
+    end
+  end
+
+  def chat_summarize
+    messages = params[:messages] || []
+    if messages.empty?
+      return render json: { error: "Messages array is required" }, status: :unprocessable_entity
+    end
+
+    service = AiMultimodalChatService.new(messages: messages)
+    result = service.summarize_conversation
+
+    if result[:success]
+      render json: { summary: result[:summary], sentiment: result[:sentiment] }
+    else
+      render json: { error: result[:error] || "Summarization failed" }, status: :unprocessable_entity
     end
   end
 
@@ -103,6 +119,96 @@ class AiFeaturesController < ApplicationController
       render json: { answer: result[:answer], results: result[:results] }
     else
       render json: { error: result[:error] || "Failed to perform AI search" }, status: :unprocessable_entity
+    end
+  end
+
+  def translate_text
+    text = params[:text]
+    target_language = params[:target_language]
+
+    if text.blank? || target_language.blank?
+      return render json: { error: "Text and target_language are required" }, status: :unprocessable_entity
+    end
+
+    service = AiTranslationService.new(text, target_language)
+    result = service.translate
+
+    if result[:success]
+      render json: { translated_text: result[:translated_text] }
+    else
+      render json: { error: result[:error] || "Translation failed" }, status: :unprocessable_entity
+    end
+  end
+
+  def copilot
+    prompt = params[:prompt]
+
+    if prompt.blank?
+      return render json: { error: "Prompt is required" }, status: :unprocessable_entity
+    end
+
+    service = AiCopilotService.new(prompt, current_user)
+    result = service.execute
+
+    if result[:success]
+      render json: { answer: result[:answer], action: result[:action] }
+    else
+      render json: { error: result[:error] || "Copilot execution failed" }, status: :unprocessable_entity
+    end
+  end
+
+  def estimate_price
+    service = AiMarketplaceValuationService.new(params)
+    result = service.estimate_price
+
+    if result[:success]
+      render json: result
+    else
+      render json: { error: result[:error] }, status: :unprocessable_entity
+    end
+  end
+
+  def negotiate_offer
+    listing = MarketplaceListing.find_by(id: params[:listing_id])
+    if listing.nil?
+      return render json: { error: "Listing not found" }, status: :not_found
+    end
+
+    offer_price = params[:offer_price]
+    result = AiMarketplaceValuationService.negotiate_offer(listing, offer_price)
+    render json: result
+  end
+
+  def generate_reel
+    text = params[:text]
+    title = params[:title]
+
+    if text.blank?
+      return render json: { error: "Text content is required" }, status: :unprocessable_entity
+    end
+
+    service = AiReelStudioService.new(text, title)
+    result = service.generate
+
+    if result[:success]
+      render json: result
+    else
+      render json: { error: result[:error] || "Failed to generate reel" }, status: :unprocessable_entity
+    end
+  end
+
+  def article_co_writer
+    title = params[:title]
+    text = params[:text]
+    mode = params[:mode] || "continue"
+
+    service = AiArticleCoWriterService.new(title, text, mode)
+    result = service.execute
+
+    if result[:success]
+      render json: { generated_content: result[:generated_content] }
+    else
+      render json: { error: result[:error] || "Co-writer failed" }, status: :unprocessable_entity
     end
   end
 end

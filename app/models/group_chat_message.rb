@@ -15,6 +15,7 @@ class GroupChatMessage < ApplicationRecord
   scope :recent,  -> { order(created_at: :asc) }
 
   after_commit :broadcast_to_group, on: :create
+  after_commit :enqueue_audio_transcription, on: :create
 
   def soft_delete!
     update!(deleted: true)
@@ -45,11 +46,19 @@ class GroupChatMessage < ApplicationRecord
       },
       attachment_url:          deleted ? nil : attachment_url,
       attachment_filename:     attachment.attached? ? attachment.filename.to_s : nil,
-      attachment_content_type: attachment.attached? ? attachment.content_type : nil
+      attachment_content_type: attachment.attached? ? attachment.content_type : nil,
+      transcription:           deleted ? nil : transcription,
+      transcription_status:    deleted ? nil : transcription_status
     }
   end
 
   private
+
+  def enqueue_audio_transcription
+    return unless message_type == 'audio' && attachment.attached?
+    update_columns(transcription_status: 'pending')
+    TranscribeAudioJob.perform_later('GroupChatMessage', id)
+  end
 
   def broadcast_to_group
     ActionCable.server.broadcast(

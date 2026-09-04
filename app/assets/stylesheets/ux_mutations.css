@@ -1,0 +1,66 @@
+/* ==========================================================================
+   Self-Evolving UX Mutations Stylesheet
+   Dynamically transforms UI layout density based on data-ux-mode attribute
+   ========================================================================== */
+
+/* 1. Minimalist Mode (Simplified Studio UI for lower friction) */
+body[data-ux-mode="minimalist"] .sidebar-secondary,
+body[data-ux-mode="minimalist"] .non-essential-widget,
+body[data-ux-mode="minimalist"] .complex-form-advanced-fields {
+  display: none !important;
+}
+
+body[data-ux-mode="minimalist"] input,
+body[data-ux-mode="minimalist"] select,
+body[data-ux-mode="minimalist"] textarea {
+  font-size: 16px !important;
+  padding: 14px 18px !important;
+  border-radius: 16px !important;
+}
+
+body[data-ux-mode="minimalist"] .feed-layout {
+  grid-template-columns: 1fr !important;
+  max-width: 780px !important;
+  margin: 0 auto !important;
+}
+
+/* 2. Power Density Mode (Compact layout for high-velocity users) */
+body[data-ux-mode="power_density"] .dt-card,
+body[data-ux-mode="power_density"] .dt-header-card,
+body[data-ux-mode="power_density"] .feed-card {
+  padding: 14px 18px !important;
+  border-radius: 12px !important;
+}
+
+body[data-ux-mode="power_density"] .dt-header-title {
+  font-size: 18px !important;
+}
+
+body[data-ux-mode="power_density"] .dt-grid {
+  gap: 12px !important;
+}
+
+/* 3. Voice First Mode (Audio input highlighted) */
+body[data-ux-mode="voice_first"] .audio-input-accent {
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.4) !important;
+  border-color: #6366f1 !important;
+}
+
+/* Adaptive Status Floating Pill */
+.ux-mutation-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #a855f7;
+  text-decoration: none;
+}
+
+.ux-mutation-pill:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(168, 85, 247, 0.25));
+}

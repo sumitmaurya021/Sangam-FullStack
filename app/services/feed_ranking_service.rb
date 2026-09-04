@@ -38,11 +38,12 @@ class FeedRankingService
 
     # 2. Scoring
     user_affinities = fetch_user_affinities
-    friend_ids = @user.all_friends.pluck(:id)
-    close_friend_ids = @user.close_friend_records.pluck(:close_friend_id)
+    friend_ids = @friend_ids ||= (@user.respond_to?(:all_friends) ? @user.all_friends.pluck(:id) : @user.friends.pluck(:id)).to_set
+    close_friend_ids = @close_friend_ids ||= @user.close_friend_records.pluck(:close_friend_id).to_set
+    user_centroid = @user_centroid ||= AiRecommendationService.new(@user).send(:compute_user_centroid)
 
     scored_posts = candidate_posts.map do |post|
-      score = calculate_score(post, user_affinities, friend_ids, close_friend_ids)
+      score = calculate_score(post, user_affinities, friend_ids, close_friend_ids, user_centroid)
       { post: post, score: score }
     end
 
@@ -79,9 +80,12 @@ class FeedRankingService
   end
 
   def fetch_candidates
-    # Optimization: Just get recent posts visible to user for now.
-    # In a real app with lots of data, we would filter by last 7 days: `.where("posts.created_at > ?", 7.days.ago)`
-    Post.visible_to(@user).order(created_at: :desc).limit(200)
+    # Bound scan window to recent posts (last 14 days) to utilize B-Tree created_at index and prevent 10M scale sequential table scans
+    Post.visible_to(@user)
+        .where("posts.created_at >= ?", 14.days.ago)
+        .includes(:post_category_tags)
+        .order(created_at: :desc)
+        .limit(200)
   end
 
   def fetch_user_affinities
@@ -90,15 +94,17 @@ class FeedRankingService
     end
   end
 
-  def calculate_score(post, user_affinities, friend_ids, close_friend_ids)
-    # A. Tag Affinity Score
+  def calculate_score(post, user_affinities, friend_ids, close_friend_ids, user_centroid)
+    # A. Tag & Vector Affinity Score
+    post_vec = post.try(:embedding) || post.try(:embedding_data)
+    vector_sim = post_vec.present? ? AiEmbeddingService.cosine_similarity(user_centroid, post_vec) : 0.0
+
     affinity_score = 0.0
     post.post_category_tags.each do |pct|
       user_score = user_affinities[pct.category_tag_id] || 0.0
       affinity_score += (user_score * pct.confidence_score)
     end
-    # Normalize roughly (0 to 10 scale hypothetically)
-    affinity_score = [affinity_score, 10.0].min / 10.0
+    affinity_score = ([affinity_score, 10.0].min / 10.0 * 0.4) + (vector_sim * 0.6)
 
     # B. Engagement Rate (Likes + Comments*2 + Shares*3) / Impressions (using views_count)
     impressions = [post.views_count, 1].max
@@ -128,6 +134,9 @@ class FeedRankingService
             (WEIGHTS[:recency] * recency_score) +
             (WEIGHTS[:following_boost] * following_boost) +
             (WEIGHTS[:random] * random_score)
+
+    score_pct = [[(final * 120).round, 99].min, 62].max
+    post.define_singleton_method(:recommendation_score_pct) { "#{score_pct}% Match" }
 
     final
   end

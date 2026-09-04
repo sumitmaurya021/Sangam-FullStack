@@ -3,9 +3,9 @@ class Event < ApplicationRecord
   has_one_attached :cover_photo
 
   has_many :event_responses, dependent: :destroy
-  has_many :going_users,      -> { where(response: 'going') },
+  has_many :going_users,      -> { where(event_responses: { response: 'going' }) },
            through: :event_responses, source: :user
-  has_many :interested_users, -> { where(response: 'interested') },
+  has_many :interested_users, -> { where(event_responses: { response: 'interested' }) },
            through: :event_responses, source: :user
 
   PRIVACY_OPTIONS = %w[public friends private].freeze

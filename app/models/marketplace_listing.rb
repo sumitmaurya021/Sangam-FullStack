@@ -1,7 +1,6 @@
 class MarketplaceListing < ApplicationRecord
   belongs_to :user
   has_many_attached :images
-  has_many :marketplace_messages, dependent: :destroy
 
   CATEGORIES = %w[
     electronics furniture clothing vehicles property
@@ -33,5 +32,13 @@ class MarketplaceListing < ApplicationRecord
 
   def mark_sold!
     update!(status: 'sold')
+  end
+
+  after_commit :enqueue_embedding_generation, on: [:create, :update]
+
+  private
+
+  def enqueue_embedding_generation
+    GenerateEmbeddingJob.perform_later('MarketplaceListing', id)
   end
 end

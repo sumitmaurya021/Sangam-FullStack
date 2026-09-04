@@ -29,4 +29,19 @@ module ApplicationHelper
       concat tag.meta(name: "twitter:image", content: tags[:image])
     end
   end
+
+  # High-performance user avatar tag using ActiveStorage thumbnail variants
+  def user_avatar_tag(user, size: :thumb, class_name: "", alt: nil, loading: "lazy")
+    return tag.div("U", class: "avatar-placeholder #{class_name}") unless user
+
+    if user.avatar.attached?
+      variant = user.avatar.variable? ? user.avatar.variant(size) : user.avatar
+      image_tag variant, alt: (alt || "#{user.display_name} avatar"), class: class_name, loading: loading
+    else
+      initial = (user.name.presence || user.email.presence || "U").first.upcase
+      tag.div(initial, class: "avatar-placeholder #{class_name}")
+    end
+  rescue => e
+    tag.div((user&.name || "U").first.upcase, class: "avatar-placeholder #{class_name}")
+  end
 end

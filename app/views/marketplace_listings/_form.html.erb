@@ -23,7 +23,10 @@
       <%= f.label :price, 'Price ($)', class: 'premium-form-label' %>
       <div style="position: relative;">
         <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--market-text-sub); font-weight: 800; pointer-events: none;">$</span>
-        <%= f.number_field :price, placeholder: '0.00', step: '0.01', min: 0, class: 'premium-form-input', style: 'padding-left: 36px;' %>
+        <%= f.number_field :price, placeholder: '0.00', step: '0.01', min: 0, class: 'premium-form-input', style: 'padding-left: 36px;', id: 'marketplace_listing_price' %>
+      </div>
+      <div style="margin-top:6px;">
+        <button type="button" onclick="estimateAiPrice()" style="background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(99,102,241,0.15)); border:1px solid rgba(16,185,129,0.3); color:#10b981; font-weight:600; font-size:0.75rem; padding:4px 10px; border-radius:8px; cursor:pointer;">✨ Estimate Fair Price</button>
       </div>
     </div>
     
@@ -198,4 +201,58 @@
       });
     });
   });
+
+  window.estimateAiPrice = function() {
+    const title = document.getElementById("marketplace_listing_title")?.value || "";
+    const category = document.getElementById("marketplace_listing_category")?.value || "";
+    const condition = document.getElementById("marketplace_listing_condition")?.value || "";
+    const description = document.getElementById("marketplace_listing_description")?.value || "";
+    const priceInput = document.getElementById("marketplace_listing_price");
+
+    if (!title || !category) {
+      if (window.showAiToast) {
+        window.showAiToast("Please fill in Title and Category first to get an AI price estimation.", "info", "⚠️");
+      } else {
+        alert("Please fill in Title and Category first to get an AI price estimation.");
+      }
+      return;
+    }
+
+    if (window.showAiToast) {
+      window.showAiToast("AI Valuation in progress...", "info", "✨");
+    }
+
+    fetch("/api/ai/estimate_price", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || ""
+      },
+      body: JSON.stringify({ title, category, condition, description })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.suggested_price && priceInput) {
+        priceInput.value = data.suggested_price;
+        if (window.showAiToast) {
+          window.showAiToast(`✨ AI Suggested Price: $${data.suggested_price} (Range: $${data.min_price} - $${data.max_price})`, "success", "🏷️");
+        } else {
+          alert(`✨ AI Valuation: $${data.suggested_price}`);
+        }
+      } else {
+        if (window.showAiToast) {
+          window.showAiToast(data.error || "Failed to calculate valuation.", "error", "❌");
+        } else {
+          alert(data.error || "Failed to calculate valuation.");
+        }
+      }
+    })
+    .catch(err => {
+      if (window.showAiToast) {
+        window.showAiToast("Network error calculating valuation.", "error", "⚠️");
+      } else {
+        alert("Network error calculating valuation.");
+      }
+    });
+  };
 </script>

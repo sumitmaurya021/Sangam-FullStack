@@ -81,6 +81,16 @@
         </div>
       </div>
 
+      <% if @listing.status == 'active' && @listing.user != current_user %>
+        <div style="margin-bottom:16px; background:linear-gradient(135deg, rgba(16,185,129,0.08), rgba(99,102,241,0.08)); padding:12px 14px; border-radius:12px; border:1px solid rgba(16,185,129,0.2); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+          <div>
+            <div style="font-weight:700; color:#10b981; font-size:0.85rem; display:flex; align-items:center; gap:4px;">🏷️ AI Fair Valuation</div>
+            <div style="font-size:0.78rem; color:#475569;">Fair Market Value: <strong>$<%= (@listing.price * 0.85).round(2) %> - $<%= (@listing.price * 1.15).round(2) %></strong></div>
+          </div>
+          <button onclick="makeAiOffer(<%= @listing.id %>, <%= @listing.price %>)" style="background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; padding:8px 14px; border-radius:8px; font-size:0.8rem; font-weight:600; cursor:pointer;">🤖 Negotiate with AI</button>
+        </div>
+      <% end %>
+
       <!-- Actions -->
       <div style="margin-top: auto;">
         <% if @listing.user == current_user %>
@@ -106,6 +116,52 @@
             </button>
           <% end %>
         <% end %>
+
+        <script>
+          function makeAiOffer(listingId, listPrice) {
+            const offerStr = prompt(`Item Price: $${listPrice}\nEnter your offer price ($):`, (listPrice * 0.9).toFixed(2));
+            if (!offerStr) return;
+            const offerPrice = parseFloat(offerStr);
+            if (isNaN(offerPrice) || offerPrice <= 0) {
+              if (window.showAiToast) {
+                window.showAiToast('Please enter a valid offer price.', 'error', '⚠️');
+              } else {
+                alert('Please enter a valid offer price.');
+              }
+              return;
+            }
+
+            if (window.showAiToast) {
+              window.showAiToast('AI Negotiator is evaluating your offer...', 'info', '🤝');
+            }
+
+            fetch('/api/ai/negotiate_offer', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+              },
+              body: JSON.stringify({ listing_id: listingId, offer_price: offerPrice })
+            })
+            .then(r => r.json())
+            .then(data => {
+              const msg = data.message || 'Offer processed.';
+              const isAccepted = data.status === 'accepted' || (data.message && data.message.toLowerCase().includes('accept'));
+              if (window.showAiToast) {
+                window.showAiToast(msg, isAccepted ? 'success' : 'info', isAccepted ? '🎉' : '🤝');
+              } else {
+                alert(msg);
+              }
+            })
+            .catch(err => {
+              if (window.showAiToast) {
+                window.showAiToast('Failed to negotiate offer.', 'error', '⚠️');
+              } else {
+                alert('Failed to negotiate offer.');
+              }
+            });
+          }
+        </script>
 
         <div style="text-align: center; margin-top: 16px; font-size: 12px; color: var(--market-text-sub); font-weight: 600;">
           👁 <%= @listing.views_count %> views

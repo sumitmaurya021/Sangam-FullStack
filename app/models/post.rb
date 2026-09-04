@@ -15,6 +15,10 @@ class Post < ApplicationRecord
   has_many :mentioned_users, through: :post_mentions, source: :user
   has_many :post_category_tags, dependent: :destroy
   has_many :category_tags, through: :post_category_tags
+  has_many :user_interactions, dependent: :destroy
+  has_many :post_mutations, dependent: :destroy
+  has_many :post_universe_transformations, dependent: :destroy
+  has_many :shared_stories, class_name: 'Story', foreign_key: :shared_post_id, dependent: :destroy
   has_one  :poll, dependent: :destroy
   has_one  :fundraiser, dependent: :destroy
   has_many :post_collaborators, dependent: :destroy
@@ -29,6 +33,8 @@ class Post < ApplicationRecord
   validates :visibility, inclusion: { in: VISIBILITY_OPTIONS }
   validate  :content_or_poll_present
   validate  :acceptable_images
+
+  after_commit :enqueue_embedding_generation, on: [:create, :update]
 
   scope :published,   -> { where(published: true).where('scheduled_at IS NULL OR scheduled_at <= ?', Time.current) }
   scope :scheduled,   -> { where(published: false).where('scheduled_at > ?', Time.current) }
@@ -169,6 +175,10 @@ class Post < ApplicationRecord
   end
 
   private
+
+  def enqueue_embedding_generation
+    GenerateEmbeddingJob.perform_later('Post', id) if saved_change_to_content? || respond_to?(:embedding) && embedding.nil?
+  end
 
   # Poll is blank if question and all options are empty
   def poll_blank?(attrs)

@@ -1,55 +1,73 @@
-<%# Shown after successful password login when 2FA is enabled.
-    No shared header — keep this page minimal for security. %>
+<%= stylesheet_link_tag 'auth_premium', media: 'all', 'data-turbo-track': 'reload' %>
+<script src="/assets/auth_premium.js" data-turbo-track="reload"></script>
 
-<div class="tfa-page tfa-page--login">
-  <div class="tfa-card tfa-card--centered">
+<div class="ap-viewport">
+  <!-- Dynamic Ambient Backdrop & Particle Canvas -->
+  <div class="ap-ambient-bg">
+    <canvas id="apCanvas" class="ap-canvas"></canvas>
+    <div class="ap-glow-orb ap-glow-orb--1"></div>
+    <div class="ap-glow-orb ap-glow-orb--2"></div>
+    <div class="ap-glow-orb ap-glow-orb--3"></div>
+  </div>
+  <div class="ap-grid-overlay"></div>
 
-    <div class="tfa-card__header">
-      <div class="tfa-icon tfa-icon--lock">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
+  <!-- Split-Screen Container -->
+  <div class="ap-split-wrapper">
+    <!-- LEFT SIDE: Animated App Showcase -->
+    <%= render "users/shared/showcase_panel" %>
+
+    <!-- RIGHT SIDE: Authentication Form Panel -->
+    <div class="ap-form-panel">
+      <div class="ap-card">
+        <div class="ap-card-border-glow"></div>
+
+        <!-- Header -->
+        <div class="ap-header">
+          <h1 class="ap-title">Two-Factor Authentication</h1>
+          <p class="ap-subtitle">Enter the 6-digit code from your authenticator app</p>
+        </div>
+
+        <!-- Flash Alert -->
+        <% if flash[:alert].present? %>
+          <div class="ap-alert ap-alert--error" role="alert">
+            <svg class="ap-alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <div><%= flash[:alert] %></div>
+          </div>
+        <% end %>
+
+        <!-- OTP Form -->
+        <%= form_with url: confirm_two_factor_auth_path, method: :post, html: { class: 'ap-form', autocomplete: 'off' } do |f| %>
+          <%= f.hidden_field :otp_code, id: 'hidden_otp_code' %>
+
+          <!-- Multi-box OTP Input Group -->
+          <div class="ap-otp-container" data-otp-container data-otp-target="#hidden_otp_code">
+            <input type="text" class="ap-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" autofocus aria-label="Digit 1" />
+            <input type="text" class="ap-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="Digit 2" />
+            <input type="text" class="ap-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="Digit 3" />
+            <input type="text" class="ap-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="Digit 4" />
+            <input type="text" class="ap-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="Digit 5" />
+            <input type="text" class="ap-otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]*" aria-label="Digit 6" />
+          </div>
+
+          <!-- Submit Button -->
+          <%= f.button type: :submit, class: "ap-btn-primary" do %>
+            <span class="ap-btn-text">Verify Code</span>
+            <div class="ap-spinner"></div>
+          <% end %>
+        <% end %>
+
+        <!-- Footer Switcher -->
+        <div class="ap-footer">
+          <p>Lost your authenticator device?</p>
+          <%= link_to "← Back to Sign In", new_user_session_path, class: "ap-footer-link" %>
+        </div>
+
+        <div class="ap-copyright">
+          © <%= Time.current.year %> Sangam. All rights reserved.
+        </div>
       </div>
-      <h1 class="tfa-card__title">Two-Factor Authentication</h1>
-      <p class="tfa-card__subtitle">
-        Enter the 6-digit code from your authenticator app, or use a backup code.
-      </p>
     </div>
-
-    <% if flash[:alert].present? %>
-      <div class="tfa-alert tfa-alert--error" role="alert">
-        <%= flash[:alert] %>
-      </div>
-    <% end %>
-
-    <%= form_with url: confirm_two_factor_auth_path, method: :post,
-                  html: { class: 'tfa-form', autocomplete: 'off' } do |f| %>
-      <div class="tfa-otp-group tfa-otp-group--centered">
-        <%= f.text_field :otp_code,
-              placeholder: '000 000',
-              class: 'tfa-otp-input tfa-otp-input--large',
-              maxlength: 9,
-              inputmode: 'numeric',
-              autofocus: true,
-              required: true,
-              aria: { label: 'Authentication code' } %>
-        <%= f.submit 'Verify',
-              class: 'tfa-btn tfa-btn--primary tfa-btn--full' %>
-      </div>
-    <% end %>
-
-    <div class="tfa-card__footer tfa-card__footer--center">
-      <p class="tfa-hint">
-        Lost your device?
-        <%= link_to 'Use a backup code', '#',
-              class: 'tfa-link',
-              onclick: "document.querySelector('.tfa-otp-input').placeholder='XXXX-XXXX'; return false;" %>
-      </p>
-      <%= link_to '← Back to sign in', new_user_session_path, class: 'tfa-back-link' %>
-    </div>
-
   </div>
 </div>
-
-<%= stylesheet_link_tag 'two_factor_auth', 'data-turbo-track': 'reload' %>

@@ -1,16 +1,75 @@
-<h2>Resend confirmation instructions</h2>
+<%= stylesheet_link_tag 'auth_premium', media: 'all', 'data-turbo-track': 'reload' %>
+<script src="/assets/auth_premium.js" data-turbo-track="reload"></script>
 
-<%= form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post }) do |f| %>
-  <%= render "users/shared/error_messages", resource: resource %>
-
-  <div class="field">
-    <p><%= f.label :email %></p>
-    <p><%= f.email_field :email, autofocus: true, autocomplete: "email", value: (resource.pending_reconfirmation? ? resource.unconfirmed_email : resource.email) %></p>
+<div class="ap-viewport">
+  <!-- Dynamic Ambient Backdrop & Particle Canvas -->
+  <div class="ap-ambient-bg">
+    <canvas id="apCanvas" class="ap-canvas"></canvas>
+    <div class="ap-glow-orb ap-glow-orb--1"></div>
+    <div class="ap-glow-orb ap-glow-orb--2"></div>
+    <div class="ap-glow-orb ap-glow-orb--3"></div>
   </div>
+  <div class="ap-grid-overlay"></div>
 
-  <div class="actions">
-    <%= f.submit "Resend confirmation instructions" %>
+  <!-- Split-Screen Container -->
+  <div class="ap-split-wrapper">
+    <!-- LEFT SIDE: Animated App Showcase -->
+    <%= render "users/shared/showcase_panel" %>
+
+    <!-- RIGHT SIDE: Authentication Form Panel -->
+    <div class="ap-form-panel">
+      <div class="ap-card">
+        <div class="ap-card-border-glow"></div>
+
+        <!-- Header -->
+        <div class="ap-header">
+          <h1 class="ap-title">Resend email verification</h1>
+          <p class="ap-subtitle">Enter your email to receive a new confirmation link</p>
+        </div>
+
+        <!-- Validation Errors -->
+        <%= render "users/shared/error_messages", resource: resource %>
+
+        <!-- Resend Confirmation Form -->
+        <%= form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post, class: 'ap-form' }) do |f| %>
+          
+          <!-- Email Input -->
+          <div class="ap-form-group">
+            <label class="ap-label" for="user_email">Email Address</label>
+            <div class="ap-input-wrapper">
+              <%= f.email_field :email,
+                    id: 'user_email',
+                    autofocus: true,
+                    autocomplete: "email",
+                    value: (resource.pending_reconfirmation? ? resource.unconfirmed_email : resource.email),
+                    placeholder: "name@example.com",
+                    class: "ap-input",
+                    required: true %>
+              <div class="ap-input-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <%= f.button type: :submit, class: "ap-btn-primary" do %>
+            <span class="ap-btn-text">Resend Confirmation Link</span>
+            <div class="ap-spinner"></div>
+          <% end %>
+        <% end %>
+
+        <!-- Footer Switcher -->
+        <div class="ap-footer">
+          <%= link_to "← Back to Sign In", new_session_path(resource_name), class: "ap-footer-link" %>
+        </div>
+
+        <div class="ap-copyright">
+          © <%= Time.current.year %> Sangam. All rights reserved.
+        </div>
+      </div>
+    </div>
   </div>
-<% end %>
-
-<%= render "users/shared/links" %>
+</div>

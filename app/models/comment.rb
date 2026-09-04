@@ -21,6 +21,26 @@ class Comment < ApplicationRecord
   scope :with_user, -> { includes(:user) }
 
   after_create :create_notifications
+  after_create_commit :broadcast_comment_stream
+
+  private
+
+  def broadcast_comment_stream
+    if top_level?
+      broadcast_append_to "post_#{post_id}_comments",
+                          target: "comments-list-#{post_id}",
+                          partial: "comments/comment",
+                          locals: { comment: self, post: post }
+    else
+      parent_target_id = root_parent ? root_parent.id : parent_id
+      broadcast_append_to "post_#{post_id}_comments",
+                          target: "replies-#{parent_target_id}",
+                          partial: "comments/comment",
+                          locals: { comment: self, post: post }
+    end
+  rescue => e
+    Rails.logger.error "Comment broadcast failed: #{e.message}"
+  end
 
   def reply?
     parent_id.present?

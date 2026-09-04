@@ -58,12 +58,16 @@ group :development, :test do
 
   # RSpec for testing
   gem "rspec-rails", "~> 7.1"
+
+  # Detect N+1 queries and unused eager loading
+  gem "bullet"
   
   # FactoryBot for test data
   gem "factory_bot_rails", "~> 6.4"
   
   # Faker for generating fake data
   gem "faker", "~> 3.5"
+  gem "pry-rails"
 end
 
 # Pagination
@@ -93,6 +97,9 @@ group :test do
   
   # Shoulda matchers for RSpec
   gem "shoulda-matchers", "~> 6.0"
+  
+  # Mock HTTP requests
+  gem "webmock", require: false
 end
 gem "devise"
 gem "omniauth-google-oauth2", "~> 1.1"
@@ -108,3 +115,6 @@ gem 'cloudinary', '~> 2.2'
 
 # Groupdate for time-based grouping
 gem 'groupdate', '~> 6.4'
+
+# Vector Search support
+gem 'pgvector', '~> 0.2'

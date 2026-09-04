@@ -128,7 +128,7 @@ document.addEventListener('change', function(e) {
   if (!e.target.matches('#new-post-form .file-input')) return;
 
   const fileInput = e.target;
-  const files = Array.from(fileInput.files).filter(f => f.type.startsWith('image/'));
+  const files = Array.from(fileInput.files).filter(f => f.type.startsWith('image/') || f.type.startsWith('video/'));
   if (!files.length) return;
 
   // Find preview area inside the same form
@@ -148,9 +148,16 @@ document.addEventListener('change', function(e) {
       const item = document.createElement('div');
       item.style.cssText = 'position:relative;border-radius:8px;overflow:hidden;';
 
-      const img = document.createElement('img');
-      img.src = ev.target.result;
-      img.style.cssText = 'width:80px;height:80px;object-fit:cover;display:block;border-radius:8px;border:2px solid #e4e6ea;';
+      let mediaEl;
+      if (file.type.startsWith('video/')) {
+        mediaEl = document.createElement('video');
+        mediaEl.src = ev.target.result;
+        mediaEl.controls = true;
+      } else {
+        mediaEl = document.createElement('img');
+        mediaEl.src = ev.target.result;
+      }
+      mediaEl.style.cssText = 'width:80px;height:80px;object-fit:cover;display:block;border-radius:8px;border:2px solid #e4e6ea;';
 
       const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
@@ -161,7 +168,7 @@ document.addEventListener('change', function(e) {
         fileInput.value = '';
       });
 
-      item.appendChild(img);
+      item.appendChild(mediaEl);
       item.appendChild(removeBtn);
       wrapper.appendChild(item);
     };

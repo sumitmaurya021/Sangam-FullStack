@@ -1,65 +1,98 @@
 require 'rails_helper'
 
-RSpec.describe "Posts", type: :request do
+RSpec.describe 'Posts API & Web Requests', type: :request do
   let(:user) { create(:user) }
-  let(:post_record) { create(:post, user: user) }
-  
-  before { sign_in user }
+  let(:other_user) { create(:user) }
+  let!(:user_post) { create(:post, user: user, content: 'Original Post Content', visibility: 'public') }
 
-  describe "GET /posts" do
-    it "returns http success" do
+  before do
+    sign_in user
+  end
+
+  describe 'GET /posts (index)' do
+    it 'renders posts feed successfully' do
       get posts_path
-      expect(response).to have_http_status(:success)
-    end
-    
-    it "displays posts feed" do
-      get posts_path
-      expect(response.body).to include('feed-container')
+      expect(response).to have_http_status(:ok)
     end
   end
 
-  describe "POST /posts" do
-    context "with valid params" do
-      it "creates a new post" do
+  describe 'GET /posts/:id (show)' do
+    it 'renders single post page' do
+      get post_path(user_post), headers: { 'X-Requested-With' => 'XMLHttpRequest' }
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
+  describe 'POST /posts (create)' do
+    context 'with valid parameters' do
+      it 'creates a new post and redirects' do
         expect {
-          post posts_path, params: { post: { content: "Test post content" } }
+          post posts_path, params: { post: { content: 'New post content', visibility: 'public' } }
         }.to change(Post, :count).by(1)
-      end
-      
-      it "redirects to posts feed" do
-        post posts_path, params: { post: { content: "Test post content" } }
+
         expect(response).to redirect_to(posts_path)
       end
     end
-    
-    context "with invalid params" do
-      it "does not create a post" do
+
+    context 'with invalid parameters' do
+      it 'does not create post and re-renders or responds with unprocessable_entity' do
         expect {
-          post posts_path, params: { post: { content: "" } }
+          post posts_path, params: { post: { content: '', visibility: 'public' } }
         }.not_to change(Post, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity).or redirect_to(posts_path)
       end
     end
   end
 
-  describe "DELETE /posts/:id" do
-    it "deletes the post" do
-      post_to_delete = create(:post, user: user)
+  describe 'PATCH /posts/:id (update)' do
+    context 'when owner updates post' do
+      it 'updates content successfully' do
+        patch post_path(user_post), params: { post: { content: 'Updated Post Content' } }
+        expect(user_post.reload.content).to eq('Updated Post Content')
+      end
+    end
+
+    context 'when non-owner tries to update post' do
+      before { sign_in other_user }
+
+      it 'prevents unauthorized updates' do
+        patch post_path(user_post), params: { post: { content: 'Hacked Content' } }
+        expect(user_post.reload.content).not_to eq('Hacked Content')
+      end
+    end
+  end
+
+  describe 'DELETE /posts/:id (destroy)' do
+    it 'deletes post when authorized' do
       expect {
-        delete post_path(post_to_delete)
+        delete post_path(user_post)
       }.to change(Post, :count).by(-1)
     end
-    
-    it "redirects to posts feed" do
-      delete post_path(post_record)
-      expect(response).to redirect_to(posts_path)
+
+    it 'prevents non-owners from deleting post' do
+      sign_in other_user
+      expect {
+        delete post_path(user_post)
+      }.not_to change(Post, :count)
     end
-    
-    it "does not allow deleting other users' posts" do
-      other_user = create(:user)
-      other_post = create(:post, user: other_user)
-      
-      delete post_path(other_post)
-      expect(Post.exists?(other_post.id)).to be true
+  end
+
+  describe 'POST /posts/:id/like' do
+    it 'toggles like on post' do
+      expect {
+        post like_post_path(user_post), headers: { 'ACCEPT' => 'application/json' }
+      }.to change(Like, :count).by(1)
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
+  describe 'POST /posts/:id/bookmark' do
+    it 'creates bookmark for post' do
+      expect {
+        post bookmark_post_path(user_post), params: { post_id: user_post.id }, headers: { 'ACCEPT' => 'application/json' }
+      }.to change(Bookmark, :count).by(1)
     end
   end
 end

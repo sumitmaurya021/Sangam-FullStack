@@ -21,11 +21,16 @@
   </div>
 
   <div class="form-group-future">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 8px;">
       <%= f.label :content, "Knowledge Core", style: "margin-bottom: 0;" %>
-      <button type="button" id="aiGhostwriterBtn" class="ai-ghostwriter-btn" title="Generate with AI">
-        ✨ AI Ghostwriter
-      </button>
+      <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+        <button type="button" onclick="triggerCoWriter('continue')" style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); color: #a5b4fc; padding: 4px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer;">✍️ Continue Writing</button>
+        <button type="button" onclick="triggerCoWriter('outline')" style="background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); color: #c084fc; padding: 4px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer;">📑 Outline</button>
+        <button type="button" onclick="triggerCoWriter('fix_grammar')" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7; padding: 4px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer;">✨ Fix Grammar</button>
+        <button type="button" id="aiGhostwriterBtn" class="ai-ghostwriter-btn" title="Full Article Magic">
+          ✨ Full Article
+        </button>
+      </div>
     </div>
     <div class="editor-wrapper-glass">
       <%= f.rich_text_area :content, class: 'rich-editor-glass', id: 'article_content' %>
@@ -145,4 +150,54 @@
       });
     });
   });
+
+  window.triggerCoWriter = function(mode) {
+    const title = document.getElementById("article_title")?.value || "";
+    const trixEditor = document.querySelector("trix-editor");
+    const currentText = trixEditor?.editor?.getDocument()?.toString() || "";
+
+    if (!title && !currentText) {
+      if (window.showAiToast) {
+        window.showAiToast("Please type an Article Title or draft text first.", "info", "✍️");
+      } else {
+        alert("Please type an Article Title or draft text first.");
+      }
+      return;
+    }
+
+    if (window.showAiToast) {
+      window.showAiToast("AI Co-Writer drafting content...", "info", "✨");
+    }
+
+    fetch("/api/ai/article_co_writer", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content || ""
+      },
+      body: JSON.stringify({ title: title, text: currentText, mode: mode })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.generated_content && trixEditor && trixEditor.editor) {
+        trixEditor.editor.insertHTML(`<p>${data.generated_content.replace(/\n/g, '<br>')}</p>`);
+        if (window.showAiToast) {
+          window.showAiToast("AI content generated successfully!", "success", "✨");
+        }
+      } else {
+        if (window.showAiToast) {
+          window.showAiToast(data.error || "Co-writer could not generate content.", "error", "❌");
+        } else {
+          alert(data.error || "Co-writer could not generate content.");
+        }
+      }
+    })
+    .catch(err => {
+      if (window.showAiToast) {
+        window.showAiToast("Co-writer network error.", "error", "⚠️");
+      } else {
+        alert("Co-writer network error.");
+      }
+    });
+  };
 </script>

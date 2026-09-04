@@ -41,14 +41,71 @@
     <%= stylesheet_link_tag 'shared/collections',             'data-turbo-track': 'reload' %>
     <%= stylesheet_link_tag 'shared/lightbox',                'data-turbo-track': 'reload' %>
     <%= stylesheet_link_tag 'futuristic_ai',                  'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'digital_twin',                    'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'ux_mutations',                    'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'ux_evolution_studio',            'data-turbo-track': 'reload' %>
+    <%= stylesheet_link_tag 'synapse_stream',                  'data-turbo-track': 'reload' %>
     <%= yield :head %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body class="<%= 'dark-mode' if user_signed_in? && current_user.dark_mode %>"
-        data-dark-mode="<%= user_signed_in? && current_user.dark_mode ? 'true' : 'false' %>">
+        data-dark-mode="<%= user_signed_in? && current_user.dark_mode ? 'true' : 'false' %>"
+        data-ux-mode="<%= current_ux_mode %>">
+
     <%= yield %>
     <%= render 'shared/chat_widget' if user_signed_in? %>
     <%= render 'shared/lightbox' %>
+    <%= render 'shared/ai_copilot_modal' if user_signed_in? %>
+    <%= render 'shared/ai_reel_studio_modal' if user_signed_in? %>
+    <%= render 'shared/ai_catch_up_modal' if user_signed_in? %>
+
+    <script>
+      window.translateTranscriptText = function(selectEl, targetId) {
+        let targetLang = selectEl.value;
+        if (!targetLang) return;
+
+        if (targetLang === 'CUSTOM') {
+          targetLang = prompt('Enter any language name in the world (e.g. Swahili, Korean, Punjabi, Italian, Latin, etc.):');
+          if (!targetLang || !targetLang.trim()) {
+            selectEl.value = '';
+            return;
+          }
+        }
+
+        const pEl = document.getElementById(targetId);
+        if (!pEl) return;
+
+        const originalText = pEl.getAttribute('data-original-text') || pEl.textContent;
+        if (!pEl.getAttribute('data-original-text')) {
+          pEl.setAttribute('data-original-text', originalText);
+        }
+
+        pEl.style.opacity = '0.4';
+        selectEl.disabled = true;
+
+        fetch('/api/ai/translate_text', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+          },
+          body: JSON.stringify({ text: originalText, target_language: targetLang })
+        })
+        .then(r => r.json())
+        .then(data => {
+          selectEl.disabled = false;
+          pEl.style.opacity = '1';
+          if (data.translated_text) {
+            pEl.textContent = data.translated_text;
+          }
+        })
+        .catch(err => {
+          selectEl.disabled = false;
+          pEl.style.opacity = '1';
+          console.error('Translation failed:', err);
+        });
+      };
+    </script>
   </body>
 </html>

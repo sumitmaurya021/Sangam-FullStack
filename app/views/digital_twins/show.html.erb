@@ -1,0 +1,206 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+
+  <div class="dt-container">
+    <%# Dynamic Background Glows %>
+    <div class="premium-backdrop-glow blur-purple" style="position: absolute; width: 400px; height: 400px; background: rgba(99, 102, 241, 0.15); filter: blur(100px); border-radius: 50%; pointer-events: none;"></div>
+    <div class="premium-backdrop-glow blur-pink" style="position: absolute; right: 10%; width: 350px; height: 350px; background: rgba(168, 85, 247, 0.15); filter: blur(100px); border-radius: 50%; pointer-events: none;"></div>
+
+    <%# Top Header & Status Card %>
+    <div class="dt-header-card">
+      <div class="dt-header-title-group">
+        <div class="dt-header-icon">⚡</div>
+        <div>
+          <h1 class="dt-header-title">Digital Twin Control Studio</h1>
+          <p class="dt-header-subtitle">Deploy an autonomous AI proxy to triage messages, answer marketplace queries, and manage group chats when away.</p>
+        </div>
+      </div>
+
+      <div class="dt-status-pill-box">
+        <div>
+          <span style="display: block; font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b;">Proxy Status</span>
+          <span class="dt-status-indicator <%= @digital_twin.enabled? ? 'active' : 'inactive' %>">
+            <% if @digital_twin.enabled? %>
+              <span class="dt-pulse-dot"></span> Active & Operational
+            <% else %>
+              ○ Deactivated
+            <% end %>
+          </span>
+        </div>
+        <%= button_to toggle_digital_twin_path, method: :patch, class: "dt-toggle-btn #{@digital_twin.enabled? ? 'btn-deactivate' : 'btn-activate'}" do %>
+          <%= @digital_twin.enabled? ? 'Deactivate' : 'Activate Twin' %>
+        <% end %>
+      </div>
+    </div>
+
+    <% if notice %>
+      <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 14px; padding: 14px 20px; color: #10b981; font-weight: 600; font-size: 14px; margin-bottom: 24px;">
+        <%= notice %>
+      </div>
+    <% end %>
+
+    <%# Main Grid Layout %>
+    <div class="dt-grid">
+      <%# Left Column: Configuration & Activity Stream %>
+      <div>
+        <div class="dt-card">
+          <h2 class="dt-card-title">
+            <span style="font-size: 20px;">⚙️</span> Persona & Delegation Guardrails
+          </h2>
+
+          <%= form_with(model: @digital_twin, url: digital_twin_path, method: :patch) do |f| %>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+              <div class="dt-form-group">
+                <%= f.label :persona_name, "Digital Twin Persona Name", class: "dt-form-label" %>
+                <%= f.text_field :persona_name, class: "dt-input", placeholder: "e.g. Alex's AI Proxy" %>
+              </div>
+              <div class="dt-form-group">
+                <%= f.label :mode, "Activation Mode", class: "dt-form-label" %>
+                <%= f.select :mode, [["Away Only (Runs when offline)", "away_only"], ["Always On (Responds 24/7)", "always_on"]], {}, class: "dt-select" %>
+              </div>
+            </div>
+
+            <div class="dt-form-group">
+              <%= f.label :tone, "Communication Tone", class: "dt-form-label" %>
+              <%= f.select :tone, [["Friendly & Professional", "friendly_professional"], ["Casual & Concise", "casual_concise"], ["Formal & Direct", "formal_direct"]], {}, class: "dt-select" %>
+            </div>
+
+            <div class="dt-form-group">
+              <%= f.label :custom_instructions, "Custom Knowledge & Instructions", class: "dt-form-label" %>
+              <%= f.text_area :custom_instructions, rows: 4, placeholder: "e.g. Tell marketplace buyers I live in Downtown Seattle. I ship items on Mondays and prefer cash for local pickup.", class: "dt-textarea" %>
+            </div>
+
+            <div class="dt-form-group" style="border-top: 1px solid var(--border-card, #e2e8f0); padding-top: 20px; margin-top: 20px;">
+              <label class="dt-form-label">Auto-Reply Trigger Channels</label>
+              <div class="dt-checkbox-group">
+                <label class="dt-checkbox-label">
+                  <%= f.check_box :auto_reply_dms, style: "accent-color: #6366f1; width: 16px; height: 16px;" %>
+                  Direct Messages
+                </label>
+                <label class="dt-checkbox-label">
+                  <%= f.check_box :auto_reply_marketplace, style: "accent-color: #6366f1; width: 16px; height: 16px;" %>
+                  Marketplace Queries
+                </label>
+                <label class="dt-checkbox-label">
+                  <%= f.check_box :auto_reply_group_chats, style: "accent-color: #6366f1; width: 16px; height: 16px;" %>
+                  Group Chats
+                </label>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 24px;">
+              <%= f.submit "Save Configuration", class: "dt-btn-save" %>
+            </div>
+          <% end %>
+        </div>
+
+        <%# Activity Audit Stream %>
+        <div class="dt-card">
+          <h2 class="dt-card-title">
+            <span style="font-size: 20px;">📋</span> Autonomous Audit Log Stream
+          </h2>
+
+          <% if @logs.empty? %>
+            <div style="text-align: center; padding: 40px 20px; border: 2px dashed var(--border-card, #e2e8f0); border-radius: 16px; color: #94a3b8; font-size: 14px;">
+              No activity logs recorded yet. Run a simulation test on the right panel to trigger an audit log.
+            </div>
+          <% else %>
+            <div>
+              <% @logs.each do |log| %>
+                <div class="dt-log-item">
+                  <div class="dt-log-meta">
+                    <span>
+                      <span class="dt-badge <%= log.status == 'executed' ? 'dt-badge-success' : 'dt-badge-blocked' %>"><%= log.status %></span>
+                      <strong style="margin-left: 8px; color: var(--text-color, #0f172a);"><%= log.trigger_source.humanize %></strong> — From: <%= log.sender_name %>
+                    </span>
+                    <span style="font-size: 11px;"><%= log.created_at.strftime("%b %d, %H:%M") %></span>
+                  </div>
+                  <div style="font-size: 13px; font-style: italic; color: var(--text-muted, #64748b); margin: 6px 0;">
+                    "<%= log.input_text %>"
+                  </div>
+                  <div style="background: rgba(9, 13, 22, 0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 10px 14px; font-family: monospace; font-size: 12px; color: #60a5fa;">
+                    <%= log.output_text || log.reason %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Right Column: Simulation Terminal Sandbox %>
+      <div>
+        <div class="dt-card" style="position: sticky; top: 90px;">
+          <h2 class="dt-card-title">
+            <span style="font-size: 20px;">🧪</span> Simulation Sandbox
+          </h2>
+          <p style="font-size: 13px; color: var(--text-muted, #64748b); line-height: 1.5; margin-bottom: 16px;">
+            Test how your Digital Twin proxy answers hypothetical inquiries and enforces safety guardrails before going live.
+          </p>
+
+          <div class="dt-form-group">
+            <label class="dt-form-label">Hypothetical Inquiry</label>
+            <textarea id="sandbox_input" rows="4" class="dt-textarea" placeholder="e.g. Is your camera listing still available? What is your lowest price?"></textarea>
+          </div>
+
+          <button type="button" id="btn-run-simulation" class="dt-btn-save" style="width: 100%; margin-top: 8px;">
+            Run Simulation Test
+          </button>
+
+          <div id="simulation-output" style="display: none; margin-top: 20px;">
+            <label class="dt-form-label">Simulation Response Terminal</label>
+            <div id="simulation-text" class="dt-terminal-box"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("btn-run-simulation");
+    const input = document.getElementById("sandbox_input");
+    const outputContainer = document.getElementById("simulation-output");
+    const outputText = document.getElementById("simulation-text");
+
+    if (btn && input) {
+      btn.addEventListener("click", async () => {
+        const text = input.value.trim();
+        if (!text) return;
+
+        btn.innerText = "Running Reasoning Loop...";
+        btn.disabled = true;
+
+        try {
+          const res = await fetch("<%= test_run_digital_twin_path %>", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ test_input: text, trigger_source: "direct_message" })
+          });
+
+          const data = await res.json();
+          outputContainer.style.display = "block";
+
+          if (data.success) {
+            outputText.innerText = `[SUCCESS RESPONSE]\n${data.response}`;
+            outputText.style.color = "#34d399";
+          } else {
+            outputText.innerText = `[BLOCKED / GUARDRAIL ACTIVATED]\n${data.reason || "Failed"}`;
+            outputText.style.color = "#fbbf24";
+          }
+        } catch (err) {
+          outputContainer.style.display = "block";
+          outputText.innerText = `[ERROR]\n${err.message}`;
+          outputText.style.color = "#f87171";
+        } finally {
+          btn.innerText = "Run Simulation Test";
+          btn.disabled = false;
+        }
+      });
+    }
+  });
+</script>

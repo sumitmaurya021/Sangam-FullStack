@@ -1,0 +1,247 @@
+<div class="feed-container">
+  <%= render 'shared/header' %>
+
+  <div class="synapse-container">
+    <%# Backdrop Glows %>
+    <div class="premium-backdrop-glow blur-pink" style="position: absolute; width: 450px; height: 450px; background: rgba(236, 72, 153, 0.12); filter: blur(120px); border-radius: 50%; pointer-events: none;"></div>
+
+    <%# Hero Banner %>
+    <div class="synapse-hero-card">
+      <div>
+        <h1 class="synapse-title">Synapse-Stream Cross-Modal Studio</h1>
+        <p class="synapse-subtitle">Transform a single raw seed concept or voice memo simultaneously into an Article, Reel Script, Social Post, and Marketplace Listing.</p>
+      </div>
+
+      <div style="display: flex; items-center; gap: 12px;">
+        <button type="button" id="btn-mic-record" class="mic-record-btn" title="Click to start/stop live voice recording">
+          🎙️
+        </button>
+      </div>
+    </div>
+
+    <% if notice %>
+      <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 14px; padding: 14px 20px; color: #10b981; font-weight: 600; font-size: 14px; margin-bottom: 24px;">
+        <%= notice %>
+      </div>
+    <% end %>
+
+    <% if alert %>
+      <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 14px; padding: 14px 20px; color: #ef4444; font-weight: 600; font-size: 14px; margin-bottom: 24px;">
+        <%= alert %>
+      </div>
+    <% end %>
+
+    <%# Main Grid Layout %>
+    <div class="dt-grid">
+      <%# Left / Main Panel: Input Form & Multi-Canvas Preview %>
+      <div>
+        <%# Input Seed Prompt Card %>
+        <div class="dt-card">
+          <h2 class="dt-card-title">
+            <span style="font-size: 20px;">💡</span> Input Seed Concept or Audio Stream
+          </h2>
+
+          <%= form_with(url: synapse_streams_path, method: :post) do |f| %>
+            <div class="dt-form-group">
+              <%= f.text_area :raw_input_text, id: "raw_input_prompt", rows: 4, class: "dt-textarea", placeholder: "Type a raw concept or click the microphone button above to record voice memo (e.g. 'I built a 3D printed mechanical keyboard with custom switches')..." %>
+              <input type="hidden" name="audio_transcription" id="audio_transcription_field" />
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 16px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <label class="dt-form-label" style="margin-bottom: 0;">Primary Intent:</label>
+                <%= f.select :primary_intent, [["General Idea", "general"], ["Commerce / Selling", "commerce"], ["Educational / Guide", "educational"], ["Storytelling", "storytelling"]], {}, class: "dt-select", style: "width: auto; padding: 8px 14px;" %>
+              </div>
+
+              <%= f.submit "✨ Synthesize Cross-Modal Graph", class: "dt-btn-save", style: "background: linear-gradient(135deg, #ec4899, #a855f7);" %>
+            </div>
+          <% end %>
+        </div>
+
+        <%# Active Stream Multi-Canvas Preview %>
+        <% if @active_stream && @active_stream.persisted? %>
+          <div class="dt-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h2 class="dt-card-title" style="margin-bottom: 0;">
+                <span style="font-size: 20px;">🎨</span> Synthesized Cross-Modal Canvas
+              </h2>
+              <span class="publish-status-pill <%= @active_stream.published? ? 'published' : 'synthesized' %>">
+                <%= @active_stream.status %>
+              </span>
+            </div>
+
+            <%# Tab Bar %>
+            <div class="canvas-tab-bar">
+              <button type="button" class="canvas-tab-btn active" data-tab="tab-post">📱 Social Post</button>
+              <button type="button" class="canvas-tab-btn" data-tab="tab-article">📰 Rich Article</button>
+              <button type="button" class="canvas-tab-btn" data-tab="tab-reel">🎬 Reel Script</button>
+              <button type="button" class="canvas-tab-btn" data-tab="tab-mkt">🛍️ Marketplace Draft</button>
+            </div>
+
+            <%# Tab Content 1: Social Post %>
+            <div id="tab-post" class="canvas-tab-content">
+              <% post = @active_stream.synthesized_post_data || {} %>
+              <div style="background: var(--bg-log, #f8fafc); border: 1px solid var(--border-log, #e2e8f0); border-radius: 14px; padding: 18px;">
+                <div style="font-size: 15px; color: var(--text-color, #0f172a); white-space: pre-wrap; line-height: 1.6;"><%= post['content'] || 'No post content synthesized.' %></div>
+                <% if post['hashtags'].present? %>
+                  <div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px;">
+                    <% post['hashtags'].each do |tag| %>
+                      <span style="font-size: 12px; font-weight: 700; color: #a855f7; background: rgba(168, 85, 247, 0.1); padding: 4px 10px; border-radius: 8px;"><%= tag %></span>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+
+            <%# Tab Content 2: Rich Article %>
+            <div id="tab-article" class="canvas-tab-content" style="display: none;">
+              <% article = @active_stream.synthesized_article_data || {} %>
+              <div style="background: var(--bg-log, #f8fafc); border: 1px solid var(--border-log, #e2e8f0); border-radius: 14px; padding: 20px;">
+                <h3 style="font-size: 20px; font-weight: 800; color: var(--text-color, #0f172a); margin: 0 0 6px 0;"><%= article['title'] || 'Untitled Article' %></h3>
+                <div style="font-size: 13px; font-weight: 600; color: #a855f7; margin-bottom: 14px;"><%= article['subtitle'] %></div>
+                <div style="font-size: 14px; color: var(--text-color, #334155); line-height: 1.7;"><%= raw article['body'] %></div>
+              </div>
+            </div>
+
+            <%# Tab Content 3: Reel Script %>
+            <div id="tab-reel" class="canvas-tab-content" style="display: none;">
+              <% reel = @active_stream.synthesized_reel_data || {} %>
+              <div style="background: var(--bg-log, #f8fafc); border: 1px solid var(--border-log, #e2e8f0); border-radius: 14px; padding: 20px;">
+                <h3 style="font-size: 16px; font-weight: 800; color: #ec4899; margin: 0 0 8px 0;">Hook: "<%= reel['hooks'] %>"</h3>
+                <div style="font-size: 14px; color: var(--text-color, #0f172a); margin-bottom: 14px; line-height: 1.5;"><strong>Voiceover Script:</strong> <%= reel['script'] %></div>
+                <% if reel['scenes'].present? %>
+                  <div style="border-top: 1px solid var(--border-log, #cbd5e1); pt: 12px; margin-top: 12px;">
+                    <span class="dt-form-label">Scene Directions</span>
+                    <ul style="padding-left: 20px; font-size: 13px; color: var(--text-muted, #64748b);">
+                      <% reel['scenes'].each do |scene| %>
+                        <li><%= scene %></li>
+                      <% end %>
+                    </ul>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+
+            <%# Tab Content 4: Marketplace Draft %>
+            <div id="tab-mkt" class="canvas-tab-content" style="display: none;">
+              <% mkt = @active_stream.synthesized_marketplace_data || {} %>
+              <div style="background: var(--bg-log, #f8fafc); border: 1px solid var(--border-log, #e2e8f0); border-radius: 14px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <h3 style="font-size: 18px; font-weight: 800; color: var(--text-color, #0f172a); margin: 0;"><%= mkt['title'] || 'Marketplace Item' %></h3>
+                  <span style="font-size: 20px; font-weight: 900; color: #10b981;">$<%= mkt['price'] || '0.00' %></span>
+                </div>
+                <p style="font-size: 13px; color: var(--text-muted, #64748b); line-height: 1.5;"><%= mkt['description'] %></p>
+              </div>
+            </div>
+
+            <%# One-Click Multi-Publishing Button %>
+            <% unless @active_stream.published? %>
+              <div style="margin-top: 24px; text-align: right;">
+                <%= button_to publish_synapse_stream_path(@active_stream), method: :post, class: "dt-btn-save", style: "background: linear-gradient(135deg, #10b981, #059669); font-size: 15px; padding: 14px 32px;" do %>
+                  🚀 Publish All Content Streams Live
+                <% end %>
+              </div>
+            <% else %>
+              <div style="margin-top: 20px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 12px 18px; color: #10b981; font-weight: 700; font-size: 13px; text-align: center;">
+                ✓ Published to Live Feeds! (Post ID: <%= @active_stream.published_records['post_id'] %>, Article ID: <%= @active_stream.published_records['article_id'] %>)
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <%# Right Panel: Streams History List %>
+      <div>
+        <div class="dt-card">
+          <h2 class="dt-card-title">
+            <span style="font-size: 20px;">📚</span> Recent Synapse Streams
+          </h2>
+
+          <% if @streams.empty? %>
+            <div style="text-align: center; padding: 30px; color: #94a3b8; font-size: 13px;">
+              No streams synthesized yet. Type a concept prompt or record voice memo above.
+            </div>
+          <% else %>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <% @streams.each do |st| %>
+                <%= link_to synapse_stream_path(st), style: "text-decoration: none;" do %>
+                  <div style="background: var(--bg-log, #f8fafc); border: <%= st.id == @active_stream&.id ? '2px solid #a855f7' : '1px solid var(--border-log, #e2e8f0)' %>; border-radius: 12px; padding: 12px 14px; transition: border-color 0.2s;" class="hover:border-purple-500">
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; font-weight: 700;">
+                      <span><%= st.created_at.strftime("%b %d, %H:%M") %></span>
+                      <span class="publish-status-pill <%= st.published? ? 'published' : 'synthesized' %>" style="font-size: 9px; padding: 2px 6px;"><%= st.status %></span>
+                    </div>
+                    <div style="font-size: 13px; font-weight: 700; color: <%= st.id == @active_stream&.id ? '#a855f7' : 'var(--text-color, #0f172a)' %>; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      <%= st.synthesized_article_data['title'].presence || st.raw_input_text.to_s.truncate(28) %>
+                    </div>
+                  </div>
+                <% end %>
+              <% end %>
+
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Tab Switching Logic
+    const tabBtns = document.querySelectorAll(".canvas-tab-btn");
+    const tabContents = document.querySelectorAll(".canvas-tab-content");
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const targetId = btn.getAttribute("data-tab");
+        
+        tabBtns.forEach(b => b.classList.remove("active"));
+        tabContents.forEach(c => c.style.display = "none");
+
+        btn.classList.add("active");
+        const targetContent = document.getElementById(targetId);
+        if (targetContent) targetContent.style.display = "block";
+      });
+    });
+
+    // Voice Recorder Browser API Integration
+    const micBtn = document.getElementById("btn-mic-record");
+    const promptInput = document.getElementById("raw_input_prompt");
+    const transcriptionField = document.getElementById("audio_transcription_field");
+
+    if (micBtn && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      let isRecording = false;
+
+      micBtn.addEventListener("click", () => {
+        if (!isRecording) {
+          recognition.start();
+          micBtn.classList.add("recording");
+          isRecording = true;
+        } else {
+          recognition.stop();
+          micBtn.classList.remove("recording");
+          isRecording = false;
+        }
+      });
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        if (promptInput) promptInput.value = transcript;
+        if (transcriptionField) transcriptionField.value = transcript;
+        micBtn.classList.remove("recording");
+        isRecording = false;
+      };
+
+      recognition.onerror = () => {
+        micBtn.classList.remove("recording");
+        isRecording = false;
+      };
+    }
+  });
+</script>

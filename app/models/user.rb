@@ -7,12 +7,18 @@ class User < ApplicationRecord
          :omniauthable, omniauth_providers: %i[google_oauth2 github]
 
   # Active Storage Attachments
-  has_one_attached :avatar
-  has_one_attached :cover_photo
+  has_one_attached :avatar do |attachable|
+    attachable.variant :thumb, resize_to_fill: [80, 80]
+    attachable.variant :medium, resize_to_fill: [240, 240]
+  end
+  has_one_attached :cover_photo do |attachable|
+    attachable.variant :header, resize_to_limit: [1200, 400]
+  end
 
   # Associations
   has_many :articles, dependent: :destroy
   has_many :posts, dependent: :destroy
+  has_many :user_interactions, dependent: :destroy
   has_many :reels, dependent: :destroy
   has_many :reel_likes, dependent: :destroy
   has_many :reel_comments, dependent: :destroy
@@ -59,11 +65,25 @@ class User < ApplicationRecord
   # Marketplace
   has_many :marketplace_listings, dependent: :destroy
 
+  # Digital Twin Proxy
+  has_one :digital_twin, dependent: :destroy
+  has_many :digital_twin_logs, dependent: :destroy
+
+  # Self-Evolving UX Mutation
+  has_one :ux_mutation_preference, dependent: :destroy
+  has_many :ux_telemetry_events, dependent: :destroy
+
+  # Synapse-Stream Cross-Modal Studio
+  has_many :synapse_streams, dependent: :destroy
+
+
+
+
   # Post collaborations
   has_many :post_collaborators, dependent: :destroy
   has_many :collaborative_posts, through: :post_collaborators, source: :post
 
-  # Friendships
+  # Friendshipsg
   has_many :friendships, dependent: :destroy
   has_many :inverse_friendships, class_name: 'Friendship', foreign_key: 'friend_id', dependent: :destroy
   has_many :friends, -> { where(friendships: { status: 'accepted' }) }, through: :friendships, source: :friend
@@ -89,8 +109,22 @@ class User < ApplicationRecord
   def super_admin?
     super_admin == true
   end
+
+  def display_name
+    name.presence || email.to_s.split('@').first
+  end
+  alias_method :username, :display_name
+
   def all_friends
     friends + inverse_friends
+  end
+
+  def unread_notifications_count_cached
+    if respond_to?(:unread_notifications_count) && self[:unread_notifications_count].present?
+      self[:unread_notifications_count]
+    else
+      notifications.unread.count
+    end
   end
 
   def friends_with?(user)

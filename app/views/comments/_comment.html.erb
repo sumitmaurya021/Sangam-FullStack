@@ -26,7 +26,10 @@
     <div class="comment-meta">
       <span class="comment-time"><%= time_ago_in_words(comment.created_at) %> ago</span>
       <button class="comment-action-btn reply-btn"
-              onclick="replyToComment(<%= post.id %>, <%= comment.id %>, '<%= j(comment.user.name || comment.user.email) %>', <%= comment.user.id %>)">
+              data-action="click->comment-section#replyTo"
+              data-comment-section-comment-id-param="<%= comment.id %>"
+              data-comment-section-user-name-param="<%= j(comment.user.name || comment.user.email) %>"
+              data-comment-section-user-id-param="<%= comment.user.id %>">
         Reply
       </button>
       <% if comment.user == current_user %>
@@ -66,7 +69,10 @@
               <div class="comment-meta">
                 <span class="comment-time"><%= time_ago_in_words(reply.created_at) %> ago</span>
                 <button class="comment-action-btn reply-btn"
-                        onclick="replyToComment(<%= post.id %>, <%= comment.id %>, '<%= j(reply.user.name || reply.user.email) %>', <%= reply.user.id %>)">
+                        data-action="click->comment-section#replyTo"
+                        data-comment-section-comment-id-param="<%= comment.id %>"
+                        data-comment-section-user-name-param="<%= j(reply.user.name || reply.user.email) %>"
+                        data-comment-section-user-id-param="<%= reply.user.id %>">
                   Reply
                 </button>
                 <% if reply.user == current_user %>

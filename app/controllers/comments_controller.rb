@@ -1,9 +1,18 @@
 class CommentsController < ApplicationController
+  include AiModeratable
   before_action :set_post
 
   def create
     @comment = @post.comments.build(comment_params)
     @comment.user = current_user
+
+    mod_check = moderate_content!(@comment.content, target_type: "Comment")
+    if mod_check[:status] == :blocked
+      return redirect_back(fallback_location: posts_path, alert: "AI Safety Warning: #{mod_check[:reason]}")
+    elsif mod_check[:status] == :flagged_for_review
+      @comment.flagged = true
+      @comment.flag_reason = mod_check[:reason]
+    end
 
     # Instagram-style flat replies: always attach to root-level comment
     if @comment.parent_id.present?
@@ -20,7 +29,7 @@ class CommentsController < ApplicationController
 
     if @comment.save
       respond_to do |format|
-        format.html { redirect_back(fallback_location: posts_path) }
+        format.html { redirect_back(fallback_location: posts_path, notice: @comment.flagged? ? 'Comment sent for moderator review.' : nil) }
         format.turbo_stream
       end
     else

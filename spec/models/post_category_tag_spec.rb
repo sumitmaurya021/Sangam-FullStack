@@ -1,5 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe PostCategoryTag, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe 'associations' do
+    it { should belong_to(:post) }
+    it { should belong_to(:category_tag) }
+  end
 end

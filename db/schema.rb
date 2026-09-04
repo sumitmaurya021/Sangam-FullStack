@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_06_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -52,8 +52,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "ai_moderation_logs", force: :cascade do |t|
+    t.string "action_taken", default: "approved"
+    t.text "content_snippet"
+    t.datetime "created_at", null: false
+    t.string "flagged_categories"
+    t.text "reason"
+    t.bigint "target_id"
+    t.string "target_type"
+    t.float "toxicity_score", default: 0.0
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["action_taken"], name: "index_ai_moderation_logs_on_action_taken"
+    t.index ["target_type", "target_id"], name: "index_ai_moderation_logs_on_target_type_and_target_id"
+    t.index ["user_id"], name: "index_ai_moderation_logs_on_user_id"
+  end
+
   create_table "articles", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.text "embedding_data"
     t.boolean "published", default: true, null: false
     t.string "title"
     t.datetime "updated_at", null: false
@@ -136,6 +153,40 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
     t.index ["recipient_id"], name: "index_conversations_on_recipient_id"
     t.index ["sender_id", "recipient_id"], name: "index_conversations_on_sender_id_and_recipient_id", unique: true
     t.index ["sender_id"], name: "index_conversations_on_sender_id"
+  end
+
+  create_table "digital_twin_logs", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "digital_twin_id", null: false
+    t.text "input_text"
+    t.text "output_text"
+    t.string "reason"
+    t.string "sender_name"
+    t.string "status", default: "executed", null: false
+    t.string "trigger_source", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["digital_twin_id"], name: "index_digital_twin_logs_on_digital_twin_id"
+    t.index ["status"], name: "index_digital_twin_logs_on_status"
+    t.index ["user_id", "created_at"], name: "index_digital_twin_logs_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_digital_twin_logs_on_user_id"
+  end
+
+  create_table "digital_twins", force: :cascade do |t|
+    t.boolean "auto_reply_dms", default: true, null: false
+    t.boolean "auto_reply_group_chats", default: false, null: false
+    t.boolean "auto_reply_marketplace", default: true, null: false
+    t.datetime "created_at", null: false
+    t.text "custom_instructions"
+    t.boolean "enabled", default: false, null: false
+    t.jsonb "guardrails", default: {"flag_topics"=>["password", "bank", "address"], "max_daily_replies"=>50, "prohibit_financial_info"=>true, "prohibit_personal_phone"=>true}
+    t.decimal "min_marketplace_offer", precision: 10, scale: 2, default: "0.0"
+    t.string "mode", default: "away_only", null: false
+    t.string "persona_name", default: "Digital Twin"
+    t.string "tone", default: "friendly_professional"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_digital_twins_on_user_id", unique: true
   end
 
   create_table "event_responses", force: :cascade do |t|
@@ -223,6 +274,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
     t.boolean "deleted", default: false, null: false
     t.bigint "group_chat_id", null: false
     t.string "message_type", default: "text", null: false
+    t.text "transcription"
+    t.string "transcription_status"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["created_at"], name: "index_group_chat_messages_on_created_at"
@@ -304,6 +357,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
     t.string "condition", default: "used", null: false
     t.datetime "created_at", null: false
     t.text "description"
+    t.text "embedding_data"
     t.string "location_name"
     t.decimal "price", precision: 10, scale: 2
     t.boolean "price_negotiable", default: false, null: false
@@ -324,8 +378,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
     t.boolean "deleted", default: false, null: false
     t.string "message_type", default: "text", null: false
     t.datetime "read_at"
+    t.text "transcription"
+    t.string "transcription_status"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["conversation_id", "created_at"], name: "index_messages_on_conversation_id_and_created_at"
     t.index ["conversation_id"], name: "index_messages_on_conversation_id"
     t.index ["created_at"], name: "index_messages_on_created_at"
     t.index ["message_type"], name: "index_messages_on_message_type"
@@ -459,6 +516,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "edited_at"
+    t.text "embedding_data"
     t.string "flag_reason"
     t.boolean "flagged", default: false, null: false
     t.bigint "group_id"
@@ -488,7 +546,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
     t.index ["group_id"], name: "index_posts_on_group_id"
     t.index ["published"], name: "index_posts_on_published"
     t.index ["scheduled_at"], name: "index_posts_on_scheduled_at"
+    t.index ["user_id", "created_at"], name: "index_posts_on_user_id_and_created_at"
     t.index ["user_id"], name: "index_posts_on_user_id"
+    t.index ["visibility", "created_at"], name: "index_posts_on_visibility_and_created_at", order: { created_at: :desc }
     t.index ["visibility"], name: "index_posts_on_visibility"
   end
 
@@ -755,6 +815,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
     t.index ["user_id"], name: "index_story_views_on_user_id"
   end
 
+  create_table "synapse_streams", force: :cascade do |t|
+    t.text "audio_transcription"
+    t.datetime "created_at", null: false
+    t.string "primary_intent", default: "general", null: false
+    t.jsonb "published_records", default: {}
+    t.text "raw_input_text"
+    t.string "status", default: "draft", null: false
+    t.jsonb "synthesized_article_data", default: {}
+    t.jsonb "synthesized_marketplace_data", default: {}
+    t.jsonb "synthesized_post_data", default: {}
+    t.jsonb "synthesized_reel_data", default: {}
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["status"], name: "index_synapse_streams_on_status"
+    t.index ["user_id", "created_at"], name: "index_synapse_streams_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_synapse_streams_on_user_id"
+  end
+
   create_table "universe_themes", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name"
@@ -782,6 +860,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["category_tag_id"], name: "index_user_tag_affinities_on_category_tag_id"
+    t.index ["user_id", "category_tag_id"], name: "index_user_tag_affinities_on_user_id_and_category_tag_id"
     t.index ["user_id"], name: "index_user_tag_affinities_on_user_id"
   end
 
@@ -817,10 +896,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
     t.string "uid"
     t.string "unconfirmed_email"
     t.string "unlock_token"
+    t.integer "unread_notifications_count", default: 0, null: false
     t.datetime "updated_at", null: false
     t.boolean "verified", default: false, null: false
     t.string "website_url"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
+    t.index ["created_at"], name: "index_users_on_created_at"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["last_seen_at"], name: "index_users_on_last_seen_at"
     t.index ["online"], name: "index_users_on_online"
@@ -831,8 +912,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
     t.index ["verified"], name: "index_users_on_verified"
   end
 
+  create_table "ux_mutation_preferences", force: :cascade do |t|
+    t.boolean "auto_adapt", default: true, null: false
+    t.datetime "created_at", null: false
+    t.jsonb "custom_rules", default: {}
+    t.float "friction_score", default: 0.0, null: false
+    t.string "layout_mode", default: "standard", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_ux_mutation_preferences_on_user_id", unique: true
+  end
+
+  create_table "ux_telemetry_events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "duration_ms", default: 0
+    t.string "event_type", null: false
+    t.jsonb "metadata", default: {}
+    t.string "page_route", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["created_at"], name: "index_ux_telemetry_events_on_created_at"
+    t.index ["page_route", "event_type"], name: "index_ux_telemetry_events_on_page_route_and_event_type"
+    t.index ["user_id"], name: "index_ux_telemetry_events_on_user_id"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "ai_moderation_logs", "users"
   add_foreign_key "articles", "users"
   add_foreign_key "bookmark_collections", "users"
   add_foreign_key "bookmarks", "bookmark_collections"
@@ -846,6 +952,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
   add_foreign_key "comments", "users", column: "replied_to_user_id"
   add_foreign_key "conversations", "users", column: "recipient_id"
   add_foreign_key "conversations", "users", column: "sender_id"
+  add_foreign_key "digital_twin_logs", "digital_twins"
+  add_foreign_key "digital_twin_logs", "users"
+  add_foreign_key "digital_twins", "users"
   add_foreign_key "event_responses", "events"
   add_foreign_key "event_responses", "users"
   add_foreign_key "events", "users", column: "organizer_id"
@@ -913,8 +1022,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_24_085221) do
   add_foreign_key "story_qa_replies", "users"
   add_foreign_key "story_views", "stories"
   add_foreign_key "story_views", "users"
+  add_foreign_key "synapse_streams", "users"
   add_foreign_key "user_interactions", "posts"
   add_foreign_key "user_interactions", "users"
   add_foreign_key "user_tag_affinities", "category_tags"
   add_foreign_key "user_tag_affinities", "users"
+  add_foreign_key "ux_mutation_preferences", "users"
+  add_foreign_key "ux_telemetry_events", "users"
 end

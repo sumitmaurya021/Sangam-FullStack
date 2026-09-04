@@ -29,6 +29,13 @@ Rails.application.routes.draw do
       post 'auto_fill_listing', to: '/ai_features#auto_fill_listing'
       post 'rewrite_message', to: '/ai_features#rewrite_message'
       post 'search', to: '/ai_features#search'
+      post 'translate_text', to: '/ai_features#translate_text'
+      post 'copilot', to: '/ai_features#copilot'
+      post 'estimate_price', to: '/ai_features#estimate_price'
+      post 'negotiate_offer', to: '/ai_features#negotiate_offer'
+      post 'chat_summarize', to: '/ai_features#chat_summarize'
+      post 'generate_reel', to: '/ai_features#generate_reel'
+      post 'article_co_writer', to: '/ai_features#article_co_writer'
     end
     post 'interactions', to: '/interactions#create'
   end
@@ -168,6 +175,9 @@ Rails.application.routes.draw do
     get "users",      to: "dashboard#users",         as: "users"
     get "posts",      to: "dashboard#posts",         as: "posts"
     get "user/:id",   to: "dashboard#user_details",  as: "user_details"
+    get "moderation", to: "dashboard#moderation",    as: "moderation"
+    post "moderation/:id/approve", to: "dashboard#approve_moderation", as: "approve_moderation"
+    post "moderation/:id/reject",  to: "dashboard#reject_moderation",  as: "reject_moderation"
   end
 
   # Music search (proxies Deezer API to avoid CORS)
@@ -245,4 +255,27 @@ Rails.application.routes.draw do
 
   # ─── Dark Mode preference (AJAX toggle) ──────────────────────────────────────
   patch "settings/dark_mode", to: "settings#toggle_dark_mode", as: "toggle_dark_mode"
+
+  # ─── Autonomous Digital Twin Proxy (ADTP) ──────────────────────────────────
+  resource :digital_twin, only: [ :show, :update ] do
+    member do
+      patch :toggle
+      post :test_run
+    end
+  end
+
+  # ─── Self-Evolving UX Mutation ──────────────────────────────────────────────
+  resource :ux_mutation, only: [ :create, :update ] do
+    get :dashboard
+  end
+
+  # ─── Synapse-Stream Cross-Modal Studio ─────────────────────────────────────
+  resources :synapse_streams, only: [ :index, :show, :create ] do
+    member do
+      post :publish
+    end
+  end
 end
+
+
+

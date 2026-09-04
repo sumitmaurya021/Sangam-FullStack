@@ -390,7 +390,7 @@ body.dark-mode .ai-suggest-item:hover {
 .ai-suggest-icon-wrap.post-badge { background: rgba(56, 178, 172, 0.1); color: #319795; }
 .ai-suggest-icon-wrap.event-badge { background: rgba(237, 137, 54, 0.1); color: #dd6b20; }
 .ai-suggest-icon-wrap.group-badge { background: rgba(236, 110, 173, 0.1); color: #d53f8c; }
-.ai-suggest-icon-wrap.market-badge { background: rgba(245, 101, 101, 0.1); color: #e53e3e; }
+.ai-suggest-icon-wrap.ai-market-badge { background: rgba(245, 101, 101, 0.1); color: #e53e3e; }
 
 .ai-suggest-info {
   flex: 1;
@@ -779,7 +779,7 @@ body.dark-mode .ai-resource-card:hover {
 .ai-card-badge.group-badge { background: rgba(236, 110, 173, 0.1); color: #d53f8c; }
 .ai-card-badge.event-badge { background: rgba(237, 137, 54, 0.1); color: #dd6b20; }
 .ai-card-badge.article-badge { background: rgba(159, 122, 234, 0.1); color: #805ad5; }
-.ai-card-badge.market-badge { background: rgba(245, 101, 101, 0.1); color: #e53e3e; }
+.ai-card-badge.ai-market-badge { background: rgba(245, 101, 101, 0.1); color: #e53e3e; }
 
 .ai-card-time, .ai-card-count, .ai-card-price {
   font-size: 10px;
@@ -1057,3 +1057,308 @@ body.dark-mode .ai-search-empty-state h4 {
   0% { transform: scale(0.8); opacity: 0.6; box-shadow: 0 0 8px #8a2be2; }
   100% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 20px #c792ea; }
 }
+
+/* ==========================================================================
+   GLASSMORPHIС AI CATCH-UP MODAL & TOAST SYSTEM
+   ========================================================================== */
+.ai-glass-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100050;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ai-glass-modal-overlay.is-active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ai-glass-modal-card {
+  width: 100%;
+  max-width: 540px;
+  background: linear-gradient(135deg, rgba(26, 23, 48, 0.95), rgba(15, 23, 42, 0.96));
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6),
+              0 0 40px rgba(139, 92, 246, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  color: #f8fafc;
+  transform: translateY(20px) scale(0.96);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ai-glass-modal-overlay.is-active .ai-glass-modal-card {
+  transform: translateY(0) scale(1);
+}
+
+.ai-modal-header {
+  padding: 18px 22px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.18));
+  border-bottom: 1px solid rgba(139, 92, 246, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ai-modal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ai-modal-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+}
+
+.ai-modal-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: -0.2px;
+}
+
+.ai-modal-subtitle {
+  margin: 0;
+  font-size: 0.76rem;
+  color: #c7d2fe;
+}
+
+.ai-modal-close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-modal-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  transform: rotate(90deg);
+}
+
+.ai-modal-body {
+  padding: 24px 22px;
+  min-height: 180px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.ai-bullet-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ai-bullet-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 12px;
+  padding: 12px 14px;
+  transition: all 0.2s ease;
+}
+
+.ai-bullet-card:hover {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(139, 92, 246, 0.35);
+  transform: translateX(3px);
+}
+
+.ai-bullet-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3));
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #c7d2fe;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ai-bullet-text {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+
+.ai-sentiment-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.ai-sentiment-badge.positive {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.ai-sentiment-badge.neutral {
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  color: #a5b4fc;
+}
+
+.ai-sentiment-badge.urgent {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+.ai-modal-footer {
+  padding: 16px 22px;
+  background: rgba(15, 23, 42, 0.85);
+  border-top: 1px solid rgba(139, 92, 246, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ai-modal-action-btn {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: #e2e8f0;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ai-modal-action-btn:hover {
+  background: rgba(51, 65, 85, 0.9);
+  border-color: rgba(139, 92, 246, 0.4);
+  color: #ffffff;
+}
+
+.ai-modal-primary-btn {
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  border: none;
+  color: #ffffff;
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.35);
+  transition: all 0.2s ease;
+}
+
+.ai-modal-primary-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+}
+
+/* ==========================================================================
+   GLOBAL SANGAM AI TOAST SYSTEM
+   ========================================================================== */
+#sangamAiToastContainer {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 100099;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.sangam-ai-toast {
+  pointer-events: auto;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  color: #f8fafc;
+  padding: 10px 18px;
+  border-radius: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4),
+              0 0 20px rgba(139, 92, 246, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(14px) scale(0.96);
+  animation: ai-toast-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.sangam-ai-toast.toast-success {
+  border-color: rgba(16, 185, 129, 0.45);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(16, 185, 129, 0.25);
+}
+
+.sangam-ai-toast.toast-error {
+  border-color: rgba(239, 68, 68, 0.45);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(239, 68, 68, 0.25);
+}
+
+.sangam-ai-toast.fade-out {
+  animation: ai-toast-out 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes ai-toast-in {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ai-toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+}
+
