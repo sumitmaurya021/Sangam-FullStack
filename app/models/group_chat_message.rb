@@ -67,6 +67,34 @@ class GroupChatMessage < ApplicationRecord
     )
     # Touch parent so sidebar order updates
     group_chat.touch
+
+    # Send Web Push to other members of the group chat
+    preview_text = case message_type
+                   when 'image' then '📷 Sent a photo'
+                   when 'audio' then '🎙️ Sent a voice note'
+                   when 'file'  then '📎 Sent a file'
+                   else body.to_s.truncate(100)
+                   end
+
+    avatar_url = user.avatar.attached? ? Rails.application.routes.url_helpers.rails_blob_path(user.avatar, only_path: true) : '/icon.svg' rescue '/icon.svg'
+
+    group_chat.members.where.not(id: user_id).find_each do |member|
+      SendWebPushJob.perform_later(
+        member.id,
+        {
+          title: "#{group_chat.name.presence || 'Group Chat'} • #{user.name}",
+          body: preview_text,
+          icon: avatar_url,
+          path: Rails.application.routes.url_helpers.group_chat_path(group_chat_id),
+          tag: "group-chat-#{group_chat_id}",
+          data: {
+            group_chat_id: group_chat_id,
+            message_id: id,
+            type: 'group_message'
+          }
+        }
+      )
+    end
   rescue => e
     Rails.logger.error "GroupChatMessage broadcast failed: #{e.message}"
   end

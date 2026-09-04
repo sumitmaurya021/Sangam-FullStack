@@ -153,6 +153,24 @@ class Notification < ApplicationRecord
     if Rails.env.production? && !%w[story_view like reel_like].include?(notification_type)
       NotificationMailer.notification_email(self).deliver_later
     end
+
+    # Send Web Push notification if recipient is not the actor
+    if recipient_id != actor_id
+      SendWebPushJob.perform_later(
+        recipient_id,
+        {
+          title: "Sangam Notification",
+          body: notification_message,
+          icon: actor_avatar_url || "/icon.svg",
+          path: target_url(Rails.application.routes.url_helpers),
+          tag: "notif-#{id}",
+          data: {
+            notification_id: id,
+            notification_type: notification_type
+          }
+        }
+      )
+    end
   rescue => e
     Rails.logger.error "Notification broadcast failed: #{e.message}"
   end

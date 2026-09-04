@@ -99,6 +99,36 @@ class Message < ApplicationRecord
         }
       )
     end
+
+    # Send Web Push notification to the recipient
+    recipient_id = (conversation.sender_id == user_id ? conversation.recipient_id : conversation.sender_id)
+    if recipient_id.present?
+      preview_text = case message_type
+                     when 'image' then '📷 Sent a photo'
+                     when 'audio' then '🎙️ Sent a voice note'
+                     when 'video' then '🎥 Sent a video'
+                     when 'file'  then '📎 Sent a file'
+                     else body.to_s.truncate(100)
+                     end
+
+      avatar_url = user.avatar.attached? ? Rails.application.routes.url_helpers.rails_blob_path(user.avatar, only_path: true) : '/icon.svg' rescue '/icon.svg'
+
+      SendWebPushJob.perform_later(
+        recipient_id,
+        {
+          title: user.name.presence || 'New Message',
+          body: preview_text,
+          icon: avatar_url,
+          path: Rails.application.routes.url_helpers.conversation_path(conversation_id),
+          tag: "conversation-#{conversation_id}",
+          data: {
+            conversation_id: conversation_id,
+            message_id: id,
+            type: 'chat_message'
+          }
+        }
+      )
+    end
   end
 
   def broadcast_deletion

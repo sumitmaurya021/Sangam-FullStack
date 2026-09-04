@@ -118,3 +118,6 @@ gem 'groupdate', '~> 6.4'
 
 # Vector Search support
 gem 'pgvector', '~> 0.2'
+
+# Web Push Notifications (PWA + VAPID)
+gem 'webpush', '~> 1.1'

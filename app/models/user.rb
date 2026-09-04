@@ -51,6 +51,7 @@ class User < ApplicationRecord
   # Notifications
   has_many :notifications, foreign_key: :recipient_id, dependent: :destroy
   has_many :sent_notifications, class_name: 'Notification', foreign_key: :actor_id, dependent: :destroy
+  has_many :push_subscriptions, dependent: :destroy
 
   # Bookmark Collections
   has_many :bookmark_collections, dependent: :destroy

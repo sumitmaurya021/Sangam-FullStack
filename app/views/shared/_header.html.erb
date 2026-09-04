@@ -137,6 +137,27 @@
           <h3 class="premium-dropdown__title">Notifications</h3>
           <button class="premium-dropdown__action" id="markAllReadBtn">Mark all read</button>
         </div>
+
+        <!-- Push Notification Quick Switch -->
+        <div class="premium-dropdown__push-bar" data-controller="push-notification">
+          <div class="push-bar__info">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+            <span class="push-bar__status" data-push-notification-target="status">Push notifications</span>
+          </div>
+          <div class="push-bar__actions">
+            <button type="button" class="push-bar__test-btn" data-push-notification-target="testBtn" data-action="click->push-notification#test" style="display: none;" title="Send test push notification">
+              Test Push
+            </button>
+            <label class="push-toggle-switch" title="Toggle Web Push Notifications">
+              <input type="checkbox" data-push-notification-target="toggle" data-action="change->push-notification#toggle">
+              <span class="push-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
         <div class="premium-dropdown__content" id="notificationsList">
           <div class="premium-dropdown__loading">
             <div class="premium-spinner"></div>

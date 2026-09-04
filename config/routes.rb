@@ -166,6 +166,15 @@ Rails.application.routes.draw do
     end
   end
 
+  # Web Push Notifications
+  resources :push_subscriptions, only: [ :create ] do
+    collection do
+      delete :destroy
+      post   :test
+      get    :status
+    end
+  end
+
   # Action Cable mount
   mount ActionCable.server => "/cable"
 

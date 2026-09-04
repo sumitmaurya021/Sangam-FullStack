@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_06_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_04_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -563,6 +563,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_06_130000) do
     t.index ["user_id"], name: "index_profile_highlights_on_user_id"
   end
 
+  create_table "push_subscriptions", force: :cascade do |t|
+    t.string "auth_key", null: false
+    t.datetime "created_at", null: false
+    t.text "endpoint", null: false
+    t.string "p256dh_key", null: false
+    t.datetime "updated_at", null: false
+    t.string "user_agent"
+    t.bigint "user_id", null: false
+    t.index ["endpoint"], name: "index_push_subscriptions_on_endpoint"
+    t.index ["user_id", "endpoint"], name: "index_push_subscriptions_on_user_id_and_endpoint", unique: true
+    t.index ["user_id"], name: "index_push_subscriptions_on_user_id"
+  end
+
   create_table "reel_comments", force: :cascade do |t|
     t.text "content", null: false
     t.datetime "created_at", null: false
@@ -1000,6 +1013,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_06_130000) do
   add_foreign_key "posts", "groups"
   add_foreign_key "posts", "users"
   add_foreign_key "profile_highlights", "users"
+  add_foreign_key "push_subscriptions", "users"
   add_foreign_key "reel_comments", "reel_comments", column: "parent_id"
   add_foreign_key "reel_comments", "reels"
   add_foreign_key "reel_comments", "users"

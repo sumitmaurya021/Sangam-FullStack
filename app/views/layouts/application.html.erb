@@ -16,6 +16,7 @@
     <meta name="turn-server-credential" content="<%= ENV['TURN_SERVER_CREDENTIAL'].to_s %>">
     <% if user_signed_in? %>
       <meta name="current-user-id" content="<%= current_user.id %>">
+      <meta name="vapid-public-key" content="<%= Rails.application.config.vapid_public_key %>">
     <% end %>
 
     <%= yield :head %>
