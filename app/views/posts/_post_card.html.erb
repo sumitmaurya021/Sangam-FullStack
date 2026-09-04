@@ -17,11 +17,7 @@
     <div class="post-author">
       <%= link_to profile_path(post.user), class: 'author-link' do %>
         <div class="author-avatar">
-          <% if post.user.avatar.attached? %>
-            <%= image_tag post.user.avatar, alt: "#{post.user.name} avatar" %>
-          <% else %>
-            <%= post.user.name&.first&.upcase || 'U' %>
-          <% end %>
+          <%= user_avatar_tag(post.user, size: :thumb, alt: "#{post.user.name} avatar", loading: "lazy") %>
         </div>
         <div class="author-info">
           <div class="author-name"><%= post.user.name || post.user.email %></div>
@@ -35,7 +31,7 @@
               <span class="post-visibility-badge" title="Only me">🔒</span>
             <% end %>
             <% if post.scheduled? %>
-              <span class="post-visibility-badge" title="Scheduled">🕐 Scheduled</span>
+              z<span class="post-visibility-badge" title="Scheduled">🕐 Scheduled</span>
             <% end %>
             <% if post.edited? %>
               <span class="post-edited-badge"> · Edited</span>

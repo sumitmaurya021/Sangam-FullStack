@@ -7,8 +7,13 @@ class User < ApplicationRecord
          :omniauthable, omniauth_providers: %i[google_oauth2 github]
 
   # Active Storage Attachments
-  has_one_attached :avatar
-  has_one_attached :cover_photo
+  has_one_attached :avatar do |attachable|
+    attachable.variant :thumb, resize_to_fill: [80, 80]
+    attachable.variant :medium, resize_to_fill: [240, 240]
+  end
+  has_one_attached :cover_photo do |attachable|
+    attachable.variant :header, resize_to_limit: [1200, 400]
+  end
 
   # Associations
   has_many :articles, dependent: :destroy

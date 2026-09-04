@@ -58,6 +58,9 @@ group :development, :test do
 
   # RSpec for testing
   gem "rspec-rails", "~> 7.1"
+
+  # Detect N+1 queries and unused eager loading
+  gem "bullet"
   
   # FactoryBot for test data
   gem "factory_bot_rails", "~> 6.4"
