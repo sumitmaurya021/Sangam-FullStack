@@ -46,14 +46,14 @@
                     <div class="search-person-info">
                       <div class="search-person-name"><%= user.name %></div>
                       <div class="search-person-meta">
-                        <%= (current_user.all_friends & user.all_friends).count %> mutual friends
+                        <%= current_user.mutual_friends_count(user) %> mutual friends
                       </div>
                     </div>
                   <% end %>
                   <div class="search-person-action">
                     <% if current_user.friends_with?(user) %>
                       <span class="badge-friends">Friends</span>
-                    <% elsif current_user.sent_friend_requests.exists?(friend_id: user.id) %>
+                    <% elsif current_user.friend_request_pending?(user) %>
                       <button class="btn-pending-sm" disabled>Pending</button>
                     <% else %>
                       <%= button_to 'Add Friend', friendships_path(friend_id: user.id),

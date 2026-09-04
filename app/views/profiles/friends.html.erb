@@ -17,7 +17,7 @@
               </div>
               <div class="friend-card-info">
                 <h3 class="friend-card-name"><%= friend.name || friend.email %></h3>
-                <p class="friend-card-meta"><%= pluralize(friend.all_friends.count, 'friend') %></p>
+                <p class="friend-card-meta"><%= pluralize(friend.all_friends_count, 'friend') %></p>
                 <% if friend.bio.present? %>
                   <p class="friend-card-bio"><%= truncate(friend.bio, length: 60) %></p>
                 <% end %>

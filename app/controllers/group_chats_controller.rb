@@ -7,7 +7,6 @@ class GroupChatsController < ApplicationController
   # GET /group_chats
   def index
     @group_chats = current_user.group_chats
-                               .includes(:owner, :group_chat_members)
                                .recent_activity
     @direct_conversations = current_user.conversations
                                         .includes(:sender, :recipient)

@@ -44,10 +44,11 @@ class PremiumHeader {
     if (notifBtn && notifDropdown) {
       notifBtn.addEventListener('click', (e) => {
         e.stopPropagation();
+        const willOpen = !notifDropdown.classList.contains('is-active');
         this.toggleDropdown(notifBtn, notifDropdown);
         
         // Load notifications if opening
-        if (!notifDropdown.classList.contains('is-active')) {
+        if (willOpen) {
           this.loadNotifications();
         }
       });
@@ -787,54 +788,89 @@ class PremiumHeader {
       </div>
     `;
     
-    // Fetch notifications (adjust URL to your actual endpoint)
-    fetch('/notifications.json', {
+    // Fetch notifications from dropdown endpoint
+    fetch('/notifications/dropdown', {
       headers: {
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest'
       }
     })
     .then(res => res.json())
-    .then(notifications => {
-      this.renderNotifications(notifications, container);
+    .then(data => {
+      const list = Array.isArray(data) ? data : (data.notifications || []);
+      this.renderNotifications(list, container);
+      if (data.unread_count !== undefined) {
+        this.updateBadge(data.unread_count);
+      }
     })
     .catch(err => {
       console.error('Notifications error:', err);
       container.innerHTML = `
         <div class="premium-dropdown__loading">
-          <p>Failed to load notifications</p>
+          <p style="color: var(--text-tertiary, #718096); font-size: 13px;">Failed to load notifications</p>
         </div>
       `;
     });
   }
 
   renderNotifications(notifications, container) {
-    if (notifications.length === 0) {
+    if (!notifications || notifications.length === 0) {
       container.innerHTML = `
-        <div style="padding: 32px 20px; text-align: center; color: var(--text-tertiary);">
-          <div style="font-size: 48px; margin-bottom: 12px; opacity: 0.6;">🔔</div>
-          <p style="font-size: 14px; font-weight: 500;">No notifications yet</p>
+        <div style="padding: 32px 20px; text-align: center; color: var(--text-tertiary, #a0aec0);">
+          <div style="font-size: 40px; margin-bottom: 8px; opacity: 0.6;">🔔</div>
+          <p style="font-size: 14px; font-weight: 500; margin: 0;">No notifications yet</p>
+          <span style="font-size: 12px; opacity: 0.7;">Activity will appear here</span>
         </div>
       `;
       return;
     }
     
-    container.innerHTML = notifications.map(notif => `
-      <div style="padding: 12px 16px; border-radius: 12px; transition: all 0.2s; ${notif.read ? '' : 'background: rgba(102, 126, 234, 0.05);'}">
-        <div style="font-size: 14px; color: var(--text-primary); margin-bottom: 4px;">${notif.message}</div>
-        <div style="font-size: 12px; color: var(--text-tertiary);">${notif.time}</div>
-      </div>
-    `).join('');
+    container.innerHTML = notifications.map(notif => {
+      const avatarHtml = notif.actor && notif.actor.avatar
+        ? `<img src="${notif.actor.avatar}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" alt="${notif.actor.name || ''}">`
+        : `<div style="width: 36px; height: 36px; border-radius: 50%; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px;">${(notif.actor && notif.actor.name ? notif.actor.name[0] : 'S').toUpperCase()}</div>`;
+
+      return `
+        <a href="${notif.target_url || '/posts'}" style="display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px; border-radius: 10px; text-decoration: none; color: inherit; transition: background 0.2s; ${notif.read ? '' : 'background: rgba(102, 126, 234, 0.08);'}" onmouseover="this.style.background='rgba(102,126,234,0.12)'" onmouseout="this.style.background='${notif.read ? 'transparent' : 'rgba(102, 126, 234, 0.08)'}'">
+          <div style="flex-shrink: 0; margin-top: 2px;">
+            ${avatarHtml}
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 13px; color: var(--text-primary, #2d3748); font-weight: ${notif.read ? '400' : '600'}; line-height: 1.4; margin-bottom: 3px; word-break: break-word;">${notif.message}</div>
+            <div style="font-size: 11px; color: var(--text-tertiary, #a0aec0);">${notif.time_ago || 'Just now'} ago</div>
+          </div>
+          ${notif.read ? '' : '<span style="width: 8px; height: 8px; border-radius: 50%; background: #667eea; margin-top: 6px; flex-shrink: 0;"></span>'}
+        </a>
+      `;
+    }).join('');
   }
 
   markAllNotificationsRead() {
-    // Implement your mark all read logic here
-    console.log('Mark all notifications as read');
-    
-    // Update badge
+    fetch('/notifications/mark_all_read', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content || ''
+      }
+    })
+    .then(r => r.json())
+    .then(() => {
+      this.updateBadge(0);
+      this.loadNotifications();
+    })
+    .catch(e => console.error('Failed to mark all read:', e));
+  }
+
+  updateBadge(count) {
     const badge = document.getElementById('notifBadge');
     if (badge) {
-      badge.style.display = 'none';
+      if (count > 0) {
+        badge.textContent = count > 99 ? '99+' : count;
+        badge.style.display = '';
+      } else {
+        badge.style.display = 'none';
+      }
     }
   }
 

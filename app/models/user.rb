@@ -116,8 +116,30 @@ class User < ApplicationRecord
   end
   alias_method :username, :display_name
 
+  # Fast ID lookup for accepted friends without loading User model instances into memory
+  def all_friend_ids
+    @all_friend_ids ||= begin
+      ids1 = Friendship.where(user_id: id, status: 'accepted').pluck(:friend_id)
+      ids2 = Friendship.where(friend_id: id, status: 'accepted').pluck(:user_id)
+      (ids1 + ids2).uniq
+    end
+  end
+
+  def all_friends_count
+    if friends.loaded? && inverse_friends.loaded?
+      (friends + inverse_friends).uniq.size
+    else
+      all_friend_ids.size
+    end
+  end
+
+  # Returns ActiveRecord relation when not preloaded, or combined array if already preloaded
   def all_friends
-    friends + inverse_friends
+    if friends.loaded? && inverse_friends.loaded?
+      (friends + inverse_friends).uniq
+    else
+      User.where(id: all_friend_ids)
+    end
   end
 
   def unread_notifications_count_cached
@@ -129,12 +151,23 @@ class User < ApplicationRecord
   end
 
   def friends_with?(user)
-    all_friends.include?(user)
+    return false unless user
+    target_id = user.is_a?(User) ? user.id : user.to_i
+    all_friend_ids.include?(target_id)
+  end
+
+  def pending_request_user_ids
+    @pending_request_user_ids ||= begin
+      sent = Friendship.where(user_id: id, status: 'pending').pluck(:friend_id)
+      received = Friendship.where(friend_id: id, status: 'pending').pluck(:user_id)
+      (sent + received).to_set
+    end
   end
 
   def friend_request_pending?(user)
-    sent_friend_requests.exists?(friend_id: user.id) || 
-    pending_friend_requests.exists?(user_id: user.id)
+    return false unless user
+    target_id = user.is_a?(User) ? user.id : user.to_i
+    pending_request_user_ids.include?(target_id)
   end
 
   def follow!(other_user)
@@ -202,8 +235,16 @@ class User < ApplicationRecord
     birthday.present? && birthday.month == Date.today.month && birthday.day == Date.today.day
   end
 
-  def mutual_friends_with(user)
-    all_friends & user.all_friends
+  def mutual_friends_with(other_user)
+    return [] unless other_user
+    mutual_ids = all_friend_ids & other_user.all_friend_ids
+    return [] if mutual_ids.empty?
+    User.where(id: mutual_ids)
+  end
+
+  def mutual_friends_count(other_user)
+    return 0 unless other_user
+    (all_friend_ids & other_user.all_friend_ids).size
   end
 
   # ─── 2FA helpers ──────────────────────────────────────────────────────────

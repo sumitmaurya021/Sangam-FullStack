@@ -6,7 +6,7 @@ class ProfilesController < ApplicationController
                              .includes(:likes, :comments, :shares, :post_collaborators => :user)
                              .order(created_at: :desc)
                              .page(params[:page]).per(8)
-    @friends_count   = @user.all_friends.count
+    @friends_count   = @user.all_friends_count
     @posts_count     = @user.posts.published.count
     @followers_count = @user.followers_count
     @following_count = @user.following_count

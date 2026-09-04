@@ -15,7 +15,7 @@ class AiRecommendationService
     user_centroid = compute_user_centroid
 
     # 2. Friend author IDs
-    friend_ids = @user.all_friends.pluck(:id).to_set
+    friend_ids = (@user.respond_to?(:all_friend_ids) ? @user.all_friend_ids : @user.all_friends.pluck(:id)).to_set
 
     # 3. Score each post
     scored_posts = candidate_posts.map do |post|

@@ -38,7 +38,7 @@ class FeedRankingService
 
     # 2. Scoring
     user_affinities = fetch_user_affinities
-    friend_ids = @friend_ids ||= (@user.respond_to?(:all_friends) ? @user.all_friends.pluck(:id) : @user.friends.pluck(:id)).to_set
+    friend_ids = @friend_ids ||= (@user.respond_to?(:all_friend_ids) ? @user.all_friend_ids : (@user.respond_to?(:all_friends) ? @user.all_friends.pluck(:id) : @user.friends.pluck(:id))).to_set
     close_friend_ids = @close_friend_ids ||= @user.close_friend_records.pluck(:close_friend_id).to_set
     user_centroid = @user_centroid ||= AiRecommendationService.new(@user).send(:compute_user_centroid)
 

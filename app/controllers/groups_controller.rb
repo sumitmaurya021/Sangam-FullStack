@@ -3,7 +3,7 @@ class GroupsController < ApplicationController
   before_action :authorize_admin!, only: [:edit, :update, :destroy, :approve_member, :remove_member]
 
   def index
-    @my_groups       = current_user.groups.includes(:owner).order(:name)
+    @my_groups       = current_user.groups.order(:name)
     @suggested_groups = Group.public_groups
                              .where.not(id: current_user.group_memberships.select(:group_id))
                              .order(members_count: :desc)

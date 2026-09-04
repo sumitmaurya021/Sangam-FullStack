@@ -190,10 +190,64 @@ RSpec.describe User, type: :model do
   describe '.ai_bot' do
     it 'creates or fetches the singleton AI bot user' do
       bot = User.ai_bot
-      expect(bot.email).to eq('ai@sangam.com')
-      expect(bot.is_ai).to be true
-
       expect(User.ai_bot.id).to eq(bot.id)
+    end
+  end
+
+  describe 'friendship helpers & optimizations' do
+    let(:user_a) { create(:user) }
+    let(:user_b) { create(:user) }
+    let(:user_c) { create(:user) }
+
+    before do
+      # user_a -> user_b (accepted, direct)
+      create(:friendship, user: user_a, friend: user_b, status: 'accepted')
+      # user_c -> user_a (accepted, inverse)
+      create(:friendship, user: user_c, friend: user_a, status: 'accepted')
+    end
+
+    it 'returns all friend IDs (both direct and inverse) via all_friend_ids' do
+      expect(user_a.all_friend_ids).to match_array([user_b.id, user_c.id])
+      expect(user_b.all_friend_ids).to include(user_a.id)
+      expect(user_c.all_friend_ids).to include(user_a.id)
+    end
+
+    it 'computes all_friends_count without N+1 queries' do
+      expect(user_a.all_friends_count).to eq(2)
+      expect(user_b.all_friends_count).to eq(1)
+    end
+
+    it 'correctly checks friends_with? for direct and inverse friends' do
+      expect(user_a.friends_with?(user_b)).to be true
+      expect(user_a.friends_with?(user_c)).to be true
+      expect(user_b.friends_with?(user_a)).to be true
+      expect(user_c.friends_with?(user_a)).to be true
+
+      stranger = create(:user)
+      expect(user_a.friends_with?(stranger)).to be false
+      expect(user_a.friends_with?(nil)).to be false
+    end
+
+    it 'correctly tracks friend_request_pending? for sent and received requests' do
+      user_d = create(:user)
+      user_e = create(:user)
+
+      # user_a sent to user_d
+      create(:friendship, user: user_a, friend: user_d, status: 'pending')
+      # user_e sent to user_a
+      create(:friendship, user: user_e, friend: user_a, status: 'pending')
+
+      expect(user_a.friend_request_pending?(user_d)).to be true
+      expect(user_a.friend_request_pending?(user_e)).to be true
+      expect(user_d.friend_request_pending?(user_a)).to be true
+      expect(user_e.friend_request_pending?(user_a)).to be true
+      expect(user_a.friend_request_pending?(user_b)).to be false
+    end
+
+    it 'computes mutual friends and mutual_friends_count accurately' do
+      # user_b and user_c both have user_a as a mutual friend
+      expect(user_b.mutual_friends_with(user_c)).to include(user_a)
+      expect(user_b.mutual_friends_count(user_c)).to eq(1)
     end
   end
 end

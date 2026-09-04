@@ -3,7 +3,7 @@ class StoriesController < ApplicationController
   before_action :authorize_story!, only: [:destroy]
 
   def index
-    friend_ids = current_user.all_friends.pluck(:id) + [current_user.id]
+    friend_ids = (current_user.respond_to?(:all_friend_ids) ? current_user.all_friend_ids : current_user.all_friends.pluck(:id)) + [current_user.id]
     @stories_by_user = Story.active
                             .where(user_id: friend_ids)
                             .includes(:user)

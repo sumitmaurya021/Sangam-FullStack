@@ -36,7 +36,7 @@
     </div>
 
     <div class="messenger-conversations-list">
-      <% current_user.group_chats.includes(:owner).recent_activity.each do |gc| %>
+      <% current_user.group_chats.recent_activity.each do |gc| %>
         <% last = gc.last_message %>
         <%= link_to group_chat_path(gc),
               class: "messenger-conversation-item #{'active' if gc.id == @group_chat.id}",

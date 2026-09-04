@@ -90,5 +90,11 @@ Rails.application.configure do
     Bullet.rails_logger  = true
     Bullet.console       = true
     Bullet.add_footer    = true
+
+    # Safelist User friends / inverse_friends on current_user (loaded by Devise without eager-loading)
+    Bullet.add_safelist type: :n_plus_one_query, class_name: "User", association: :friends
+    Bullet.add_safelist type: :n_plus_one_query, class_name: "User", association: :inverse_friends
+    Bullet.add_safelist type: :unused_eager_loading, class_name: "User", association: :friends
+    Bullet.add_safelist type: :unused_eager_loading, class_name: "User", association: :inverse_friends
   end
 end

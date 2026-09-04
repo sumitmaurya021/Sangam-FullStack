@@ -61,7 +61,7 @@ class AiSearchService
           name: u.name,
           avatar: u.avatar.attached? ? Rails.application.routes.url_helpers.url_for(u.avatar) : nil,
           profile_url: profile_path(u),
-          mutual_friends_count: (@current_user.all_friends & u.all_friends).count
+          mutual_friends_count: @current_user.mutual_friends_count(u)
         }
       },
       posts: posts_with_scores.map { |p, score|
